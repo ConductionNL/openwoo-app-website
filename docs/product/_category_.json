@@ -1,0 +1,8 @@
+{
+    "label": "Product",
+    "position": 1,
+    "link": {
+        "type": "generated-index",
+        "description": "Alles over het OpenWoo.app product, van kosten tot roadmap."
+    }
+}

@@ -1,0 +1,604 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroBanner .row {
+  align-items: center;
+}
+
+.heroTitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-optical-sizing: auto;
+  font-style: normal;
+  margin-bottom: 0;
+}
+
+.heroSubtitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-optical-sizing: auto;
+  font-style: italic;
+  margin-bottom: 0;
+}
+
+.heroDescription {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  font-style: normal;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.sectionTitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-optical-sizing: auto;
+  font-style: normal;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.sectionSubtitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.subSectionTitle {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+.heroImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+  
+  .heroImage {
+    margin-top: 2rem;
+  }
+}
+
+.aboutSection {
+  padding: 24px;
+  background-color: var(--ifm-color-background-main);
+}
+
+.vendorsContainer {
+  border: 1px solid #ddd;
+  padding: 2rem;
+  margin-top: 2rem;
+  background: white;
+}
+
+.vendorGrid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.vendorLink {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.vendorName {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #454545;
+  text-align: left;
+}
+
+.vendorLink:hover {
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+.vendorLogo {
+  width: 100px;
+  height: 75px;
+  object-fit: contain;
+}
+
+.featureTitle {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 700;
+  color: #555 !important;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.featureItem {
+  flex: 0 0 calc(33.333% - 2rem);
+  min-width: 200px;
+}
+
+.webinarLink {
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.webinarLink:hover {
+  color: black;
+  text-decoration: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .vendorGrid {
+    gap: 2rem;
+  }
+  
+  .vendorLogo {
+    width: 90px;
+    height: 65px;
+  }
+}
+
+@media screen and (max-width: 996px) {
+  .vendorGrid {
+    flex-wrap: wrap;
+    gap: 2rem 1.5rem;
+    justify-content: flex-start;
+  }
+  
+  .vendorLink {
+    flex: 0 0 calc(33.333% - 1rem);
+    min-width: 120px;
+  }
+  
+  .vendorLogo {
+    width: 80px;
+    height: 60px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .vendorsContainer {
+    padding: 1.5rem;
+  }
+  
+  .vendorGrid {
+    gap: 1.5rem 1rem;
+  }
+  
+  .vendorLink {
+    flex: 0 0 calc(50% - 0.5rem);
+    min-width: 100px;
+  }
+  
+  .vendorLogo {
+    width: 70px;
+    height: 55px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .vendorsContainer {
+    padding: 1rem;
+  }
+  
+  .vendorGrid {
+    gap: 1.5rem;
+  }
+  
+  .vendorLink {
+    flex: 0 0 calc(50% - 0.75rem);
+  }
+  
+  .vendorName {
+    font-size: 0.8rem;
+  }
+  
+  .vendorLogo {
+    width: 60px;
+    height: 50px;
+  }
+}
+
+.features {
+  padding: 4rem 0 2rem 0;
+  background: var(--ifm-background-surface-color);
+}
+
+.features h2 {
+  text-align: left;
+  margin-bottom: 3rem;
+}
+
+.feature {
+  padding: 2rem 1rem;
+  height: 100%;
+}
+
+.feature h3 {
+  color: var(--ifm-color-primary);
+  margin-bottom: 1rem;
+}
+
+.feature p {
+  line-height: 1.6;
+}
+
+.imageSection {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.imageSectionText {
+  line-height: 1.5;
+  text-align: left;
+  margin-left: 60px;
+}
+
+.fullWidthImage {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.solutionSection h2 {
+  margin-bottom: 1.5rem;
+}
+
+.solutionSection ul {
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.solutionSection ul li {
+  margin-bottom: 1rem;
+}
+
+.examplesSection {
+  padding-top: 1rem;
+  background: var(--ifm-background-surface-color);
+}
+
+.examplesSection h2 {
+  margin-bottom: 1.5rem;
+}
+
+.examplesSection td a {
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.examplesSection td a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.examplesSection p {
+  font-size: 1rem;
+}
+
+.examplesSection .table-wrapper {
+  overflow-x: auto;
+}
+
+.examplesSection table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+.examplesSection table th,
+.examplesSection table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.examplesSection table th {
+  background: var(--ifm-color-emphasis-100);
+  font-weight: 600;
+}
+
+.examplesSection table tbody tr:hover {
+  background: var(--ifm-color-emphasis-50);
+}
+
+.futureSection {
+  padding-top: 1rem;
+}
+
+.futureSection h2 {
+  margin-bottom: 1.5rem;
+}
+
+.futureSection p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.futureSection ul {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.futureSection ul li {
+  margin-bottom: 1.5rem;
+}
+
+/* Markdown content styles */
+.markdownSection {
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+}
+
+.markdownSection :global(.markdown-content) {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.markdownSection :global(.markdown-content) h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.markdownSection :global(.markdown-content) h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdownSection :global(.markdown-content) h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdownSection :global(.markdown-content) p {
+  margin-bottom: 1rem;
+}
+
+.markdownSection :global(.markdown-content) ul,
+.markdownSection :global(.markdown-content) ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.markdownSection :global(.markdown-content) li {
+  margin-bottom: 0.5rem;
+}
+
+.markdownSection :global(.markdown-content) > ul:not(blockquote ul) {
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.markdownSection :global(.markdown-content) > ul:not(blockquote ul) > li {
+  margin-bottom: 1rem;
+}
+
+.markdownSection :global(.markdown-content) > ul:not(blockquote ul) > li strong {
+  color: #555;
+  font-weight: 700;
+}
+
+.markdownSection :global(.markdown-content) a {
+  color: var(--ifm-color-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.markdownSection :global(.markdown-content) a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.markdownSection :global(.markdown-content) blockquote {
+  padding: 24px;
+  background-color: var(--ifm-color-background-main);
+  border-left: none;
+  margin: 1.5rem 0;
+}
+
+.markdownSection :global(.markdown-content) blockquote p strong {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.markdownSection :global(.markdown-content) blockquote ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.markdownSection :global(.markdown-content) blockquote ul li {
+  margin-bottom: 0.5rem;
+}
+
+.markdownSection :global(.markdown-content) blockquote a {
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.markdownSection :global(.markdown-content) blockquote a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.markdownSection :global(.markdown-content) img {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}
+
+.markdownSection :global(.markdown-content) table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0 1.5rem 0;
+}
+
+.markdownSection :global(.markdown-content) table th,
+.markdownSection :global(.markdown-content) table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.markdownSection :global(.markdown-content) table th {
+  background: var(--ifm-color-emphasis-100);
+  font-weight: 600;
+}
+
+.markdownSection :global(.markdown-content) table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.markdownSection :global(.markdown-content) table tbody tr:hover {
+  background: var(--ifm-color-emphasis-50);
+}
+
+.markdownSection :global(.markdown-content) table td a {
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.markdownSection :global(.markdown-content) table td a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.markdownSection :global(.markdown-content) code {
+  background-color: var(--ifm-color-emphasis-100);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.markdownSection :global(.markdown-content) pre {
+  background-color: var(--ifm-color-emphasis-100);
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdownSection :global(.markdown-content) pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type {
+  border: 1px solid #ddd;
+  background: white;
+  margin: 2rem 0;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type th,
+.markdownSection :global(.markdown-content) table:first-of-type td {
+  text-align: center;
+  vertical-align: bottom;
+  padding: 1rem 0.5rem;
+  border: none;
+  border-bottom: none;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type th {
+  background: white;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #454545;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type img {
+  height: 30px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  margin: 0;
+  transition: transform 0.3s ease;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type a {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--ifm-color-secondary);
+  transition: transform 0.3s ease;
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type a:hover {
+  transform: scale(1.05);
+  color: var(--ifm-color-secondary);
+}
+
+.markdownSection :global(.markdown-content) table:first-of-type tbody tr:hover {
+  background: transparent;
+}
+
+@media screen and (max-width: 996px) {
+  .markdownSection :global(.markdown-content) table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .markdownSection :global(.markdown-content) table:first-of-type img {
+    height: 25px;
+    max-width: 80px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .markdownSection :global(.markdown-content) table:first-of-type th,
+  .markdownSection :global(.markdown-content) table:first-of-type td {
+    padding: 0.75rem 0.25rem;
+  }
+  
+  .markdownSection :global(.markdown-content) table:first-of-type img {
+    height: 20px;
+    max-width: 70px;
+  }
+}
