@@ -274,8 +274,8 @@
 }
 
 .solutionSection ul {
-  font-size: 1.05rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 .solutionSection ul li {
@@ -343,15 +343,15 @@
 
 .futureSection p {
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-bottom: 1.5rem;
 }
 
 .futureSection ul {
   max-width: 900px;
   margin: 0 auto;
-  font-size: 1.05rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 .futureSection ul li {
@@ -366,7 +366,7 @@
 
 .markdownSection :global(.markdown-content) {
   font-size: 1rem;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
 .markdownSection :global(.markdown-content) h1 {
@@ -405,7 +405,7 @@
 }
 
 .markdownSection :global(.markdown-content) > ul:not(blockquote ul) {
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.6;
 }
 
