@@ -332,3 +332,12 @@ p a:hover {
   color: black;
   text-decoration: none;
 }
+
+/* Hide table of contents on docs pages */
+.theme-doc-toc-desktop {
+  display: none !important;
+}
+
+.theme-doc-toc-mobile {
+  display: none !important;
+}

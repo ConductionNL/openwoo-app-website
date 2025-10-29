@@ -71,6 +71,9 @@ const config: Config = {
           editUrl:
             'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
+        theme: {
+          customCss: './src/css/custom.css',
+        },
         blog: {
           showReadingTime: true,
           feedOptions: {
@@ -86,9 +89,6 @@ const config: Config = {
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
         },
-        theme: {
-          customCss: './src/css/custom.css',
-        },
       } satisfies Preset.Options,
     ],
   ],
@@ -98,7 +98,7 @@ const config: Config = {
     image: 'img/docusaurus-social-card.jpg',
     colorMode: {
       defaultMode: 'light',
-      disableSwitch: false,
+      disableSwitch: true,
       respectPrefersColorScheme: false,
     },
     navbar: {
@@ -111,79 +111,19 @@ const config: Config = {
       },
       items: [
         {
-          type: 'dropdown',
           label: 'Product',
+          to: '/docs/category/product/',
           position: 'left',
-          items: [
-            {
-              label: 'Kosten',
-              to: '/docs/product/kosten',
-            },
-            {
-              label: 'SLA',
-              to: '/docs/product/sla',
-            },
-            {
-              label: 'Privacy',
-              to: '/docs/product/privacy',
-            },
-            {
-              label: 'Beveiliging',
-              to: '/docs/product/beveiliging',
-            },
-            {
-              label: 'Toegankelijkheid',
-              to: '/docs/product/toegankelijkheid',
-            },
-            {
-              label: 'Roadmap',
-              to: '/docs/product/roadmap',
-            },
-            {
-              label: 'Community',
-              to: '/docs/product/community',
-            },
-            {
-              label: 'Veelgestelde vragen',
-              to: '/docs/product/faq',
-            },
-          ],
         },
         {
-          type: 'dropdown',
           label: 'Techniek',
+          to: '/docs/category/techniek/',
           position: 'left',
-          items: [
-            {
-              label: 'Naar Productie',
-              to: '/docs/techniek/productie',
-            },
-            {
-              label: 'Architectuur',
-              to: '/docs/techniek/architectuur',
-            },
-            {
-              label: 'Installatie',
-              to: '/docs/techniek/installatie',
-            },
-            {
-              label: 'Integratie',
-              to: '/docs/techniek/integratie',
-            },
-            {
-              label: 'Configuratie',
-              to: '/docs/techniek/configuratie',
-            },
-            {
-              label: 'Testscenario\'s',
-              to: '/docs/techniek/testscenarios',
-            },
-          ],
         },
         {
           label: 'Over Open Webconcept',
           href: 'https://openwebconcept.nl/',
-          position: 'left',
+          position: 'right',
         },
         {
           type: 'html',

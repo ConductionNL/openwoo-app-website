@@ -59,7 +59,7 @@ Deze uitdagingen kunnen niet effectief worden aangepakt met een enkel Content Ma
 
 ![epe.png](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/epe.png "Woo Website van de Gemeente Epe")
 
-Wil je meer weten over de functionaliteiten van de Open Woo-app? Kijk dan op de [architectuurpagina](/docs/product/Features.md).
+Wil je meer weten over de functionaliteiten van de Open Woo-app? Kijk dan op de [architectuurpagina](/docs/techniek/architectuur).
 
 ## Oplossing van OpenWoo.app
 
@@ -79,7 +79,7 @@ De OpenWoo.app architectuur is bewust ontworpen om gemeenten de keuze te geven i
 - Wil je automatisch publiceren uit je huidige zaaksysteem? dat kan!
 - Liever publiceren uit je huidige website of RegieTool? dat kan ook!
 
-Wil je meer weten over de architectuur van de OpenWoo.app en uit welke componenten het bestaat? Kijk dan op de [architectuurpagina](/docs/techniek/Architectuur.md).
+Wil je meer weten over de architectuur van de OpenWoo.app en uit welke componenten het bestaat? Kijk dan op de [architectuurpagina](/docs/techniek/architectuur).
 
 ## Praktijkvoorbeelden
 
@@ -87,7 +87,7 @@ Op dit moment wordt de OpenWoo.app al door een aantal organisaties gebruikt
 
 | Organisatie | Type | Woo Pagina | Woo Bron | Status |
 |-------------|------|------------|--------------|--------|
-| [Noordwijk](https://www.noordwijk.nl/) | Gemeente |  [Pagina](open.noordwijk.nl) | Zaaksysteem.nl  | Productie |
+| [Noordwijk](https://www.noordwijk.nl/) | Gemeente |  [Pagina](https://open.noordwijk.nl) | Zaaksysteem.nl  | Productie |
 | [Epe](https://www.epe.nl/) | Gemeente |[Pagina](https://open.epe.nl/) | Zaaksysteem.nl | Productie  |
 | [Roosendaal](https://www.roosendaal.nl/) | Gemeente |[Pagina](https://open.roosendaal.nl/) | Zaaksysteem.nl | Productie  |
 | [Zutphen](https://www.zutphen.nl/) | Gemeente |[Pagina](https://open.zutphen.nl/) | Zaaksysteem.nl | Productie  |
@@ -104,4 +104,4 @@ Op dit moment wordt de OpenWoo.app al door een aantal organisaties gebruikt
 
 ## Toekomstplannen
 
-Er komen steeds meer toepassingen voor het publiceren van overheidsinformatie. Denk bijvoorbeeld aan het publiceren van datasets, algoritmes en besluiten. Deze toepassingen zullen in de toekomst ook onderdeel worden van de Wet Open Overheid. Daarom is het belangrijk dat de OpenWoo.App flexibel is en kan worden aangepast aan de veranderende behoeften van de overheid. Kijk voor meer informatie over onze ontwikkelplannen op de [roadmap](/docs/product/Roadmap.md)
+Er komen steeds meer toepassingen voor het publiceren van overheidsinformatie. Denk bijvoorbeeld aan het publiceren van datasets, algoritmes en besluiten. Deze toepassingen zullen in de toekomst ook onderdeel worden van de Wet Open Overheid. Daarom is het belangrijk dat de OpenWoo.App flexibel is en kan worden aangepast aan de veranderende behoeften van de overheid. Kijk voor meer informatie over onze ontwikkelplannen op de [roadmap](/docs/product/roadmap)

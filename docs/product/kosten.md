@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Kosten
 
-OpenWoo.app bestaat in essentie uit een drietal onderdelen die samen oplossing vormen, zie ook [architectuur](/docs/techniek/Architectuur.md). Voor de totaaloplossing heeft u dan ook drie onderdelen nodig.
+OpenWoo.app bestaat in essentie uit een drietal onderdelen die samen oplossing vormen, zie ook [architectuur](/docs/techniek/architectuur). Voor de totaaloplossing heeft u dan ook drie onderdelen nodig.
 
 1. Één of meerdere publicatieplatform(s)
 2. Een motorblok
@@ -16,8 +16,8 @@ Als organisatie dient u te beschikken over minimaal één publicatieplatform
 
 | Component                     | Leverancier(s)                                             | Eenmalig | Maandelijks | Meer informatie |
 |-------------------------------|------------------------------------------------------------|-------------|-------------|-------------|
-| [Losse React pagina](https:cunduction.openwoo.app)            | [Conduction](https://conduction.nl/)                       | € 1750,- | € 250.-     |                 |
-| [Integratie in Open Webconcept](https://alkmaar.accept02.yard.nl/) | [Yard](https://www.yard.nl/) of [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
+| [Losse React pagina](https://conduction.openwoo.app)            | [Conduction](https://conduction.nl/)                       | € 1750,- | € 250.-     |                 |
+| Integratie in Open Webconcept | [Yard](https://www.yard.nl/) of [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
 | SIMsite                      | [Shift2](https://www.shift2.nl/))                       | Onbekend | Onbekend     |                 |
 | Drupal Site                   | "??"                                                       | Onbekend | Onbekend     |                 |
 | TYPO3 themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             | € 4000.- | € 250.-     |                 |
@@ -30,12 +30,12 @@ Als organisatie dient u te beschikken over minimaal één publicatieplatform
 
 ## Motorblok
 
-Het motorblok bestaat uit twee componenten [OpenIndex](https://index.openregisters.app/) en [OpenWoo-service](https://openwoo.openservices.online/). Voor het overzicht en kostenbeheersing worden deze componenten in het jaar 2024 als één integratie aangeboden.
+Het motorblok bestaat uit twee componenten [OpenRegister](https://openregisters.app/) en [OpenConnector](https://openconnector.app/). Voor het overzicht en kostenbeheersing worden deze componenten in het jaar 2024 als één integratie aangeboden.
 
 | Component | Leverancier                                                          | Eenmalig | Maandelijks | Meer informatie |
 |-----------|----------------------------------------------------------------------|----------|-------------|-------------|
-| OpenWoo-service | [Conduction](https://conduction.nl/) of [xxllnc](https://xxllnc.nl/) | € 3000,-  | € 250.-      |                 |
-| Open Index | [Conduction](https://conduction.nl/) of [xxllnc](https://xxllnc.nl/) |  | € 250.-      |                 |
+| OpenConnector | [Conduction](https://conduction.nl/) | € 3000,-  | € 250.-      |                 |
+| OpenRegister | [Conduction](https://conduction.nl/) |  | € 250.-      |                 |
 
 ## Bronnen
 
