@@ -5,6 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
+  organizationName: 'ConductionNL',
+  projectName: 'openwoo-app-website',
   title: 'OpenWOO.app',
   tagline: 'Een publicatie platform voor alle overheidsbronnen',
   favicon: 'img/favicon.ico',
@@ -21,10 +23,6 @@ const config: Config = {
   baseUrl: '/',
 
   // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'ConductionNL', // Usually your GitHub org/user name.
-  projectName: 'woo-website-template', // Usually your repo name.
-
   onBrokenLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
