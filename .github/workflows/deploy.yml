@@ -25,12 +25,16 @@ jobs:
           
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: npm
-          cache-dependency-path: website/package-lock.json
+          node-version: 20
           
       - name: Install dependencies
-        run: cd website && npm ci
+        run: |
+          cd website
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
         
       - name: Build website
         run: cd website && npm run build
