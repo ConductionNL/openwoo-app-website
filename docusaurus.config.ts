@@ -4,10 +4,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
-// Determine correct site url and baseUrl based on environment
-const isGhPages = process.env.GITHUB_ACTIONS === 'true' || process.env.DEPLOY_TO_PAGES === 'true';
-const siteUrl = isGhPages ? 'https://conductionnl.github.io' : 'https://openwoo.app';
-const siteBaseUrl = isGhPages ? '/openwoo-app-website/' : '/';
+const siteUrl = 'https://conductionnl.github.io';
+const siteBaseUrl = '/openwoo-app-website/';
 
 const config: Config = {
   organizationName: 'ConductionNL',
@@ -111,7 +109,7 @@ const config: Config = {
       logo: {
         alt: 'Open Webconcept Logo',
         src: 'https://github.com/ConductionNL/conduction-theme/assets/43807324/e15ee773-f23e-429a-858e-fb677e8dd64e',
-        href: '/',
+        href: siteBaseUrl,
         height: 64,
       },
       items: [
