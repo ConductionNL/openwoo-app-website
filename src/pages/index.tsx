@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 import ReactMarkdown from 'react-markdown';
@@ -11,6 +12,7 @@ import styles from './index.module.css';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
+  const heroImg = useBaseUrl('/img/heroImage.svg');
   return (
     <header className={styles.heroBanner}>
       <div className="container">
@@ -26,7 +28,7 @@ function HomepageHeader() {
           </div>
           <div className="col col--6">
             <img
-              src="/img/heroImage.svg"
+              src={heroImg}
               alt="OpenWOO.app illustratie"
               className={styles.heroImage}
             />

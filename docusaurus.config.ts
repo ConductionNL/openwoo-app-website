@@ -4,6 +4,11 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+// Determine correct site url and baseUrl based on environment
+const isGhPages = process.env.GITHUB_ACTIONS === 'true' || process.env.DEPLOY_TO_PAGES === 'true';
+const siteUrl = isGhPages ? 'https://conductionnl.github.io' : 'https://openwoo.app';
+const siteBaseUrl = isGhPages ? '/openwoo-app-website/' : '/';
+
 const config: Config = {
   organizationName: 'ConductionNL',
   projectName: 'openwoo-app-website',
@@ -17,13 +22,15 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://openwoo.app',
+  url: siteUrl,
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  // For GitHub pages deployment, it is '/<projectName>/'
+  baseUrl: siteBaseUrl,
 
   // GitHub pages deployment config.
   onBrokenLinks: 'warn',
+  // Ensure URLs end with a slash to avoid 404s on GH Pages and local serve
+  trailingSlash: true,
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
