@@ -6,7 +6,6 @@ sidebar_position: 5
 
 Om te zorgen dat de OpenWoo-website goed werkt, is het belangrijk dat de onderliggende (zaak)systemen op de juiste manier zijn geconfigureerd. Zo kan het zaaksysteem de informatie aanleveren die op de voorkant nodig is voor het opbouwen van de index. Daarbij is het belangrijk om te weten welke waarden waar worden gebruikt en wat het effect is van configuratiekeuzes.
 
-- [Configuratie](#configuratie)
   - [Gebruik variabelen](#gebruik-variabelen)
   - [Algemene inrichting zaaksysteem](#algemene-inrichting)
   - [Categorieën](#eigenschappen-naar-categorie)
@@ -16,7 +15,7 @@ Om te zorgen dat de OpenWoo-website goed werkt, is het belangrijk dat de onderli
 
 ## Gebruik variabelen
 
-Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige (een definitie van het Woo-publicatieobject vind je onder [Architectuur](/docs/techniek/Architectuur.md)).
+Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige (een definitie van het Woo-publicatieobject vind je onder [Architectuur](./architectuur)).
 
 **Zoekbalk**
 

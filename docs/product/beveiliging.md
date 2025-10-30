@@ -28,7 +28,7 @@ Containerscanners inspecteren onze Docker- en andere containerimages op kwetsbaa
 Cloudbeveiligingsscanners zorgen ervoor dat onze cloud-infrastructuur veilig is geconfigureerd, in overeenstemming met het principe van minimale rechten en andere best practices voor cloudbeveiliging.
 
 ## Gedurende productie
-Security is echter geen 'one time' ding dat je eenmalig opzet, het vraagt continu aandacht en zorg. [Conduction](/docs/Community/Bijdragen) neemt hier als beheerder van de code base verantwoordenlijkheid voor door het automatisch *dagenlijks* pentesten van zowel de productie als accepatie omgeving. Hierbij worden frontend en api los getest.
+Security is echter geen 'one time' ding dat je eenmalig opzet, het vraagt continu aandacht en zorg. [Conduction](./community) neemt hier als beheerder van de code base verantwoordenlijkheid voor door het automatisch *dagenlijks* pentesten van zowel de productie als accepatie omgeving. Hierbij worden frontend en api los getest.
 De resultaten van deze tests worden vervolgens gebruikt om onze ontwikkelings- en beveiligingsteams te informeren over mogelijke kwetsbaarheden. Dit proces stelt ons in staat om deze kwetsbaarheden aan te pakken voordat de software wordt ingezet naar productie.
 ## Zelf testen
 - Internet.nl

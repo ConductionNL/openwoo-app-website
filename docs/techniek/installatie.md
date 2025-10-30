@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Installatie
 
-Deze installatiehandleiding is bedoeld voor overheden en leveranciers die zelfstandig aan de slag willen met OpenWoo-website. Als je OpenWoo-website als SaaS wilt afnemen, kijk dan onder [kosten](../product/Kosten.md).
+Deze installatiehandleiding is bedoeld voor overheden en leveranciers die zelfstandig aan de slag willen met OpenWoo-website. Als je OpenWoo-website als SaaS wilt afnemen, kijk dan onder [kosten](../product/kosten).
 
 Het template voor de OpenWoo-website is gebaseerd op de Conduction [Productpage-template](https://github.com/ConductionNL/product-website-template) voor Common Ground. Hieronder tref je een verkorte installatiehandleiding aan die vooral focust op de onderliggende bronnen. Voor meer en uitgebreidere details kun je de documentatie van het Productpage-website-template gebruiken.
 
@@ -35,7 +35,7 @@ De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te word
 7. Ga naar acties en wacht tot de actie "Deploy the WOO Page to GitHub Pages" succesvol is afgerond
 8. Ga naar settings -> pages, selecteer onder source `deploy from branch` en geef als branche op `gh-pages`
 9. Bovenaan de pagina verschijnt nu de URL waarop je je Open WOO Website kunt terugvinden
-10. Als je de Open WOO Website wilt hosten onder een subdomein van je organisatie en voorzien van een PKI-certificaat, kun je daarvoor de normale GitHub Pages-handleidingen volgen of een SLA afsluiten voor ondersteuning (zie [kosten](/docs/product/Kosten.md))
+10. Als je de Open WOO Website wilt hosten onder een subdomein van je organisatie en voorzien van een PKI-certificaat, kun je daarvoor de normale GitHub Pages-handleidingen volgen of een SLA afsluiten voor ondersteuning (zie [kosten](../product/kosten))
 
 #### Workflow Permissions
 
@@ -97,7 +97,7 @@ Volg de installatiehandleiding op [Woo Bundle](https://github.com/ConductionNL/W
 
 ## Externe Systemen
 
-Voor het koppelen van externe systemen geldt dat zij op de juiste manier moeten zijn geconfigureerd. Kijk daarvoor onder [configuratie](./Configuratie.md).
+Voor het koppelen van externe systemen geldt dat zij op de juiste manier moeten zijn geconfigureerd. Kijk daarvoor onder [configuratie](./configuratie).
 
 ## Verdere documentatie
 

@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Het in productie nemen van OpenWoo.app voor uw organisatie is makkelijker dan u wellicht denkt. Hieronder vindt u de stappen die u moet volgen om succesvol over te gaan naar de productiefase.
 
-- (optioneel) Kies een [leverancier](/docs/product/Kosten.md) om de OpenWoo.app bij af te nemen. Of implementeer hem zelfstandig.
+- (optioneel) Kies een [leverancier](../product/kosten) om de OpenWoo.app bij af te nemen. Of implementeer hem zelfstandig.
 - Verzamel van tevoren alle benodigde informatie
 - Vraag tijdig een PKI-certificaat en DNS-wijziging aan bij uw ICT-leverancier(s)
 - Zorg dat u tijd beschikbaar hebt voor het grondig doortesten van de keten aan de hand van de testscenario's
@@ -83,7 +83,7 @@ Wat doet de leverancier niet
 
 Als uw leverancier alles heeft klaar gezet is het tijd voor acceptatie en livegang
 
-- [ ] Doorlopen van de [Acceptatietests](/docs/techniek/Tests.md)
+- [ ] Doorlopen van de [Acceptatietests](./testscenarios)
 - [ ] Website laten controleren en reviewen door communicatieafdeling
 - [ ] Indien alles correct, aan leverancier laten weten dat er geaccepteerd is.
 - [ ] Op eigen website verwijzen naar de OpenWoo.app (deeplinks)
