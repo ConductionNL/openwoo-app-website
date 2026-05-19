@@ -3,45 +3,77 @@
 /**
  * Sidebar for openwoo.conduction.nl docs.
  *
- * Kept in lockstep with docs/{product,techniek}/. Re-organisation into
- * the fleet-canonical Features/Architecture/Integrations layout is
- * tracked as a follow-up — this PR only swaps the preset and lands the
- * brand landing page.
+ * Fleet-canonical layout (matches openregister/docs):
+ *   docs/
+ *     index.md            → docs landing
+ *     Architecture/       → systeemarchitectuur, in 5 stukjes
+ *     Integrations/       → bron-koppelen + API-koppelvlak + bronnenoverzicht
+ *     Technical/          → installatie, configuratie, productie, testscenarios
+ *     reference/          → faq, security, privacy, accessibility, pricing, sla, roadmap
+ *
+ * UseCases/ + Features/ zijn (nog) niet aanwezig — die staan gepland en
+ * worden in een follow-up PR met nieuw geschreven content gevuld.
  */
 module.exports = {
   tutorialSidebar: [
+    'index',
     {
       type: 'category',
-      label: 'Product',
+      label: 'Architectuur',
       link: {
         type: 'generated-index',
-        description: 'Alles over het OpenWoo-product, van kosten tot roadmap.',
+        description: 'Hoe OpenWoo onder de motorkap in elkaar zit: publicatieplatform, motorblok, federatief zoeken, datamodel.',
       },
       items: [
-        'product/kosten',
-        'product/sla',
-        'product/privacy',
-        'product/beveiliging',
-        'product/toegankelijkheid',
-        'product/roadmap',
-        'product/community',
-        'product/faq',
+        'Architecture/overview',
+        'Architecture/publicatieplatform',
+        'Architecture/motorblok',
+        'Architecture/federatief-zoeken',
+        'Architecture/datamodel',
       ],
     },
     {
       type: 'category',
-      label: 'Techniek',
+      label: 'Integraties',
       link: {
         type: 'generated-index',
-        description: 'Technische documentatie voor implementatie en integratie van OpenWoo.',
+        description: 'Ondersteunde bronnen, API-koppelvlak en het koppelen van een eigen bron.',
       },
       items: [
-        'techniek/productie',
-        'techniek/architectuur',
-        'techniek/installatie',
-        'techniek/integratie',
-        'techniek/configuratie',
-        'techniek/testscenarios',
+        'Integrations/ondersteunde-bronnen',
+        'Integrations/api-koppelvlak',
+        'Integrations/bron-koppelen',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Technical',
+      link: {
+        type: 'generated-index',
+        description: 'Installatie, configuratie, productie, testscenarios.',
+      },
+      items: [
+        'Technical/installation',
+        'Technical/configuration',
+        'Technical/production',
+        'Technical/test-scenarios',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Reference',
+      link: {
+        type: 'generated-index',
+        description: 'FAQ, security, privacy, toegankelijkheid, kosten, SLA, roadmap.',
+      },
+      items: [
+        'reference/faq',
+        'reference/security',
+        'reference/privacy',
+        'reference/accessibility',
+        'reference/pricing',
+        'reference/sla',
+        'reference/roadmap',
       ],
     },
   ],

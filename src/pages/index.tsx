@@ -39,8 +39,8 @@ export default function Home(): JSX.Element {
             zaaksysteem of DMS. Deze site bevat de technische documentatie en productinformatie.
           </>
         }
-        primaryCta={{label: 'Techniek', href: '/docs/category/techniek/'}}
-        secondaryCta={{label: 'Product', href: '/docs/category/product/'}}
+        primaryCta={{label: 'Architectuur', href: '/docs/Architecture/overview'}}
+        secondaryCta={{label: 'Installatie', href: '/docs/Technical/installation'}}
         iconColor="var(--c-blue-cobalt)"
         icon={
           <svg viewBox="0 0 24 24">
@@ -181,7 +181,7 @@ export default function Home(): JSX.Element {
             uit handen geeft.
           </>
         }
-        primaryCta={{label: 'Naar Techniek', href: '/docs/category/techniek/'}}
+        primaryCta={{label: 'Naar de documentatie', href: '/docs/'}}
         secondaryCta={{label: 'Praat met een partner', href: 'https://www.conduction.nl/partners'}}
       />
     </Layout>
