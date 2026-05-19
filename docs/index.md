@@ -10,13 +10,16 @@ Deze site bevat de technische documentatie. Het commerciële verhaal en de actue
 
 ## Waar wil je beginnen?
 
+Begin bij [use cases](./category/use-cases/) als je een concreet scenario voor ogen hebt, of bij [features](./category/features/) als je wil weten wat OpenWoo allemaal kan. Onder staat een routekaart per rol:
+
 | Je bent…                            | Begin hier |
 |-------------------------------------|------------|
-| Implementatie­team / gemeente IT    | [Architectuur — overzicht](./Architecture/overview.md), dan [Installation](./Technical/installation.md). |
-| Frontend-leverancier                | [Publicatieplatform](./Architecture/publicatieplatform.md) — alle ondersteunde UI-frameworks op een rij. |
-| Brontleverancier (zaaksysteem, DMS) | [Ondersteunde bronnen](./Integrations/ondersteunde-bronnen.md) en [Bron koppelen](./Integrations/bron-koppelen.md). |
+| Implementatie­team / gemeente IT    | [Actieve openbaarmaking](./UseCases/actieve-openbaarmaking.md), dan [Architectuur — overzicht](./Architecture/overview.md) en [Installation](./Technical/installation.md). |
+| Frontend-leverancier                | [Keuze uit publicatieplatformen](./Features/publicatieplatformen.md) — alle ondersteunde UI-frameworks op een rij. |
+| Brontleverancier (zaaksysteem, DMS) | [Publicatie vanuit je zaaksysteem](./UseCases/publicatie-vanuit-zaaksysteem.md), dan [Bron koppelen](./Integrations/bron-koppelen.md). |
 | Developer die de API wil gebruiken  | [API-koppelvlak](./Integrations/api-koppelvlak.md). |
 | Bestuurder / inkoper                | [Kosten](./reference/pricing.md), [SLA](./reference/sla.md), [Roadmap](./reference/roadmap.md). |
+| Compliance / juridisch              | [Audit log](./Features/audit-log.md), [Privacy](./reference/privacy.md), [Beveiliging](./reference/security.md). |
 | Burger / inwoner                    | Ga naar de Woo-pagina van je eigen gemeente (bijv. `open.{gemeente}.nl`). |
 
 ## Hulp nodig?
