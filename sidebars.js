@@ -1,26 +1,21 @@
-import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
-
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+// @ts-check
 
 /**
- * Creating a sidebar enables you to:
- - create an ordered group of docs
- - render a sidebar for each doc of that group
- - provide next/previous navigation
-
- The sidebars can be generated from the filesystem, or explicitly defined here.
-
- Create as many sidebars as you want.
+ * Sidebar for openwoo.conduction.nl docs.
+ *
+ * Kept in lockstep with docs/{product,techniek}/. Re-organisation into
+ * the fleet-canonical Features/Architecture/Integrations layout is
+ * tracked as a follow-up — this PR only swaps the preset and lands the
+ * brand landing page.
  */
-const sidebars: SidebarsConfig = {
-  // Main sidebar - auto-generated from docs structure
+module.exports = {
   tutorialSidebar: [
     {
       type: 'category',
       label: 'Product',
       link: {
         type: 'generated-index',
-        description: 'Alles over het OpenWoo.app product, van kosten tot roadmap.',
+        description: 'Alles over het OpenWoo-product, van kosten tot roadmap.',
       },
       items: [
         'product/kosten',
@@ -38,7 +33,7 @@ const sidebars: SidebarsConfig = {
       label: 'Techniek',
       link: {
         type: 'generated-index',
-        description: 'Technische documentatie voor implementatie en integratie van OpenWoo.app.',
+        description: 'Technische documentatie voor implementatie en integratie van OpenWoo.',
       },
       items: [
         'techniek/productie',
@@ -51,5 +46,3 @@ const sidebars: SidebarsConfig = {
     },
   ],
 };
-
-export default sidebars;
