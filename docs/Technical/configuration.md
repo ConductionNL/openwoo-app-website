@@ -15,7 +15,7 @@ Om te zorgen dat de OpenWoo-website goed werkt, is het belangrijk dat de onderli
 
 ## Gebruik variabelen
 
-Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige (een definitie van het Woo-publicatieobject vind je onder [Architectuur](./architectuur)).
+Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige (een definitie van het Woo-publicatieobject vind je onder [Architectuur](../Architecture/datamodel.md)).
 
 **Zoekbalk**
 

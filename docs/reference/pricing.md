@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Kosten
 
-OpenWoo.app bestaat in essentie uit een drietal onderdelen die samen oplossing vormen, zie ook [architectuur](/docs/techniek/architectuur). Voor de totaaloplossing heeft u dan ook drie onderdelen nodig.
+OpenWoo.app bestaat in essentie uit een drietal onderdelen die samen oplossing vormen, zie ook [architectuur](/docs/Architecture/overview). Voor de totaaloplossing heeft u dan ook drie onderdelen nodig.
 
 1. Één of meerdere publicatieplatform(s)
 2. Een motorblok
