@@ -1,12 +1,12 @@
 ---
-title: Full-text search voor leveranciers
+title: Full-text search
 description: Toelichting bij het _search-endpoint van de OpenWoo publication-API — query-syntax, gewogen velden, relevantie-score, en concrete integratievoorbeelden.
 sidebar_position: 4
 ---
 
 # Full-text search
 
-Een leveranciers-georiënteerde toelichting bij het full-text search-endpoint dat de openbare publicatiepagina's voedt (typisch de [`woo-website-template`](https://github.com/ConductionNL/woo-website-template) en eigen front-ends). Dit document is bedoeld voor implementerende teams die zoekfunctionaliteit op een eigen UI willen bouwen tegen de OpenWoo-API.
+Toelichting bij het full-text search-endpoint dat de openbare publicatiepagina's voedt (typisch de [`woo-website-template`](https://github.com/ConductionNL/woo-website-template) en eigen front-ends): query-syntax, gewogen velden, relevantie-score en concrete integratievoorbeelden.
 
 :::tip Eerst lezen
 [API-koppelvlak](api-koppelvlak.md) — de algemene introductie tot de OpenWoo-API, authenticatie en throttling. De voorbeelden hieronder bouwen daarop voort.
@@ -79,7 +79,7 @@ Dit is bovenop het standaard veld-gewicht uit de tabel hierboven.
 
 Default-sortering is **chronologisch** (`publicatiedatum desc`), niet op relevantie. Dat is een bewuste keuze: voor de meeste burger-vragen ("wat is recent gepubliceerd over X") is nieuwste-eerst de juiste volgorde.
 
-Voor leveranciers die een "best match first" interface willen bouwen, sorteer expliciet op relevantie:
+Voor een "best match first" interface sorteer je expliciet op relevantie:
 
 ```
 GET /api/publicaties?_search=evenementenvergunning&_order[_score]=desc&_limit=10
