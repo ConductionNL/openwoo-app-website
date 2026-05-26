@@ -69,6 +69,28 @@ const config = createConfig({
         },
       },
     ],
+    /* Redocusaurus renders a hand-maintained OpenAPI 3.1 spec at /api.
+       Phase-1 pattern from openregister: the spec lives in
+       static/oas/openwoo.json and is edited via editor.swagger.io or
+       a local JSON editor. Phase-2 (hydra#279) will swap this for an
+       auto-generated spec produced by nextcloud/openapi-extractor
+       against opencatalogi's annotated controllers and pushed via
+       repository_dispatch. */
+    [
+      'redocusaurus',
+      {
+        specs: [
+          {
+            id: 'openwoo',
+            spec: 'static/oas/openwoo.json',
+            route: '/api/',
+          },
+        ],
+        theme: {
+          primaryColor: '#1890ff',
+        },
+      },
+    ],
   ],
 
   themes: [BRAND_THEME],
@@ -86,6 +108,7 @@ const config = createConfig({
     items: [
       {to: '/docs/category/reference/',                            label: 'Product',  position: 'left'},
       {to: '/docs/category/architectuur/',                         label: 'Techniek', position: 'left'},
+      {to: '/api/',                                                label: 'API',      position: 'left'},
       {href: 'https://www.conduction.nl/solutions/openwoo',        label: 'Solution', position: 'left'},
       {href: 'https://www.conduction.nl/academy/?app=openwoo',     label: 'Academy',  position: 'left'},
       {href: 'https://openwebconcept.nl/',                         label: 'Over Open Webconcept', position: 'right'},
