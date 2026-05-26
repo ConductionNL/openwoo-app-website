@@ -1,0 +1,152 @@
+name: Release notes sync
+
+# Phase-1 of deliverable #1 from hydra#279. Polls public GitHub Releases
+# of every tracked stack component on a schedule. Per matrix entry: list
+# stable releases, write any not yet on disk as
+# docs/releases/<source_app>/<tag>.md, commit, and dispatch deploy.yml.
+#
+# Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
+# post-"github has been hacked" policy bans Personal Access Tokens on
+# hosted-runner workflows. Reading public releases is anonymous; the
+# commit/push uses this repo's own GITHUB_TOKEN.
+#
+# To add a new producing component: add a row to the `matrix.include`
+# block below. No changes needed in the component's own repo.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 min
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rewrite every release page even if it already exists on disk"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release-notes-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - source_app: opencatalogi
+            source_repo: ConductionNL/opencatalogi
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch stable releases
+        id: fetch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_REPO: ${{ matrix.source_repo }}
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-tmp
+          # Public repo — listing releases needs no auth at all, but we
+          # use the workflow's GITHUB_TOKEN to stay inside GitHub's
+          # higher rate-limit budget for authenticated requests.
+          gh api "repos/${SOURCE_REPO}/releases?per_page=100" \
+            --jq '[.[] | select(.prerelease == false and .draft == false)]' \
+            > .sync-tmp/releases.json
+          echo "Found $(jq length .sync-tmp/releases.json) stable releases on ${SOURCE_REPO}."
+
+      - name: Render missing release-notes pages
+        env:
+          SOURCE_APP:  ${{ matrix.source_app }}
+          SOURCE_REPO: ${{ matrix.source_repo }}
+          FORCE:       ${{ inputs.force || 'false' }}
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import json, os, pathlib, re
+
+          source_app  = os.environ["SOURCE_APP"]
+          source_repo = os.environ["SOURCE_REPO"]
+          force       = os.environ["FORCE"].lower() == "true"
+
+          tag_re = re.compile(r"^[A-Za-z0-9._/-]+$")
+
+          out_dir = pathlib.Path("docs/releases") / source_app
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          releases = json.loads(pathlib.Path(".sync-tmp/releases.json").read_text())
+          written = 0
+          skipped = 0
+
+          for r in releases:
+              tag = r.get("tag_name") or ""
+              if not tag_re.match(tag):
+                  print(f"::warning::skipping tag with unsafe chars: {tag!r}")
+                  continue
+
+              safe_tag = tag.replace("/", "-")
+              path = out_dir / f"{safe_tag}.md"
+              if path.exists() and not force:
+                  skipped += 1
+                  continue
+
+              title = r.get("name") or tag
+              body = r.get("body") or "_Geen release-body in de GitHub Release._"
+              url  = r.get("html_url") or ""
+              published = r.get("published_at") or ""
+
+              def yaml_sq(s: str) -> str:
+                  return "'" + s.replace("'", "''") + "'"
+
+              frontmatter = (
+                  "---\n"
+                  f"title: {yaml_sq(title)}\n"
+                  f"description: {yaml_sq(f'Release {tag} van {source_app}.')}\n"
+                  f"slug: /releases/{source_app}/{safe_tag}\n"
+                  "---\n"
+              )
+              md = (
+                  f"# {title}\n\n"
+                  f"**Release:** [`{tag}`]({url})  \n"
+                  f"**Gepubliceerd op:** {published}  \n"
+                  f"**Bron:** [{source_repo}](https://github.com/{source_repo})\n\n"
+                  "---\n\n"
+                  f"{body}\n"
+              )
+              path.write_text(frontmatter + md, encoding="utf-8")
+              written += 1
+              print(f"wrote {path}")
+
+          print(f"::notice::source_app={source_app} written={written} skipped={skipped}")
+          PY
+
+      - name: Commit + push if anything changed
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/releases/
+          if git diff --staged --quiet; then
+            echo "No new release-notes — nothing to commit."
+            exit 0
+          fi
+          git commit -m "docs(releases): sync ${{ matrix.source_app }}"
+          git push origin HEAD:main
+          echo "DEPLOY_NEEDED=1" >> "$GITHUB_ENV"
+
+      - name: Trigger deploy if changes landed
+        if: env.DEPLOY_NEEDED == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Pushes by GITHUB_TOKEN do NOT trigger workflow_run on other
+        # workflows (anti-loop). Explicitly dispatch deploy.yml so
+        # openwoo.conduction.nl rebuilds.
+        run: gh workflow run deploy.yml --ref main
