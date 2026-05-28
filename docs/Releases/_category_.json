@@ -1,0 +1,8 @@
+{
+  "label": "Releases",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "OpenWoo release notes per versie — wijzigingen in woo-website-template-apiv2 (de runtime) plus de gebruikte component-versies. Nieuwste eerst."
+  }
+}
