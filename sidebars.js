@@ -16,6 +16,7 @@
 module.exports = {
   tutorialSidebar: [
     'index',
+    'api',
     {
       type: 'category',
       label: 'Use cases',

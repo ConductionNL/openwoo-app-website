@@ -69,20 +69,21 @@ const config = createConfig({
         },
       },
     ],
-    /* Redocusaurus renders a hand-maintained OpenAPI 3.1 spec at /api.
-       Phase-1 pattern from openregister: the spec lives in
-       static/oas/openwoo.json and is edited via editor.swagger.io or
-       a local JSON editor. Phase-2 (hydra#279) will swap this for an
-       auto-generated spec produced by nextcloud/openapi-extractor
-       against opencatalogi's annotated controllers and pushed via
-       repository_dispatch. */
+    /* Redocusaurus renders the live Woo Register OAS at /api/. The
+       spec is mirrored from a reference OpenRegister deployment at
+       https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
+       by .github/workflows/woo-oas-sync.yml (cron every 30 min +
+       workflow_dispatch). The mirror lives in static/oas/woo.json and
+       is overwritten by the sync workflow whenever the upstream OAS
+       differs. See docs/api.md for the rationale + the upstream-link
+       hub for opencatalogi / openregister. */
     [
       'redocusaurus',
       {
         specs: [
           {
-            id: 'openwoo',
-            spec: 'static/oas/openwoo.json',
+            id: 'woo',
+            spec: 'static/oas/woo.json',
             route: '/api/',
           },
         ],

@@ -1,0 +1,104 @@
+name: Woo OAS sync
+
+# Phase-1 of deliverable #4 from hydra#279. Mirrors the live Woo Register
+# OpenAPI spec from a reference OpenRegister deployment into this repo
+# so Redocusaurus can render it at openwoo.conduction.nl/api/.
+#
+# Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
+# post-"github has been hacked" policy bans Personal Access Tokens on
+# hosted-runner workflows. Reading the upstream OAS is anonymous; the
+# commit/push uses this repo's own GITHUB_TOKEN.
+#
+# To switch source URL (e.g. when a production deployment lands):
+# update the OAS_URL env var below.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 min
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: woo-oas-sync
+  cancel-in-progress: false
+
+env:
+  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
+  OAS_PATH: static/oas/woo.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream OAS
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-tmp
+          curl --fail-with-body --silent --show-error \
+            --location \
+            --max-time 60 \
+            --output .sync-tmp/woo.json \
+            "$OAS_URL"
+
+      - name: Validate it looks like an OpenAPI 3 spec
+        run: |
+          set -euo pipefail
+          # Refuse to overwrite the mirrored file with garbage if the
+          # source returned an HTML error page or a 200-with-empty-body.
+          openapi=$(jq -r '.openapi // empty' .sync-tmp/woo.json)
+          title=$(jq -r '.info.title // empty' .sync-tmp/woo.json)
+          paths_n=$(jq -r '.paths | length // 0' .sync-tmp/woo.json)
+          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ "$paths_n" -lt 1 ]]; then
+            echo "::error::Fetched payload does not look like an OpenAPI 3 spec."
+            echo "  openapi=$openapi"
+            echo "  title=$title"
+            echo "  paths=$paths_n"
+            head -c 1000 .sync-tmp/woo.json
+            exit 1
+          fi
+          echo "OK — $title v$(jq -r '.info.version' .sync-tmp/woo.json) ($paths_n paths)"
+
+      - name: Replace mirrored OAS if upstream differs
+        id: diff
+        run: |
+          set -euo pipefail
+          # `jq -S` sorts keys recursively so trivial reordering doesn't
+          # cause spurious commits. Compare sorted JSON.
+          jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
+          if [[ -f "$OAS_PATH" ]]; then
+            jq -S . "$OAS_PATH" > .sync-tmp/current.norm.json
+            if cmp --silent .sync-tmp/woo.norm.json .sync-tmp/current.norm.json; then
+              echo "No upstream change — nothing to commit."
+              echo "changed=0" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          # Preserve the upstream formatting (not the sorted version) so
+          # the file stays diff-readable in the way the upstream serves it.
+          mv .sync-tmp/woo.json "$OAS_PATH"
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Commit + push if changed
+        if: steps.diff.outputs.changed == '1'
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OAS_PATH"
+          version=$(jq -r '.info.version' "$OAS_PATH")
+          git commit -m "docs(api): sync Woo OAS to v${version}"
+          git push origin HEAD:main
+
+      - name: Trigger deploy
+        if: steps.diff.outputs.changed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
