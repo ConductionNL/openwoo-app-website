@@ -4,6 +4,10 @@ name: Woo OAS sync
 # OpenAPI spec from a reference OpenRegister deployment into this repo
 # so Redocusaurus can render it at openwoo.conduction.nl/api/.
 #
+# Runs nightly at 03:27 UTC. The Woo Register schema rarely changes,
+# so daily is plenty — and avoids burning Actions minutes on no-op
+# polls. Manual triggering via workflow_dispatch is always available.
+#
 # Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
 # post-"github has been hacked" policy bans Personal Access Tokens on
 # hosted-runner workflows. Reading the upstream OAS is anonymous; the
@@ -14,7 +18,11 @@ name: Woo OAS sync
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 min
+    # 03:27 UTC nightly. Off-the-hour minute avoids GitHub's
+    # scheduling-collision at :00 (where many cron jobs cluster).
+    # 03:27 UTC = 04:27 CET (winter) / 05:27 CEST (summer) — quiet
+    # hours for both NL and the source deployment.
+    - cron: "27 3 * * *"
   workflow_dispatch:
 
 permissions:

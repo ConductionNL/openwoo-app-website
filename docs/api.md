@@ -15,7 +15,7 @@ OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** bin
 
 ## Live Woo Register API
 
-De canonieke OpenAPI 3.1.0 spec voor de Woo Register wordt **elke 30 minuten** gemirrord van een referentie-deployment en gerenderd via Redocusaurus:
+De canonieke OpenAPI 3.1.0 spec voor de Woo Register wordt **één keer per dag** (03:27 UTC) gemirrord van een referentie-deployment en gerenderd via Redocusaurus:
 
 ➡️ **[openwoo.conduction.nl/api](/api/)** — live Woo Register OAS
 
@@ -26,11 +26,11 @@ De spec dekt 17 TOOI-informatiecategorieën (convenanten, klachtoordelen, onderz
 | Aspect | Waarde |
 |---|---|
 | Source-URL | `https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas` |
-| Sync-mechanisme | `.github/workflows/woo-oas-sync.yml` — cron `*/30 * * * *` + `workflow_dispatch` |
+| Sync-mechanisme | `.github/workflows/woo-oas-sync.yml` — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
 | Auth | Geen — `registers/{id}/oas` is anoniem leesbaar |
 | Mirror-file | `static/oas/woo.json` |
 
-Wijzigt het schema in de bron-deployment? Volgende cron-tick (≤ 30 min) detecteert het verschil, committeert en triggert de deploy. Handmatig versnellen kan via Actions → "Woo OAS sync" → Run workflow.
+Wijzigt het schema in de bron-deployment? De volgende nachtelijke cron-tick detecteert het verschil, committeert en triggert de deploy. Direct synchroniseren kan via Actions → "Woo OAS sync" → Run workflow.
 
 ### Bron switchen
 
