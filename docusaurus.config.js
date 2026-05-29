@@ -69,6 +69,29 @@ const config = createConfig({
         },
       },
     ],
+    /* Redocusaurus renders the live Woo Register OAS at /api/. The
+       spec is mirrored from a reference OpenRegister deployment at
+       https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
+       by .github/workflows/woo-oas-sync.yml (cron every 30 min +
+       workflow_dispatch). The mirror lives in static/oas/woo.json and
+       is overwritten by the sync workflow whenever the upstream OAS
+       differs. See docs/api.md for the rationale + the upstream-link
+       hub for opencatalogi / openregister. */
+    [
+      'redocusaurus',
+      {
+        specs: [
+          {
+            id: 'woo',
+            spec: 'static/oas/woo.json',
+            route: '/api/',
+          },
+        ],
+        theme: {
+          primaryColor: '#1890ff',
+        },
+      },
+    ],
   ],
 
   themes: [BRAND_THEME],
@@ -86,6 +109,7 @@ const config = createConfig({
     items: [
       {to: '/docs/category/reference/',                            label: 'Product',  position: 'left'},
       {to: '/docs/category/architectuur/',                         label: 'Techniek', position: 'left'},
+      {to: '/api/',                                                label: 'API',      position: 'left'},
       {href: 'https://www.conduction.nl/solutions/openwoo',        label: 'Solution', position: 'left'},
       {href: 'https://www.conduction.nl/academy/?app=openwoo',     label: 'Academy',  position: 'left'},
       {href: 'https://openwebconcept.nl/',                         label: 'Over Open Webconcept', position: 'right'},
