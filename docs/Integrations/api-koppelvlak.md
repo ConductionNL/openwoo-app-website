@@ -24,7 +24,7 @@ Voor de API is een [Stoplight-documentatie](https://conduction.stoplight.io/stud
 
 In het merendeel van de gevallen wil je een zoekvraag uitvoeren binnen de Woo-publicaties van OpenWoo. Het endpoint daarvoor is: `https://api.gateway.commonground.nu/api/publicaties`.
 
-1. Op een of meer zoekwoorden, bv. `_search=test`.
+1. Op een of meer zoekwoorden, bv. `_search=test`. Zie [Full-text search](fulltext-search.md) voor de volledige query-syntax (booleaans, fuzzy, wildcards), gewogen velden en relevantie-score.
 2. Op organisatie, dit gaat aan de hand van OIN (de volledige OIN-lijst vind je [hier](https://oinregister.logius.nl/oin-register)), bv. `oin=00000001001299992000`.
 3. Op categorie: `categorie=Convenant`.
 4. Op datum. Hierbij kun je een begin- en einddatum opgeven om een periode (bijvoorbeeld een jaar) te doorzoeken: `publicatiedatum[after]=2022-12-31T23:59:59Z&publicatiedatum[before]=2024-01-01T00:00:00Z`.

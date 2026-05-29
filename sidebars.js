@@ -70,6 +70,7 @@ module.exports = {
       items: [
         'Integrations/ondersteunde-bronnen',
         'Integrations/api-koppelvlak',
+        'Integrations/fulltext-search',
         'Integrations/bron-koppelen',
       ],
     },
