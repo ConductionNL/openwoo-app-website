@@ -1,4 +1,9 @@
-# Website
+> [!IMPORTANT]
+> ## 🚚 This repository has moved to Codeberg
+>
+> Active development now happens at **https://codeberg.org/Conduction/openwoo-app-website**.
+> This GitHub mirror is read-only — issues, pull requests, and new commits should go to Codeberg.
+> Update your remote with: `git remote set-url origin https://codeberg.org/Conduction/openwoo-app-website`# Website
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
