@@ -76,8 +76,8 @@ Aan de hand van de acties voor de opdrachtgever kan uw leverancier vervolgens aa
 
 Wat doet de leverancier niet
 
-- Aanleveren WCAG-rapportage (deze staat [hier](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/WCAG-Raportage.pdf))
-- Aanleveren PEN-test (deze staat [hier](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/PENTEST-Raportage.pdf))
+- Aanleveren WCAG-rapportage (deze staat [hier](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/WCAG-Raportage.pdf))
+- Aanleveren PEN-test (deze staat [hier](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/PENTEST-Raportage.pdf))
 
 ## Naar productie (Acceptatie)
 

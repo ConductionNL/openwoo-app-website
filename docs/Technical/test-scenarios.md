@@ -150,11 +150,11 @@ Naast functionele tests is het ook belangrijk om te controleren of de website vo
 
 ### WCAG
 
-Er is een [WCAG raportage](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/WCAG-Raportage.pdf) beschikbaar voor de website.
+Er is een [WCAG raportage](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/WCAG-Raportage.pdf) beschikbaar voor de website.
 
 U kunt de test zelf herhalen, vervang in de volgende URL [https://conductionnl.github.io/woo-website-xxllnc/](https://conductionnl.github.io/woo-website-xxllnc/) door het adres van uw OpenWoo.app
 [https://accessibe.com/accessscan?website=https://conductionnl.github.io/woo-website-xxllnc/](https://accessibe.com/accessscan?website=https://conductionnl.github.io/woo-website-xxllnc/)
 
 ### Pentest
 
-Er is een [Pentest raportage](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/PENTEST-Raportage.pdf) beschikbaar voor de website.
+Er is een [Pentest raportage](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/PENTEST-Raportage.pdf) beschikbaar voor de website.

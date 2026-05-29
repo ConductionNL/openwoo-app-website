@@ -6,7 +6,7 @@ sidebar_position: 3
 
 Deze installatiehandleiding is bedoeld voor overheden en leveranciers die zelfstandig aan de slag willen met OpenWoo-website. Als je OpenWoo-website als SaaS wilt afnemen, kijk dan onder [kosten](../reference/pricing.md).
 
-Het template voor de OpenWoo-website is gebaseerd op de Conduction [Productpage-template](https://github.com/ConductionNL/product-website-template) voor Common Ground. Hieronder tref je een verkorte installatiehandleiding aan die vooral focust op de onderliggende bronnen. Voor meer en uitgebreidere details kun je de documentatie van het Productpage-website-template gebruiken.
+Het template voor de OpenWoo-website is gebaseerd op de Conduction [Productpage-template](https://codeberg.org/Conduction/product-website-template) voor Common Ground. Hieronder tref je een verkorte installatiehandleiding aan die vooral focust op de onderliggende bronnen. Voor meer en uitgebreidere details kun je de documentatie van het Productpage-website-template gebruiken.
 
 ## Randvoorwaarden
 
@@ -16,7 +16,7 @@ Om dit template te gebruiken, moet je beschikken over:
 - Een GitHub-organisatie en beheerdersrechten daarop OF (zie [Serverless Installatie](#serverless-installatie))
 - Een APACHE/NGINX-server (zie [Server Installatie](#server-installatie))
 - Een Open Webconcept CMS (WordPress) met de [OpenWoo](https://github.com/OpenWebconcept/plugin-openwoo) en [Open Convenanten](https://github.com/OpenWebconcept/plugin-openconvenanten) plugins OF
-- Een losse installatie (on-premise of SaaS) met de [Woo Bundle](https://github.com/ConductionNL/WooBundle/tree/main)
+- Een losse installatie (on-premise of SaaS) met de [Woo Bundle](https://codeberg.org/Conduction/WooBundle/src/branch/main)
 
 ## Frontend
 
@@ -45,12 +45,12 @@ De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te word
 2. Ga naar Actions
 3. Ga naar General.
 
-![settings-action](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/settings-action.png)
+![settings-action](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/techniek/settings-action.png)
 
 4. Scroll naar Workflow permissions.
 5. Set permissions naar `Read and write permissions`.
 
-![Workflow permissions](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/workflow-permissions.png)
+![Workflow permissions](https://codeberg.org/Conduction/woo-website-template/raw/branch/main/docs/techniek/workflow-permissions.png)
 
 ### Server Installatie
 
@@ -58,12 +58,12 @@ Als je de OpenWoo-website liever vanaf een eigen server draait, kan dat uiteraar
 
 #### Stappen
 
-1. Volg de stappen hiervoor op de [Productpage-template](https://github.com/ConductionNL/product-website-template)
+1. Volg de stappen hiervoor op de [Productpage-template](https://codeberg.org/Conduction/product-website-template)
 2. Pas de configuratie aan zoals hieronder vermeld bij configuratie
 
 ### Configuratie
 
-Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://github.com/ConductionNL/woo-website-template/blob/main/.github/workflows/product-page-deploy.yml). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
+Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://codeberg.org/Conduction/woo-website-template/src/branch/main/.github/workflows/product-page-deploy.yml). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
 
 | Key | Verplicht | Usage | Allowed Value | Default / Example |
 |-----|-----------|-------|---------------|-------------------|
@@ -93,7 +93,7 @@ Volg de installatiehandleiding op [https://github.com/OpenWebconcept/plugin-open
 
 In dit geval koppel je de React frontend op een gateway installatie, dat betekent dat alle publicaties automatisch worden opgehaald uit bestaande bronnen
 
-Volg de installatiehandleiding op [Woo Bundle](https://github.com/ConductionNL/WooBundle/tree/main).
+Volg de installatiehandleiding op [Woo Bundle](https://codeberg.org/Conduction/WooBundle/src/branch/main).
 
 ## Externe Systemen
 
