@@ -214,7 +214,7 @@ Voor productie-front-ends raden we aan een Conduction-API-key aan te vragen (`in
 
 ## OpenAPI
 
-De volledige API-specificatie inclusief request- en response-schemas leeft onder [/api](/api/). Phase-2 van de docs-pipeline (zie [hydra#279](https://github.com/ConductionNL/hydra/issues/279)) genereert die automatisch uit geannoteerde OpenCatalogi-controllers.
+De volledige API-specificatie inclusief request- en response-schemas leeft onder [/api](/api/). De spec wordt automatisch gegenereerd door OpenRegister (per register een complete OpenAPI 3.1.0 spec) en nachtelijk gemirrord vanuit een referentie-deployment — zie [API-overzicht](../api.md) voor de sync-details.
 
 ## Referentie-implementaties
 

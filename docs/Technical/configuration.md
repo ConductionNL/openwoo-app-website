@@ -132,7 +132,7 @@ Gebaseerd op: [VNG ZGW Standaard](https://vng.nl/projecten/zaakgericht-werken-ap
 
 ### Mapping vanuit zaaksysteem.nl search endpoint
 
-Gebaseerd op: [xxllc-zaken mapping](https://github.com/CommonGateway/WooBundle/blob/main/Installation/Mapping/woo.xxllncCaseToWoo.mapping.json) — *historische 1.0-referentie naar de Common Gateway WooBundle. In de 2.0-architectuur wordt deze mapping via [OpenRegister](https://github.com/ConductionNL/openregister) afgehandeld; de tabel hieronder beschrijft de mapping-logica los van het uitvoerend component.*
+Gebaseerd op: [xxllc-zaken mapping](https://github.com/CommonGateway/WooBundle/blob/main/Installation/Mapping/woo.xxllncCaseToWoo.mapping.json) — *historische 1.0-referentie naar de Common Gateway WooBundle. In de 2.0-architectuur wordt deze mapping via [OpenRegister](https://codeberg.org/Conduction/openregister) afgehandeld; de tabel hieronder beschrijft de mapping-logica los van het uitvoerend component.*
 
 | Eigenschap                | Zaaksysteem.nl eigenschap               |
 |---------------------------|-----------------------------------------|

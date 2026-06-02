@@ -30,7 +30,7 @@ Als je vanuit je casus een API nodig hebt zonder throttling, rate-limit, of name
 
 ### Documentatie
 
-Voor de API is een [Stoplight-documentatie](https://conduction.stoplight.io/studio/open-catalogi?) beschikbaar met voorbeelden van de verschillende API-endpoints, calls en resultaten. Omdat de API daarnaast kan worden gebruikt zonder authenticatie, is deze ook goed te beproeven via onze [Postman-collectie](https://github.com/ConductionNL/opencatalogi/blob/feature/docs/postmancollection/docs/assets/Opencatalogi%20CRUD.postman_collection.json). We raden developers van harte aan om aan de hand van deze collectie te spelen en te ontwikkelen.
+Voor de API is een [Stoplight-documentatie](https://conduction.stoplight.io/studio/open-catalogi?) beschikbaar met voorbeelden van de verschillende API-endpoints, calls en resultaten. Omdat de API daarnaast kan worden gebruikt zonder authenticatie, is deze ook goed te beproeven via onze [Postman-collectie](https://codeberg.org/Conduction/opencatalogi/src/branch/main/docs/assets/Opencatalogi%20CRUD.postman_collection.json). We raden developers van harte aan om aan de hand van deze collectie te spelen en te ontwikkelen.
 
 ### Voorbeelden
 
