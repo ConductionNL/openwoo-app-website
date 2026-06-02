@@ -45,12 +45,12 @@ De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te word
 2. Ga naar Actions
 3. Ga naar General.
 
-![settings-action](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/settings-action.png)
+![settings-action](/img/installation/settings-action.png)
 
 4. Scroll naar Workflow permissions.
 5. Set permissions naar `Read and write permissions`.
 
-![Workflow permissions](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/workflow-permissions.png)
+![Workflow permissions](/img/installation/workflow-permissions.png)
 
 ### Server Installatie
 
