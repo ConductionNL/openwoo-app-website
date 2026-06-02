@@ -63,15 +63,17 @@ De live spec op `/api/` beschrijft het **wat**. Voor het **hoe** vanuit OpenWoo-
 - **[Ondersteunde bronnen](/docs/Integrations/ondersteunde-bronnen/)** — welke zaak-/document-/data-bronnen OpenWoo kan ontsluiten
 - **[Bron koppelen](/docs/Integrations/bron-koppelen/)** — een nieuwe bron aansluiten
 
-## Publieke OpenWoo gateway (zonder Nextcloud)
+## Publiek leesbare canary-omgeving
 
-Voor publieke leveranciers / front-end-bouwers die zoeken zonder eigen Nextcloud-instance: de CommonGround-gateway aggregator over OpenWoo-instances:
+Voor leveranciers / front-end-bouwers die direct tegen een live Woo Register willen ontwikkelen zonder eigen deployment: de canary-omgeving is anoniem leesbaar:
 
 ```
-https://api.gateway.commonground.nu/api/publicaties
+https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/{categorie}
 ```
 
-Geen authenticatie nodig voor `GET`. Throttling + rate-limiting actief. Voor query-syntax + voorbeelden zie [Full-text search voor leveranciers](/docs/Integrations/fulltext-search/).
+Vervang `{categorie}` door een van de 17 TOOI-informatiecategorieën — bv. `adviezen`, `convenanten`, `klachtoordelen`, `onderzoeksrapporten`, `woo_verzoeken_en_besluiten`. De volledige lijst staat in de live OAS op [/api/](/api/).
+
+Geen authenticatie nodig voor `GET`. Voor query-syntax + voorbeelden zie [Full-text search voor leveranciers](/docs/Integrations/fulltext-search/).
 
 ## Achtergrond
 

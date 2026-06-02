@@ -12,7 +12,19 @@ Indien je als organisatie of leverancier OpenWoo wilt koppelen aan een huidige i
 
 ### Locatie en authenticatie
 
-De API staat online en er kunnen HTTP-methods aangeroepen worden op [https://api.gateway.commonground.nu/api/publicaties](https://api.gateway.commonground.nu/api/publicaties). Voor het stellen van zoekvragen is **géén** authenticatie vereist (het doel van OpenWoo is immers het verspreiden van openbare informatie). Er is echter wel sprake van throttling op responstijden (de API reageert langzamer) en rate-limiting (het aantal bevragingen per minuut en uur zijn beperkt) zonder authenticatie. Ook zijn alleen de GET-acties (ophalen) toegestaan zonder authenticatie.
+De API draait op een OpenRegister-deployment binnen Nextcloud. Voor leveranciers die direct willen testen is de canary-omgeving anoniem leesbaar:
+
+```
+https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/{categorie}
+```
+
+`{categorie}` is één van de 17 TOOI-informatiecategorieën — er is geen single aggregator-endpoint meer; je doet één request per categorie. De volledige lijst:
+
+`adviezen`, `agendas_en_besluitenlijsten_bestuurscolleges`, `bereikbaarheidsgegevens`, `beschikkingen`, `bij-vertegenwoordigende-organen-ingekomen-stukken`, `convenanten`, `jaarplan-of-jaarverslag`, `klachtoordelen`, `onderzoeksrapporten`, `ontwerpen_van_wet_en_regelgeving_met_adviesaanvraag`, `organisatie_en_werkwijze`, `overige_besluiten_van_algemene_strekking`, `subsidieverplichtingen_anders_dan_met_beschikking`, `vergaderstukken_decentrale_overheden`, `vergaderstukken_staten_generaal`, `wetten_en_algemeen_verbindende_voorschriften`, `woo_verzoeken_en_besluiten`.
+
+Voor de canonieke endpoint-definities + response-schemas zie de live OAS op [/api/](/api/).
+
+Voor het stellen van zoekvragen is **géén** authenticatie vereist (het doel van OpenWoo is immers het verspreiden van openbare informatie). Er is echter wel sprake van throttling op responstijden (de API reageert langzamer) en rate-limiting (het aantal bevragingen per minuut en uur zijn beperkt) zonder authenticatie. Ook zijn alleen de GET-acties (ophalen) toegestaan zonder authenticatie.
 
 Als je vanuit je casus een API nodig hebt zonder throttling, rate-limit, of namens een organisatie wijzigingen wilt doen (d.w.z. POST, PUT, DELETE-requests), dan kun je een mail sturen naar [info@conduction.nl](mailto:info@conduction.nl).
 
@@ -22,94 +34,41 @@ Voor de API is een [Stoplight-documentatie](https://conduction.stoplight.io/stud
 
 ### Voorbeelden
 
-In het merendeel van de gevallen wil je een zoekvraag uitvoeren binnen de Woo-publicaties van OpenWoo. Het endpoint daarvoor is: `https://api.gateway.commonground.nu/api/publicaties`.
+In het merendeel van de gevallen wil je een zoekvraag uitvoeren binnen de Woo-publicaties van OpenWoo. Per TOOI-categorie is er een eigen endpoint, bv. `https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten`.
 
-1. Op een of meer zoekwoorden, bv. `_search=test`. Zie [Full-text search](fulltext-search.md) voor de volledige query-syntax (booleaans, fuzzy, wildcards), gewogen velden en relevantie-score.
-2. Op organisatie, dit gaat aan de hand van OIN (de volledige OIN-lijst vind je [hier](https://oinregister.logius.nl/oin-register)), bv. `oin=00000001001299992000`.
-3. Op categorie: `categorie=Convenant`.
-4. Op datum. Hierbij kun je een begin- en einddatum opgeven om een periode (bijvoorbeeld een jaar) te doorzoeken: `publicatiedatum[after]=2022-12-31T23:59:59Z&publicatiedatum[before]=2024-01-01T00:00:00Z`.
+Bevragen kan onder andere:
+
+1. Op een of meer zoekwoorden, bv. `_search=test`. Zie [Full-text search](fulltext-search.md) voor query-syntax, gewogen velden en geïndexeerde velden.
+2. Op categorie: kies de juiste path-segment (zie lijst hierboven) — categorie is geen query-parameter meer maar zit in het pad.
+3. Op metadata-velden direct als query-parameter, bv. `titel=...`, `publicatiedatum=...`, `thema=...`, `tooiCategorieNaam=...`. De per-categorie beschikbare filters staan in de live OAS op [/api/](/api/). **Let op:** veld-filters matchen exact (geen `contains`/`starts-with`); voor "lijkt op" gebruik `_search`.
+4. Op organisatie: het OpenRegister-endpoint kent geen losse `oin`-filter; organisatie-scoping wordt afgehandeld via de objects-bron / register-inrichting. Voor de OIN-registratie zie het [OIN-register van Logius](https://oinregister.logius.nl/oin-register).
 
 ````cli
-GET 'https://api.gateway.commonground.nu/api/publicaties?extend[]=all&_search=verzoek&_order[publicatiedatum]=desc&_limit=12&_page=1'
+GET 'https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten?_search=verzoek&_extend=attachments'
 
-Response
+Response (verkort — voor de volledige response-shape per categorie zie /api/):
 
 {
+    "@self": { ... },
     "results": [
-        {
-            "_id": "385628ef-dd81-4ab2-98e1-3051ab1b3ef6",
-            "_self": {
-                "id": "385628ef-dd81-4ab2-98e1-3051ab1b3ef6",
-                "name": "informatieverzoek evenementenvergunning",
-                "self": "/api/publicaties/385628ef-dd81-4ab2-98e1-3051ab1b3ef6",
-                "schema": {
-                    "id": "40c1041c-1526-4494-b191-244fdd30aefd",
-                    "name": "Publicatie",
-                    "ref": "https://commongateway.nl/woo.publicatie.schema.json"
-                },
-                "level": 1,
-                "dateCreated": "2024-07-03T07:51:59+00:00",
-                "dateModified": "2024-08-02T12:26:46+00:00",
-                "dateDeleted": null,
-                "database": { "id": null, "name": null, "ref": null },
-                "owner": {
-                    "id": "06ef47a7-a2f1-4589-af59-b00a611d5692",
-                    "name": "Default User",
-                    "ref": "https://docs.commongateway.nl/user/default.user.json"
-                },
-                "organization": {
-                    "id": "a1c8e0b6-2f78-480d-a9fb-9792142f4761",
-                    "name": "Default Organization",
-                    "ref": "https://docs.commongateway.nl/organization/default.organization.json"
-                },
-                "application": { "id": null, "name": null, "ref": null },
-                "synchronizations": [
-                    {
-                        "id": "c04f118a-d853-48c4-a8d4-d4d86ef11b36",
-                        "source": {
-                            "id": "f1cf401b-fbbc-4416-b2da-519eac0163b9",
-                            "ref": "https://commongateway.woo.nl/source/conduction.zaaksysteem.source.json",
-                            "name": "Conduction zaaksysteem",
-                            "description": "Conduction zaaksysteem api",
-                            "location": "https://openwoo.zaaksysteem.net/api"
-                        },
-                        "endpoint": null,
-                        "sourceId": "001046b9-0a9b-4068-a6bf-3e7efcf75c67",
-                        "dateCreated": "2024-07-03T07:51:59+00:00",
-                        "dateModified": "2024-07-03T07:52:00+00:00",
-                        "lastChecked": null,
-                        "lastSynced": null,
-                        "sourceLastChanged": null
-                    }
-                ]
-            }
-        }
-        // 1 enkele voorbeeld publicatie, in dit geval zijn het er 64
+        { "@self": { ... }, "id": "...", "titel": "...", "publicatiedatum": "...", "...": "..." }
     ],
-    "count": 12,
-    "limit": 12,
+    "facets": { ... },
     "total": 64,
-    "offset": 0,
     "page": 1,
-    "pages": 6
+    "pages": 6,
+    "limit": 20,
+    "offset": 0
 }
 ````
 
-Vanuit het weergeven van een zoekformulier is het goed mogelijk dat je alleen bestaande waarden wilt weergeven (bijvoorbeeld bij jaartal of categorie). Je kunt daarvoor het content type `application/json+aggregations` gebruiken in combinatie met de query-parameter `_queries[]`. Deze vertelt je welke zoekwaarden welke resultaten opleveren.
-
-````cli
-GET 'https://api.gateway.commonground.nu/api/publicaties?_queries[]=categorie'
-Accept: application/json+aggregations
-
-Response
-
-{
-    "categorie": [
-        { "_id": "Woo verzoek", "count": 36 },
-        { "_id": "Convenant",   "count": 9  }
-    ]
-}
-````
+> **Let op:** legacy query-features die de oude `api.gateway.commonground.nu`-aggregator ondersteunde (`extend[]=all`, `_queries[]=…` met content-type `application/json+aggregations`) zijn niet 1-op-1 aanwezig in de OpenRegister-API. Wat in juni 2026 op canary getest is:
+>
+> - **Werkt:** `_search`, `_limit`, `_page`, `_extend=field1,field2`, `_unset=field1,field2`, `_order[<veld>]=desc` (ook al staat dit niet in de OAS), `_facets[<veld>]=true` of `_facets=<veld>` (vervangt de legacy aggregations — response bevat `facets: { <veld>: { data: { buckets: [{value, count, label}] } } }`).
+> - **Wordt stil genegeerd:** `_filter=titel,publicatiedatum` (response bevat alsnog alle velden — gebruik `_unset` of vraag specifieke fields via `_extend`).
+> - **Werkt niet (range-filters):** `publicatiedatum[after]=…` / `publicatiedatum[before]=…` en `publicatiedatum=YYYY..YYYY` retourneren 0 results. Date-range op canary nog niet bevestigd; gebruik exact-match of filter client-side.
+>
+> Verifieer per use-case tegen de live OAS op [/api/](/api/) voordat je productie-code bouwt.
 
 ## Metadata
 

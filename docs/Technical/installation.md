@@ -69,7 +69,7 @@ Configuratie vindt plaats via environment (env) waardes. In het geval van een se
 |-----|-----------|-------|---------------|-------------------|
 | GITHUB_PAGES_BRANCH | Alleen bij serverless | De branche waarop de pagina wordt gebouwd | string, max 255 characters | gh-pages |
 | GITHUB_REPOSITORY_NAME | Alleen bij serverless | | string, max 255 characters | `$\{{ github.event.repository.name }}` |
-| API_BASE_URL | Ja | De locatie van de Open Woo API | string, max 255 characters | "https://api.gateway.commonground.nu/api" |
+| API_BASE_URL | Ja | De locatie van de Open Woo API (OpenRegister-deployment) | string, max 255 characters | "https://canary.accept.commonground.nu/apps/openregister/api" |
 | NL_DESIGN_THEME_CLASSNAME | Ja | De naam van het thema van de organisatie | string, max 255 characters | "conduction-theme" |
 | FAVICON_URL | Ja | De locatie van de favicon van de organisatie | string, max 255 characters | "https://conduction.nl/wp-content/uploads/2021/07/cropped-favicon-32x32.png" |
 | HEADER_LOGO_URL | Ja | De locatie van het primaire logo van de organisatie | string, moet een base encoded afbeelding zijn OF url | "https://conduction.nl/wp-content/uploads/2021/07/cropped-conductionlogo-1.png" |
@@ -89,11 +89,17 @@ In dit geval koppel je de React frontend rechtstreeks op een WordPress installat
 
 Volg de installatiehandleiding op [https://github.com/OpenWebconcept/plugin-openwoo](https://github.com/OpenWebconcept/plugin-openwoo) en op [https://github.com/OpenWebconcept/plugin-openconvenanten](https://github.com/OpenWebconcept/plugin-openconvenanten).
 
-### Core Gateway met OpenWoo-Plugin
+### Nextcloud met OpenCatalogi + OpenRegister
 
-In dit geval koppel je de React frontend op een gateway installatie, dat betekent dat alle publicaties automatisch worden opgehaald uit bestaande bronnen
+In dit geval koppel je de React frontend aan een Nextcloud-installatie met [OpenCatalogi](https://github.com/ConductionNL/opencatalogi) (RegieTool) en [OpenRegister](https://github.com/ConductionNL/openregister) (object-storage). Publicaties worden automatisch opgehaald uit bestaande bronnen via de OpenWoo-register-inrichting. Dit is sinds OpenWoo 2.0 het canonieke backend-pad (zie [architectuur-overview](../Architecture/overview.md)).
 
-Volg de installatiehandleiding op [Woo Bundle](https://github.com/ConductionNL/WooBundle/tree/main).
+`API_BASE_URL` wijs je naar de OpenRegister-API van de deployment, bv.:
+
+```
+https://canary.accept.commonground.nu/apps/openregister/api
+```
+
+> **Legacy (1.0):** Een eerdere variant koppelde de frontend aan de [Common Gateway WooBundle](https://github.com/ConductionNL/WooBundle/tree/main). Deze route wordt sinds 2.0 niet langer aanbevolen — de zoek- en beheer-API zijn nu losse componenten op OpenRegister en eventueel ontsluitbaar op NLX/FSC.
 
 ## Externe Systemen
 
