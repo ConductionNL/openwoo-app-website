@@ -15,12 +15,21 @@ Toelichting bij het full-text search-endpoint dat de openbare publicatiepagina's
 ## Endpoint
 
 ```
-GET https://api.gateway.commonground.nu/api/publicaties?_search=<query>
+GET https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/{categorie}?_search=<query>
 ```
 
 - `_search` is parameterloos full-text — geen veld-specificatie nodig.
-- Combineerbaar met alle andere filters (`oin=…`, `categorie=…`, `publicatiedatum[after]=…`).
-- Default-sort is `_order[publicatiedatum]=desc` (nieuwste eerst). Sorteren op **relevantie** doe je expliciet met `_order[_score]=desc` (zie [Relevantie-score](#relevantie-score) hieronder).
+- Vervang `{categorie}` door een van de 17 TOOI-informatiecategorieën (zie [API-koppelvlak](api-koppelvlak.md) voor de volledige lijst). De categorie zit in het pad, niet als query-filter.
+- Combineerbaar met directe filter-parameters per veld (`titel=…`, `publicatiedatum=…`, `thema=…`).
+
+:::warning Verificatie tegen live canary (juni 2026)
+Onderstaande pagina beschrijft de full-text-search-features zoals die in de 1.0-aggregator (`api.gateway.commonground.nu`) werkten. Tegen canary getest:
+
+- **Werkt:** `_search`, `_limit`, `_page`, `_extend`, `_unset`, `_order[<veld>]=desc` (op indexed scalar fields zoals `publicatiedatum`), `_facets[<veld>]=true` (vervangt legacy aggregations).
+- **Wordt stil genegeerd:** `_filter=field1,field2` retourneert alsnog alle velden.
+- **Werkt niet:** `publicatiedatum[after]`/`[before]` en `YYYY..YYYY`-range — retourneert 0 results; gebruik exact-match.
+- **Niet bevestigd:** query-time boosting (`term^3`), fuzzy (`term~`), wildcards (`term*`), `_order[_score]=desc`-sortering, Lucene-style scoring in `_score`-veld. Staan niet in de OAS; voor productie eerst tegen canary testen.
+:::
 
 ## Geïndexeerde velden
 
@@ -107,52 +116,84 @@ Combineer relevantie met chronologie via `_order[_score]=desc&_order[publicatied
 ### Eenvoudige zoekbalk met paginatie
 
 ```http
-GET https://api.gateway.commonground.nu/api/publicaties
+GET https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten
     ?_search=evenementenvergunning
-    &_order[_score]=desc
+    &_order[publicatiedatum]=desc
     &_limit=10
     &_page=1
 ```
 
-### Geavanceerde zoekbalk met categorie- en datumfilter
+> Categorie zit in het pad (`/objects/woo/convenanten`), niet als query-filter. `_order[publicatiedatum]=desc` is op canary bevestigd. Sortering op relevantie (`_order[_score]=desc`) is in de OAS niet gedocumenteerd — verifieer voor productie.
+
+### Geavanceerde zoekbalk met datumfilter
 
 ```http
-GET https://api.gateway.commonground.nu/api/publicaties
+GET https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten
     ?_search=evenementenvergunning
-    &categorie=Convenant
-    &publicatiedatum[after]=2023-01-01T00:00:00Z
-    &publicatiedatum[before]=2024-01-01T00:00:00Z
-    &_order[_score]=desc
+    &publicatiedatum=2023-09-12
     &_limit=20
 ```
 
+> **Let op:** `publicatiedatum=…` matcht exact op canary. Range-syntax `publicatiedatum[after]=YYYY-MM-DD` / `publicatiedatum[before]=…` en `publicatiedatum=YYYY..YYYY` retourneren in juni 2026 0 results op canary — gebruik exact-match of filter client-side tot range-filters bevestigd zijn.
+
 ### Type-ahead / suggesties
 
-Voor real-time suggesties tijdens typen kun je een lichte variant gebruiken met wildcards en `_limit=5`:
+Voor real-time suggesties tijdens typen kun je een lichte variant gebruiken met `_limit=5` en `_unset` om grote velden weg te laten uit de response:
 
 ```http
-GET https://api.gateway.commonground.nu/api/publicaties
-    ?_search=evenem*
-    &_order[_score]=desc
+GET https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten
+    ?_search=evenem
     &_limit=5
-    &_fields=titel,categorie,publicatiedatum
+    &_unset=attachments,beschrijving,bevindingen,conclusies
 ```
 
-`_fields` reduceert de response-grootte — vraag alleen wat je in de suggestion-dropdown toont.
+> **Let op:** `_filter=titel,publicatiedatum` (whitelist-syntax) wordt op canary stil genegeerd — response bevat alsnog alle velden. Tot dat opgelost is, gebruik `_unset` (blacklist) om de payload te verkleinen. Wildcard-syntax (`evenem*`) is in de 1.0-aggregator beschreven; voor 2.0 niet gedocumenteerd en niet bevestigd op canary.
 
 ### Combinatie met aggregations voor filter-facets
 
-Voor een facetzoekinterface (categorie- en datumfilter-checkboxes naast de resultatenlijst) gebruik het `application/json+aggregations`-content-type:
+Voor een facetzoekinterface (categorie- en datumfilter-checkboxes naast de resultatenlijst) is op canary het `_facets`-mechanisme aanwezig:
 
 ```http
-GET https://api.gateway.commonground.nu/api/publicaties
+GET https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/convenanten
     ?_search=evenementenvergunning
-    &_queries[]=categorie
-    &_queries[]=oin
-Accept: application/json+aggregations
+    &_facets[categorie]=true
+    &_facets[publicatiedatum]=true
+    &_limit=10
 ```
 
-Response geeft per veld de count per waarde — geschikt om filter-checkboxes met counts te tonen.
+Response bevat een `facets`-blok met buckets + counts per veld, geschikt om filter-checkboxes met counts te tonen:
+
+```json
+{
+  "facets": {
+    "categorie": {
+      "name": "categorie",
+      "type": "terms",
+      "data": {
+        "type": "terms",
+        "total_count": 1,
+        "buckets": [
+          { "value": "Convenanten", "count": 4, "label": "Convenanten" }
+        ]
+      }
+    }
+  },
+  "results": [ ... ],
+  "total": 4
+}
+```
+
+> **Legacy 1.0-equivalent.** De oude aggregator gebruikte `_queries[]=categorie` met `Accept: application/json+aggregations`:
+>
+> ```http
+> GET https://api.gateway.commonground.nu/api/publicaties
+>     ?_search=evenementenvergunning
+>     &_queries[]=categorie
+>     &_queries[]=oin
+> Accept: application/json+aggregations
+> ```
+>
+> Op canary wordt deze syntax stil genegeerd — gebruik `_facets[<veld>]=true` voor 2.0-deployments.
 
 ## Gotchas
 
@@ -173,7 +214,7 @@ Voor productie-front-ends raden we aan een Conduction-API-key aan te vragen (`in
 
 ## OpenAPI
 
-De volledige API-specificatie inclusief request- en response-schemas leeft onder [/api](/api/). Phase-2 van de docs-pipeline (zie [hydra#279](https://github.com/ConductionNL/hydra/issues/279)) genereert die automatisch uit geannoteerde OpenCatalogi-controllers.
+De volledige API-specificatie inclusief request- en response-schemas leeft onder [/api](/api/). De spec wordt automatisch gegenereerd door OpenRegister (per register een complete OpenAPI 3.1.0 spec) en nachtelijk gemirrord vanuit een referentie-deployment — zie [API-overzicht](../api.md) voor de sync-details.
 
 ## Referentie-implementaties
 

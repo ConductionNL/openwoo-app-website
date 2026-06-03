@@ -6,17 +6,17 @@ sidebar_position: 3
 
 Deze installatiehandleiding is bedoeld voor overheden en leveranciers die zelfstandig aan de slag willen met OpenWoo-website. Als je OpenWoo-website als SaaS wilt afnemen, kijk dan onder [kosten](../reference/pricing.md).
 
-Het template voor de OpenWoo-website is gebaseerd op de Conduction [Productpage-template](https://github.com/ConductionNL/product-website-template) voor Common Ground. Hieronder tref je een verkorte installatiehandleiding aan die vooral focust op de onderliggende bronnen. Voor meer en uitgebreidere details kun je de documentatie van het Productpage-website-template gebruiken.
+Het template voor de OpenWoo-website is gebaseerd op de Conduction Productpage-template voor Common Ground (gearchiveerd — repo niet langer beschikbaar). Hieronder tref je een verkorte installatiehandleiding aan die vooral focust op de onderliggende bronnen.
 
 ## Randvoorwaarden
 
 Om dit template te gebruiken, moet je beschikken over:
 
-- NL Design Token voor je organisatie ([lees hier hoe je die kunt verkrijgen](https://conductionnl.github.io/product-website-template/Features/NL_Design))
+- NL Design Token voor je organisatie (de oude Productpage-template-documentatie op `conductionnl.github.io` is niet langer beschikbaar — neem contact op via [info@conduction.nl](mailto:info@conduction.nl) voor de actuele NL Design-instructies)
 - Een GitHub-organisatie en beheerdersrechten daarop OF (zie [Serverless Installatie](#serverless-installatie))
 - Een APACHE/NGINX-server (zie [Server Installatie](#server-installatie))
 - Een Open Webconcept CMS (WordPress) met de [OpenWoo](https://github.com/OpenWebconcept/plugin-openwoo) en [Open Convenanten](https://github.com/OpenWebconcept/plugin-openconvenanten) plugins OF
-- Een losse installatie (on-premise of SaaS) met de [Woo Bundle](https://github.com/ConductionNL/WooBundle/tree/main)
+- Een losse installatie (on-premise of SaaS) met de Woo Bundle (gearchiveerd 1.0-component — repo niet langer beschikbaar; voor 2.0 zie [Nextcloud met OpenCatalogi + OpenRegister](#nextcloud-met-opencatalogi--openregister) hieronder)
 
 ## Frontend
 
@@ -45,12 +45,12 @@ De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te word
 2. Ga naar Actions
 3. Ga naar General.
 
-![settings-action](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/settings-action.png)
+![settings-action](/img/installation/settings-action.png)
 
 4. Scroll naar Workflow permissions.
 5. Set permissions naar `Read and write permissions`.
 
-![Workflow permissions](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/techniek/workflow-permissions.png)
+![Workflow permissions](/img/installation/workflow-permissions.png)
 
 ### Server Installatie
 
@@ -58,7 +58,7 @@ Als je de OpenWoo-website liever vanaf een eigen server draait, kan dat uiteraar
 
 #### Stappen
 
-1. Volg de stappen hiervoor op de [Productpage-template](https://github.com/ConductionNL/product-website-template)
+1. Volg de stappen hiervoor op de Productpage-template (gearchiveerd — repo niet langer beschikbaar; raadpleeg een actuele Conduction product-site zoals deze repo voor de huidige opzet)
 2. Pas de configuratie aan zoals hieronder vermeld bij configuratie
 
 ### Configuratie
@@ -69,7 +69,7 @@ Configuratie vindt plaats via environment (env) waardes. In het geval van een se
 |-----|-----------|-------|---------------|-------------------|
 | GITHUB_PAGES_BRANCH | Alleen bij serverless | De branche waarop de pagina wordt gebouwd | string, max 255 characters | gh-pages |
 | GITHUB_REPOSITORY_NAME | Alleen bij serverless | | string, max 255 characters | `$\{{ github.event.repository.name }}` |
-| API_BASE_URL | Ja | De locatie van de Open Woo API | string, max 255 characters | "https://api.gateway.commonground.nu/api" |
+| API_BASE_URL | Ja | De locatie van de Open Woo API (OpenRegister-deployment) | string, max 255 characters | "https://canary.accept.commonground.nu/apps/openregister/api" |
 | NL_DESIGN_THEME_CLASSNAME | Ja | De naam van het thema van de organisatie | string, max 255 characters | "conduction-theme" |
 | FAVICON_URL | Ja | De locatie van de favicon van de organisatie | string, max 255 characters | "https://conduction.nl/wp-content/uploads/2021/07/cropped-favicon-32x32.png" |
 | HEADER_LOGO_URL | Ja | De locatie van het primaire logo van de organisatie | string, moet een base encoded afbeelding zijn OF url | "https://conduction.nl/wp-content/uploads/2021/07/cropped-conductionlogo-1.png" |
@@ -89,11 +89,17 @@ In dit geval koppel je de React frontend rechtstreeks op een WordPress installat
 
 Volg de installatiehandleiding op [https://github.com/OpenWebconcept/plugin-openwoo](https://github.com/OpenWebconcept/plugin-openwoo) en op [https://github.com/OpenWebconcept/plugin-openconvenanten](https://github.com/OpenWebconcept/plugin-openconvenanten).
 
-### Core Gateway met OpenWoo-Plugin
+### Nextcloud met OpenCatalogi + OpenRegister
 
-In dit geval koppel je de React frontend op een gateway installatie, dat betekent dat alle publicaties automatisch worden opgehaald uit bestaande bronnen
+In dit geval koppel je de React frontend aan een Nextcloud-installatie met [OpenCatalogi](https://codeberg.org/Conduction/opencatalogi) (RegieTool) en [OpenRegister](https://codeberg.org/Conduction/openregister) (object-storage). Publicaties worden automatisch opgehaald uit bestaande bronnen via de OpenWoo-register-inrichting. Dit is sinds OpenWoo 2.0 het canonieke backend-pad (zie [architectuur-overview](../Architecture/overview.md)).
 
-Volg de installatiehandleiding op [Woo Bundle](https://github.com/ConductionNL/WooBundle/tree/main).
+`API_BASE_URL` wijs je naar de OpenRegister-API van de deployment, bv.:
+
+```
+https://canary.accept.commonground.nu/apps/openregister/api
+```
+
+> **Legacy (1.0):** Een eerdere variant koppelde de frontend aan de Common Gateway WooBundle (gearchiveerd — repo niet langer beschikbaar). Deze route wordt sinds 2.0 niet langer aanbevolen — de zoek- en beheer-API zijn nu losse componenten op OpenRegister en eventueel ontsluitbaar op NLX/FSC.
 
 ## Externe Systemen
 
@@ -101,4 +107,4 @@ Voor het koppelen van externe systemen geldt dat zij op de juiste manier moeten 
 
 ## Verdere documentatie
 
-Voor verdere documentatie verwijzen we naar de [documentatie van het Productpage-template](https://conductionnl.github.io/product-website-template/).
+De oude Productpage-template-documentatie op `conductionnl.github.io` is niet langer beschikbaar. Raadpleeg een actuele Conduction product-site of neem contact op via [info@conduction.nl](mailto:info@conduction.nl) voor de huidige documentatie.

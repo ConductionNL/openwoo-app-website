@@ -7,7 +7,7 @@ sidebar_position: 5
 
 # API-overzicht
 
-OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** binnen [OpenCatalogi](https://github.com/ConductionNL/opencatalogi) (de RegieTool) bovenop [OpenRegister](https://github.com/ConductionNL/openregister) (object-storage). Per register genereert OpenRegister automatisch een complete OpenAPI 3.1.0 spec. Deze pagina is de hub naar:
+OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** binnen [OpenCatalogi](https://codeberg.org/Conduction/opencatalogi) (de RegieTool) bovenop [OpenRegister](https://codeberg.org/Conduction/openregister) (object-storage). Per register genereert OpenRegister automatisch een complete OpenAPI 3.1.0 spec. Deze pagina is de hub naar:
 
 - de **live Woo Register API** (gemirrord en gerenderd op deze site)
 - de **upstream specs** van OpenCatalogi en OpenRegister (single source of truth)
@@ -45,14 +45,14 @@ OpenWoo bouwt op deze components — voor de volledige spec van de onderliggende
 De endpoints voor catalogi, publications, themas, organisations en de federation directory.
 
 - **Live**: [opencatalogi.conduction.nl/api](https://opencatalogi.conduction.nl/api) (Redocusaurus)
-- **Source**: [ConductionNL/opencatalogi](https://github.com/ConductionNL/opencatalogi)
+- **Source**: [Conduction/opencatalogi](https://codeberg.org/Conduction/opencatalogi)
 
 ### OpenRegister API (object-storage)
 
 De onderliggende objecten (Catalog, Publication, Glossary, …) worden via OpenRegister opgeslagen. Voor schema/register/object-management routes:
 
 - **Live**: [openregister.conduction.nl/api](https://openregister.conduction.nl/api/) (Redocusaurus)
-- **Source**: [ConductionNL/openregister](https://github.com/ConductionNL/openregister)
+- **Source**: [Conduction/openregister](https://codeberg.org/Conduction/openregister)
 
 ## OpenWoo-specifieke integratie-uitleg
 
@@ -63,16 +63,18 @@ De live spec op `/api/` beschrijft het **wat**. Voor het **hoe** vanuit OpenWoo-
 - **[Ondersteunde bronnen](/docs/Integrations/ondersteunde-bronnen/)** — welke zaak-/document-/data-bronnen OpenWoo kan ontsluiten
 - **[Bron koppelen](/docs/Integrations/bron-koppelen/)** — een nieuwe bron aansluiten
 
-## Publieke OpenWoo gateway (zonder Nextcloud)
+## Publiek leesbare canary-omgeving
 
-Voor publieke leveranciers / front-end-bouwers die zoeken zonder eigen Nextcloud-instance: de CommonGround-gateway aggregator over OpenWoo-instances:
+Voor leveranciers / front-end-bouwers die direct tegen een live Woo Register willen ontwikkelen zonder eigen deployment: de canary-omgeving is anoniem leesbaar:
 
 ```
-https://api.gateway.commonground.nu/api/publicaties
+https://canary.accept.commonground.nu/apps/openregister/api/objects/woo/{categorie}
 ```
 
-Geen authenticatie nodig voor `GET`. Throttling + rate-limiting actief. Voor query-syntax + voorbeelden zie [Full-text search voor leveranciers](/docs/Integrations/fulltext-search/).
+Vervang `{categorie}` door een van de 17 TOOI-informatiecategorieën — bv. `adviezen`, `convenanten`, `klachtoordelen`, `onderzoeksrapporten`, `woo_verzoeken_en_besluiten`. De volledige lijst staat in de live OAS op [/api/](/api/).
+
+Geen authenticatie nodig voor `GET`. Voor query-syntax + voorbeelden zie [Full-text search voor leveranciers](/docs/Integrations/fulltext-search/).
 
 ## Achtergrond
 
-OpenWoo's vroegere plan was een hand-onderhouden OpenAPI-spec. Dat is verlaten zodra duidelijk werd dat OpenRegister al per-register OAS-generation doet (`GET /api/registers/{id}/oas`). Mirror van de live spec geeft "altijd up-to-date" zonder enige handmatige sync of cross-repo token. Zie [hydra#279](https://github.com/ConductionNL/hydra/issues/279).
+OpenWoo's vroegere plan was een hand-onderhouden OpenAPI-spec. Dat is verlaten zodra duidelijk werd dat OpenRegister al per-register OAS-generation doet (`GET /api/registers/{id}/oas`). Mirror van de live spec geeft "altijd up-to-date" zonder enige handmatige sync of cross-repo token.

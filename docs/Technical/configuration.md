@@ -22,19 +22,19 @@ Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject
 - Onder 'jaar' worden alleen de jaren weergegeven waarbinnen er een WOO-publicatie bestaat.
 - Onder 'Categorie' worden de categorieën weergegeven waarvoor een WOO-publicatie bestaat.
 
-![img_2.png](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/img_2.png)
+![img_2.png](/img/configuration/img_2.png)
 
 **Cards**
 
 In de cards worden de properties op de volgende plekken weergegeven.
 
-![img_1.png](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/img_1.png)
+![img_1.png](/img/configuration/img_1.png)
 
 **Overzichtspagina**
 
 In de overzichtspagina worden de properties op de volgende plekken weergegeven.
 
-![img_4.png](https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/docs/img_4.png)
+![img_4.png](/img/configuration/img_4.png)
 
 ## Algemene inrichting
 
@@ -132,7 +132,7 @@ Gebaseerd op: [VNG ZGW Standaard](https://vng.nl/projecten/zaakgericht-werken-ap
 
 ### Mapping vanuit zaaksysteem.nl search endpoint
 
-Gebaseerd op: [xxllc-zaken mapping](https://github.com/CommonGateway/WooBundle/blob/main/Installation/Mapping/woo.xxllncCaseToWoo.mapping.json)
+Gebaseerd op: [xxllc-zaken mapping](https://github.com/CommonGateway/WooBundle/blob/main/Installation/Mapping/woo.xxllncCaseToWoo.mapping.json) — *historische 1.0-referentie naar de Common Gateway WooBundle. In de 2.0-architectuur wordt deze mapping via [OpenRegister](https://codeberg.org/Conduction/openregister) afgehandeld; de tabel hieronder beschrijft de mapping-logica los van het uitvoerend component.*
 
 | Eigenschap                | Zaaksysteem.nl eigenschap               |
 |---------------------------|-----------------------------------------|
