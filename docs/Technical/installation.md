@@ -24,11 +24,15 @@ Om dit template te gebruiken, moet je beschikken over:
 
 De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te worden via GitHub. Dat scheelt niet alleen in de kosten, maar levert ook voordeel op in de beschikbaarheid en belasting. Simpel gezegd, de GitHub CDN is gebouwd om flink wat meer aan te kunnen dan de gemiddelde gemeente.
 
+:::warning Flow nog gericht op GitHub Actions / GitHub Pages
+De stappen hieronder zijn geschreven voor de oorspronkelijke GitHub-Actions + GitHub-Pages-route. Sinds de migratie naar Codeberg draait `woo-website-template-apiv2` op **Forgejo Actions** (`.forgejo/workflows/` in plaats van `.github/workflows/`) en Codeberg Pages — de UI-stappen ("workflow permissions", "settings → pages") werken anders. Tot deze sectie is herschreven voor Codeberg: lees `.github` als `.forgejo`, en zoek de Forgejo/Codeberg-equivalenten van de GitHub Actions / Pages UI-instellingen.
+:::
+
 #### Stappen
 
-1. Rechtsboven deze repo staat een knop ["gebruiken als template"](https://github.com/new?template_name=woo-website-template&template_owner=ConductionNL), druk daarop (of [klik hier](https://github.com/new?template_name=woo-website-template&template_owner=ConductionNL)) en maak een nieuwe repository aan op je GitHub-organisatie.
+1. Fork de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2)-repo naar je eigen Codeberg-organisatie via de "Fork"-knop rechtsboven. (Een directe "use as template"-knop is nog niet ingericht op Codeberg — fork is het werkende alternatief. Op termijn wordt deze repo samengevoegd terug onder de naam `woo-website-template`.)
 2. [Zet de workflow permissions](#workflow-permissions) op `Read and write permissions`.
-3. Ga op de main branch in de repository naar de folder `.github/workflows/`
+3. Ga op de main branch in de repository naar de folder `.forgejo/workflows/` (oude GitHub-Actions-tak gebruikte `.github/workflows/`)
 4. Verwijder de workflow `product-page-deploy` als deze er nog staat
 5. Open de workflow `woo-page-deploy` en pas de branche aan van `never` naar `main`
 6. Pas de verdere configuratie in `woo-page-deploy` aan zoals [hieronder vermeld onder configuratie](#configuratie) en sla deze op
@@ -63,7 +67,7 @@ Als je de OpenWoo-website liever vanaf een eigen server draait, kan dat uiteraar
 
 ### Configuratie
 
-Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://github.com/ConductionNL/woo-website-template/blob/main/.github/workflows/product-page-deploy.yml). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
+Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://codeberg.org/Conduction/woo-website-template-apiv2/src/branch/main/.forgejo/workflows/product-page-deploy.yml) (Forgejo Actions onder `.forgejo/workflows/`, niet `.github/workflows/`). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
 
 | Key | Verplicht | Usage | Allowed Value | Default / Example |
 |-----|-----------|-------|---------------|-------------------|
