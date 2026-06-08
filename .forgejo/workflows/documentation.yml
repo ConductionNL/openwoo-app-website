@@ -13,7 +13,12 @@ jobs:
   build:
     uses: Conduction/.github/.forgejo/workflows/documentation-build.yml@main
     with:
-      source-folder: docs
+      # The Docusaurus project (package.json + docusaurus.config.js) lives at the
+      # repo ROOT here, not under docs/ — docs/ is only the markdown content folder.
+      # `npm run build` therefore emits the site to ./build, so the build+verify
+      # reusable must treat the repo root as the source folder. With source-folder: docs
+      # the reusable looked for docs/build/index.html, which never exists, failing every run.
+      source-folder: .
     secrets: inherit
 
   deploy:
