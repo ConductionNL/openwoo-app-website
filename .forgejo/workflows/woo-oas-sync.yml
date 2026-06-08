@@ -1,0 +1,97 @@
+name: Woo OAS sync
+
+# Forgejo Actions port of the original .github/workflows/woo-oas-sync.yml.
+# Mirrors the live Woo Register OpenAPI spec into static/oas/woo.json on
+# BOTH `main` (source of truth) and `documentation` (the branch the
+# Cloudflare Pages deploy watches — pushing here is what refreshes the
+# live openwoo.conduction.nl/api/ page).
+#
+# Runs nightly at 03:27 UTC. The Woo Register schema rarely changes, so
+# daily is plenty. Manual triggering via workflow_dispatch is always
+# available. To switch source update OAS_URL below.
+
+on:
+  schedule:
+    - cron: "27 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: woo-oas-sync
+  cancel-in-progress: false
+
+env:
+  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
+  OAS_PATH: static/oas/woo.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream OAS
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-tmp
+          curl --fail-with-body --silent --show-error \
+            --location \
+            --max-time 60 \
+            --output .sync-tmp/woo.json \
+            "$OAS_URL"
+
+      - name: Validate it looks like an OpenAPI 3 spec
+        run: |
+          set -euo pipefail
+          # Refuse to overwrite the mirrored file with garbage if the
+          # source returned an HTML error page or a 200-with-empty-body.
+          openapi=$(jq -r '.openapi // empty' .sync-tmp/woo.json)
+          title=$(jq -r '.info.title // empty' .sync-tmp/woo.json)
+          paths_n=$(jq -r '.paths | length // 0' .sync-tmp/woo.json)
+          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ "$paths_n" -lt 1 ]]; then
+            echo "::error::Fetched payload does not look like an OpenAPI 3 spec."
+            echo "  openapi=$openapi"
+            echo "  title=$title"
+            echo "  paths=$paths_n"
+            head -c 1000 .sync-tmp/woo.json
+            exit 1
+          fi
+          echo "OK — $title v$(jq -r '.info.version' .sync-tmp/woo.json) ($paths_n paths)"
+
+      - name: Apply OAS to main and documentation
+        run: |
+          set -euo pipefail
+          git config user.name  "forgejo-actions[bot]"
+          git config user.email "forgejo-actions[bot]@noreply.codeberg.org"
+          git fetch origin main documentation
+          version=$(jq -r '.info.version' .sync-tmp/woo.json)
+
+          # Normalize once for change detection; preserve upstream formatting
+          # for the file that actually lands in the repo so diffs stay readable.
+          jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
+
+          for branch in main documentation; do
+            git checkout -B "$branch" "origin/$branch"
+            mkdir -p "$(dirname "$OAS_PATH")"
+
+            # Skip if this branch already matches upstream (key-sorted compare
+            # so trivial reordering doesn't cause spurious commits).
+            if [[ -f "$OAS_PATH" ]]; then
+              jq -S . "$OAS_PATH" > .sync-tmp/current.norm.json
+              if cmp --silent .sync-tmp/woo.norm.json .sync-tmp/current.norm.json; then
+                echo "$branch already has the latest OAS — skipping."
+                continue
+              fi
+            fi
+
+            cp .sync-tmp/woo.json "$OAS_PATH"
+            git add "$OAS_PATH"
+            git commit -m "docs(api): sync Woo OAS to v${version}"
+            git push origin "$branch"
+          done
