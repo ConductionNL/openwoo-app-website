@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # FAQ
 
-Dit zijn de algemene veelgestelde vragen over het gebruik en de configuratie van het OpenWoo platform. Mocht u een vraag hebben die hier niet beantwoord wordt, of wilt u een vraag toegevoegd zien aan deze lijst, dan nodigen we u uit om een issue aan te maken op onze [GitHub-pagina](https://github.com/ConductionNL/woo-website-template/issues).
+Dit zijn de algemene veelgestelde vragen over het gebruik en de configuratie van het OpenWoo platform. Mocht u een vraag hebben die hier niet beantwoord wordt, of wilt u een vraag toegevoegd zien aan deze lijst, dan nodigen we u uit om een issue aan te maken op onze [Codeberg-pagina](https://codeberg.org/Conduction/woo-website-template-apiv2/issues).
 
 **Q. Wanneer kan ik gebruik maken van OpenWoo.app?**
 
@@ -28,7 +28,7 @@ A. Het is wel mogelijk om de OpenWoo.app te koppelen aan een zaaksysteem zonder 
 
 **Q. Wat als ik een bron wilt toevoegen die nog niet wordt ondersteund?**
 
-A. Voor nieuwe bronnen, of gewenste features kunt u een issue aanmaken op onze [GitHub-pagina](https://github.com/ConductionNL/woo-website-template/issues). Deze worden dan gereviewd door de stuurgroep en indien mogelijk toegevoegd aan de roadmap. Voor meer informatie over de community, zie de [OpenWoo Academy](https://www.conduction.nl/academy/?app=openwoo).
+A. Voor nieuwe bronnen, of gewenste features kunt u een issue aanmaken op onze [Codeberg-pagina](https://codeberg.org/Conduction/woo-website-template-apiv2/issues). Deze worden dan gereviewd door de stuurgroep en indien mogelijk toegevoegd aan de roadmap. Voor meer informatie over de community, zie de [OpenWoo Academy](https://www.conduction.nl/academy/?app=openwoo).
 
 **Q. Kan ik worden ontzorgd?**
 

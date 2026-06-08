@@ -6,7 +6,7 @@ sidebar_position: 4
 
 # Full-text search
 
-Toelichting bij het full-text search-endpoint dat de openbare publicatiepagina's voedt (typisch de [`woo-website-template`](https://github.com/ConductionNL/woo-website-template) en eigen front-ends): query-syntax, gewogen velden, relevantie-score en concrete integratievoorbeelden.
+Toelichting bij het full-text search-endpoint dat de openbare publicatiepagina's voedt (typisch de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) en eigen front-ends): query-syntax, gewogen velden, relevantie-score en concrete integratievoorbeelden.
 
 :::tip Eerst lezen
 [API-koppelvlak](api-koppelvlak.md) — de algemene introductie tot de OpenWoo-API, authenticatie en throttling. De voorbeelden hieronder bouwen daarop voort.
@@ -218,5 +218,5 @@ De volledige API-specificatie inclusief request- en response-schemas leeft onder
 
 ## Referentie-implementaties
 
-- [`woo-website-template`](https://github.com/ConductionNL/woo-website-template) — de publieke WOO publicatiepagina; gebruikt dit endpoint met faceted-search UI.
+- [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) — de publieke WOO publicatiepagina voor de 2.0-stack (Nextcloud + OpenRegister); gebruikt dit endpoint met faceted-search UI. De voormalige `woo-website-template` (1.0, Gateway-backend) wordt op termijn samengevoegd terug onder die naam.
 - [`api-koppelvlak`](api-koppelvlak.md) — generiek koppelvlak-overzicht inclusief metadata-schema's.
