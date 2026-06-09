@@ -146,12 +146,15 @@ const config = createConfig({
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
-      /* Stay opt-in for dark mode (manual navbar toggle) instead of
-         auto-flipping on `prefers-color-scheme: dark`. The brand
-         preset's dark theme has a hardcoded `.theme-doc-markdown`
-         text color that lands at ~1.3:1 contrast on the cobalt-900
-         dark body bg; until that's fixed upstream, opt-in keeps the
-         site readable by default for users whose OS is set to dark. */
+      /* Site-wide guard: stay opt-in for dark mode (manual navbar
+         toggle) instead of auto-flipping on `prefers-color-scheme:
+         dark`. The docs-content readability bug is already patched
+         by the `.theme-doc-markdown` dark-mode overrides in
+         `src/css/custom.css`, but the brand preset's dark theme
+         still has unaudited contrast on navbar / sidebar / footer /
+         marketing surfaces — until that's fixed upstream, opt-in
+         keeps the whole site readable by default for users whose
+         OS is set to dark. */
       respectPrefersColorScheme: false,
     },
   },
