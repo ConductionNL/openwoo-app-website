@@ -37,7 +37,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
+  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/7/oas
   OAS_PATH: static/oas/woo.json
 
 jobs:
