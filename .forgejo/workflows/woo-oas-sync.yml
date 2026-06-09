@@ -7,8 +7,21 @@ name: Woo OAS sync
 # live openwoo.conduction.nl/api/ page).
 #
 # Runs nightly at 03:27 UTC. The Woo Register schema rarely changes, so
-# daily is plenty. Manual triggering via workflow_dispatch is always
-# available. To switch source update OAS_URL below.
+# daily is plenty — and avoids burning runner minutes on no-op polls.
+# Manual triggering via workflow_dispatch is always available.
+#
+# Cron timing: off-the-hour :27 minute avoids scheduler-collision at :00
+# (where many cron jobs cluster). 03:27 UTC = 04:27 CET (winter) /
+# 05:27 CEST (summer) — quiet hours for both NL and the source.
+#
+# Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
+# post-"github has been hacked" policy bans Personal Access Tokens on
+# hosted-runner workflows. Reading the upstream OAS is anonymous; the
+# commit/push uses the run-scoped GITHUB_TOKEN (Forgejo's backward-
+# compat alias for the per-run Forgejo token, not a github.com cred).
+#
+# To switch source URL (e.g. when a production deployment lands):
+# update the OAS_URL env var below.
 
 on:
   schedule:
@@ -17,6 +30,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: woo-oas-sync
@@ -64,7 +78,8 @@ jobs:
           fi
           echo "OK — $title v$(jq -r '.info.version' .sync-tmp/woo.json) ($paths_n paths)"
 
-      - name: Apply OAS to main and documentation
+      - name: Commit OAS to main and documentation if changed
+        id: sync
         run: |
           set -euo pipefail
           git config user.name  "forgejo-actions[bot]"
@@ -76,6 +91,7 @@ jobs:
           # for the file that actually lands in the repo so diffs stay readable.
           jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
 
+          doc_branch_updated=0
           for branch in main documentation; do
             git checkout -B "$branch" "origin/$branch"
             mkdir -p "$(dirname "$OAS_PATH")"
@@ -94,4 +110,28 @@ jobs:
             git add "$OAS_PATH"
             git commit -m "docs(api): sync Woo OAS to v${version}"
             git push origin "$branch"
+            if [[ "$branch" == "documentation" ]]; then
+              doc_branch_updated=1
+            fi
           done
+          echo "doc_branch_updated=$doc_branch_updated" >> "$GITHUB_OUTPUT"
+
+      # Belt-and-suspenders: explicitly dispatch the Publish docs workflow
+      # when documentation got a new commit. On GitHub, pushes by
+      # secrets.GITHUB_TOKEN are blocked from triggering downstream workflows
+      # (anti-loop protection); Forgejo's behaviour for this chain is
+      # version-dependent. Without this step, a silent non-chain would leave
+      # openwoo.conduction.nl/api/ stale for days. (Codeberg runners don't
+      # ship `gh` — use the Forgejo dispatch API directly via curl.)
+      - name: Dispatch Publish docs when documentation changed
+        if: steps.sync.outputs.doc_branch_updated == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: token ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/documentation.yml/dispatches" \
+            -d '{"ref":"documentation"}'
