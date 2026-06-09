@@ -1,0 +1,144 @@
+name: Woo OAS sync
+
+# Forgejo Actions port of the original .github/workflows/woo-oas-sync.yml.
+# Mirrors the live Woo Register OpenAPI spec into static/oas/woo.json on
+# BOTH `main` (source of truth) and `documentation` (the branch the
+# Cloudflare Pages deploy watches — pushing here is what refreshes the
+# live openwoo.conduction.nl/api/ page).
+#
+# Runs nightly at 03:27 UTC. The Woo Register schema rarely changes, so
+# daily is plenty — and avoids burning runner minutes on no-op polls.
+# Manual triggering via workflow_dispatch is always available.
+#
+# Cron timing: off-the-hour :27 minute avoids scheduler-collision at :00
+# (where many cron jobs cluster). 03:27 UTC = 04:27 CET (winter) /
+# 05:27 CEST (summer) — quiet hours for both NL and the source.
+#
+# Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
+# post-"github has been hacked" policy bans Personal Access Tokens on
+# hosted-runner workflows. Reading the upstream OAS is anonymous; the
+# commit/push uses the run-scoped GITHUB_TOKEN (Forgejo's backward-
+# compat alias for the per-run Forgejo token, not a github.com cred).
+#
+# To switch source URL (e.g. when a production deployment lands):
+# update the OAS_URL env var below.
+
+on:
+  schedule:
+    - cron: "27 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: woo-oas-sync
+  cancel-in-progress: false
+
+env:
+  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/7/oas
+  OAS_PATH: static/oas/woo.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Always operate on main even when dispatched from another branch,
+          # so manual dry-runs from feature branches still mirror upstream
+          # into the canonical source-of-truth.
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream OAS
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-tmp
+          curl --fail-with-body --silent --show-error \
+            --location \
+            --max-time 60 \
+            --output .sync-tmp/woo.json \
+            "$OAS_URL"
+
+      - name: Validate it looks like an OpenAPI 3 spec
+        run: |
+          set -euo pipefail
+          # Refuse to overwrite the mirrored file with garbage if the
+          # source returned an HTML error page or a 200-with-empty-body.
+          # info.version is required too — otherwise the commit step's
+          # message would end "...sync Woo OAS to v" (empty).
+          openapi=$(jq -r '.openapi // empty' .sync-tmp/woo.json)
+          title=$(jq -r '.info.title // empty' .sync-tmp/woo.json)
+          version=$(jq -r '.info.version // empty' .sync-tmp/woo.json)
+          paths_n=$(jq -r '.paths | length // 0' .sync-tmp/woo.json)
+          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ -z "$version" ]] || [[ "$paths_n" -lt 1 ]]; then
+            echo "::error::Fetched payload does not look like an OpenAPI 3 spec."
+            echo "  openapi=$openapi"
+            echo "  title=$title"
+            echo "  version=$version"
+            echo "  paths=$paths_n"
+            head -c 1000 .sync-tmp/woo.json
+            exit 1
+          fi
+          echo "OK — $title v$version ($paths_n paths)"
+
+      - name: Commit OAS to main and documentation if changed
+        id: sync
+        run: |
+          set -euo pipefail
+          git config user.name  "forgejo-actions[bot]"
+          git config user.email "forgejo-actions[bot]@noreply.codeberg.org"
+          git fetch origin main documentation
+          version=$(jq -r '.info.version' .sync-tmp/woo.json)
+
+          # Normalize once for change detection; preserve upstream formatting
+          # for the file that actually lands in the repo so diffs stay readable.
+          jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
+
+          doc_branch_updated=0
+          for branch in main documentation; do
+            git checkout -B "$branch" "origin/$branch"
+            mkdir -p "$(dirname "$OAS_PATH")"
+
+            # Skip if this branch already matches upstream (key-sorted compare
+            # so trivial reordering doesn't cause spurious commits).
+            if [[ -f "$OAS_PATH" ]]; then
+              jq -S . "$OAS_PATH" > .sync-tmp/current.norm.json
+              if cmp --silent .sync-tmp/woo.norm.json .sync-tmp/current.norm.json; then
+                echo "$branch already has the latest OAS — skipping."
+                continue
+              fi
+            fi
+
+            cp .sync-tmp/woo.json "$OAS_PATH"
+            git add "$OAS_PATH"
+            git commit -m "docs(api): sync Woo OAS to v${version}"
+            git push origin "$branch"
+            if [[ "$branch" == "documentation" ]]; then
+              doc_branch_updated=1
+            fi
+          done
+          echo "doc_branch_updated=$doc_branch_updated" >> "$GITHUB_OUTPUT"
+
+      # Belt-and-suspenders: explicitly dispatch the Publish docs workflow
+      # when documentation got a new commit. On GitHub, pushes by
+      # secrets.GITHUB_TOKEN are blocked from triggering downstream workflows
+      # (anti-loop protection); Forgejo's behaviour for this chain is
+      # version-dependent. Without this step, a silent non-chain would leave
+      # openwoo.conduction.nl/api/ stale for days. (Codeberg runners don't
+      # ship `gh` — use the Forgejo dispatch API directly via curl.)
+      - name: Dispatch Publish docs when documentation changed
+        if: steps.sync.outputs.doc_branch_updated == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: token ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/documentation.yml/dispatches" \
+            -d '{"ref":"documentation"}'

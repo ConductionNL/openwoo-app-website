@@ -9,6 +9,15 @@ on:
     branches: [documentation]
   workflow_dispatch:
 
+# Serialize Publish docs runs so that the chained `push` trigger and the
+# explicit `workflow_dispatch` from woo-oas-sync (belt-and-suspenders, see
+# .forgejo/workflows/woo-oas-sync.yml) can't both race a Cloudflare deploy
+# against the same project. `cancel-in-progress: false` keeps a real
+# documentation push from being killed by an in-flight OAS-sync dispatch.
+concurrency:
+  group: openwoo-docs-publish
+  cancel-in-progress: false
+
 jobs:
   build:
     uses: Conduction/.github/.forgejo/workflows/documentation-build.yml@main
