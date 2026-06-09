@@ -146,7 +146,13 @@ const config = createConfig({
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
-      respectPrefersColorScheme: true,
+      /* Stay opt-in for dark mode (manual navbar toggle) instead of
+         auto-flipping on `prefers-color-scheme: dark`. The brand
+         preset's dark theme has a hardcoded `.theme-doc-markdown`
+         text color that lands at ~1.3:1 contrast on the cobalt-900
+         dark body bg; until that's fixed upstream, opt-in keeps the
+         site readable by default for users whose OS is set to dark. */
+      respectPrefersColorScheme: false,
     },
   },
 });
