@@ -30,8 +30,20 @@ on:
 
 permissions:
   contents: write
+  # `actions: write` is needed ONLY by the "Dispatch Publish docs" step at
+  # the bottom of this file. Forgejo doesn't yet support step-level
+  # permissions (forgejo#3571), so the elevated scope is granted at the
+  # workflow level. If this job is ever split, keep `actions: write`
+  # paired with the dispatch step.
   actions: write
 
+# `group: woo-oas-sync` only serializes this workflow against itself. The
+# cross-workflow dedup that prevents the chained push (from "Commit OAS to
+# main and documentation if changed") AND the explicit dispatch (from
+# "Dispatch Publish docs when documentation changed") from both racing a
+# Cloudflare deploy actually lives in documentation.yml's
+# `openwoo-docs-publish` group. If that group is ever renamed/removed,
+# dual Publish-docs runs can queue and race the wrangler deploy.
 concurrency:
   group: woo-oas-sync
   cancel-in-progress: false
@@ -99,6 +111,15 @@ jobs:
           jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
 
           doc_branch_updated=0
+          # Partial-failure note: `set -euo pipefail` makes this loop abort
+          # on the first failing push. If `main` pushes but `documentation`
+          # fails (concurrent commit, branch-protection blip, network
+          # glitch), `main` advances, `doc_branch_updated` is never set,
+          # the dispatch step below never fires, and the live OAS stays
+          # stale until the next 03:27 UTC cron tick self-heals via the
+          # cmp guard above. Conscious trade-off for this porting PR; a
+          # behaviour change (retry-with-rebase, or iterate `documentation`
+          # first) is deferred to a follow-up hardening PR.
           for branch in main documentation; do
             git checkout -B "$branch" "origin/$branch"
             mkdir -p "$(dirname "$OAS_PATH")"
@@ -141,4 +162,9 @@ jobs:
             -H "Content-Type: application/json" \
             -X POST \
             "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/documentation.yml/dispatches" \
-            -d '{"ref":"documentation"}'
+            -d '{"ref":"documentation","inputs":{}}'
+          # `inputs:{}` is defensive padding: this workflow has no inputs
+          # today, but GitHub's workflow-dispatch API requires the key be
+          # present, and a future Forgejo schema bump could make it
+          # mandatory too. Sending it now keeps the call forward-compatible
+          # with no behaviour change on either platform.
