@@ -47,6 +47,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Always operate on main even when dispatched from another branch,
+          # so manual dry-runs from feature branches still mirror upstream
+          # into the canonical source-of-truth.
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -65,18 +68,22 @@ jobs:
           set -euo pipefail
           # Refuse to overwrite the mirrored file with garbage if the
           # source returned an HTML error page or a 200-with-empty-body.
+          # info.version is required too — otherwise the commit step's
+          # message would end "...sync Woo OAS to v" (empty).
           openapi=$(jq -r '.openapi // empty' .sync-tmp/woo.json)
           title=$(jq -r '.info.title // empty' .sync-tmp/woo.json)
+          version=$(jq -r '.info.version // empty' .sync-tmp/woo.json)
           paths_n=$(jq -r '.paths | length // 0' .sync-tmp/woo.json)
-          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ "$paths_n" -lt 1 ]]; then
+          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ -z "$version" ]] || [[ "$paths_n" -lt 1 ]]; then
             echo "::error::Fetched payload does not look like an OpenAPI 3 spec."
             echo "  openapi=$openapi"
             echo "  title=$title"
+            echo "  version=$version"
             echo "  paths=$paths_n"
             head -c 1000 .sync-tmp/woo.json
             exit 1
           fi
-          echo "OK — $title v$(jq -r '.info.version' .sync-tmp/woo.json) ($paths_n paths)"
+          echo "OK — $title v$version ($paths_n paths)"
 
       - name: Commit OAS to main and documentation if changed
         id: sync
