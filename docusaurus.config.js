@@ -146,7 +146,16 @@ const config = createConfig({
     colorMode: {
       defaultMode: 'light',
       disableSwitch: false,
-      respectPrefersColorScheme: true,
+      /* Site-wide guard: stay opt-in for dark mode (manual navbar
+         toggle) instead of auto-flipping on `prefers-color-scheme:
+         dark`. The docs-content readability bug is already patched
+         by the `.theme-doc-markdown` dark-mode overrides in
+         `src/css/custom.css`, but the brand preset's dark theme
+         still has unaudited contrast on navbar / sidebar / footer /
+         marketing surfaces — until that's fixed upstream, opt-in
+         keeps the whole site readable by default for users whose
+         OS is set to dark. */
+      respectPrefersColorScheme: false,
     },
   },
 });
