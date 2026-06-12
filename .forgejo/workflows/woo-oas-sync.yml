@@ -54,7 +54,16 @@ env:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    # Codeberg's hosted Actions pool does NOT advertise the `ubuntu-latest`
+    # label — only `codeberg-tiny|small|medium[-lazy]` (see actions/meta).
+    # Jobs requesting `ubuntu-latest` sit in `waiting` forever with the UI
+    # warning "no matching online runner with label: ubuntu-latest", which
+    # is exactly what was happening to every workflow_dispatch / schedule
+    # run of this file. `documentation.yml` survives because it delegates
+    # to reusable workflows in Conduction/.github that already use
+    # `codeberg-small` / `codeberg-medium`. This job is curl + jq + git,
+    # so `codeberg-small` is plenty.
+    runs-on: codeberg-small
     steps:
       - uses: actions/checkout@v4
         with:
