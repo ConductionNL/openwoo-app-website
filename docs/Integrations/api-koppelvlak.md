@@ -54,8 +54,10 @@ Het pad-segment ná `/api/` is de **catalogus-slug**. Een omgeving kan meerdere 
 
 Voor het stellen van zoekvragen is **géén** authenticatie vereist (het doel van OpenWoo is immers het verspreiden van openbare informatie). Anoniem zie je uitsluitend **gepubliceerde** objecten (zie [Publicatie-statussen](#publicatie-statussen)). Er is wel sprake van throttling op responstijden en rate-limiting zonder authenticatie, en alleen GET-acties zijn anoniem toegestaan.
 
-:::warning RBAC — zichtbaarheid wordt server-side afgedwongen
-De OpenCatalogi-publicaties-API draait elke zoekvraag onder **RBAC** (role-based access control). De API voert de query uit met `_rbac: true` en laat OpenRegister de `authorization.read`-regels van elk schema toepassen, dáár in de database — een gebruiker krijgt dus uitsluitend de objecten terug die hij/zij mag zien. Dit is **niet** te omzeilen via query-parameters: een anonieme of onvoldoende geautoriseerde gebruiker krijgt concepten en gedepubliceerde objecten simpelweg niet in de `results` (en een `404` op de detail-endpoint). Filtering op zichtbaarheid gebeurt dus aan de bron, niet in de front-end.
+:::warning RBAC — zichtbaarheid wordt server-side afgedwongen (mits geconfigureerd)
+De OpenCatalogi-publicaties-API draait elke zoekvraag onder **RBAC** (role-based access control). De API voert de query uit met `_rbac: true` en laat OpenRegister de `authorization.read`-regels van elk schema toepassen, dáár in de database — een gebruiker krijgt dus uitsluitend de objecten terug die hij/zij mag zien. Wanneer die regels op een schema correct gevuld zijn, is dit **niet** te omzeilen via query-parameters: een anonieme of onvoldoende geautoriseerde gebruiker krijgt concepten en gedepubliceerde objecten simpelweg niet in de `results` (en een `404` op de detail-endpoint). Filtering op zichtbaarheid gebeurt dus aan de bron, niet in de front-end.
+
+**Belangrijk — geen `authorization.read` = default-open.** OpenRegister's `PermissionHandler` valt terug op "iedereen mag alles" zodra een schema géén `authorization`-blok heeft (`authorization: null`). De gebundelde WOO-schemas (`docs/static/oas/woo_register.json`) shippen op dit moment **zonder** zo'n blok; zonder handmatige configuratie zien anonieme bevragers dus álle objecten, ongeacht `publicatiedatum`/`depublicatiedatum`. Voeg per WOO-schema een `authorization.read`-blok toe zoals beschreven in [Publicatie-statussen](#publicatie-statussen) om de datum-gestuurde zichtbaarheid daadwerkelijk af te dwingen.
 :::
 
 Als je vanuit je casus een API nodig hebt zonder throttling/rate-limit, of namens een organisatie wijzigingen wilt doen (POST, PUT, PATCH, DELETE) of ook concepten/gedepubliceerde objecten wilt zien, dan kun je een mail sturen naar [info@conduction.nl](mailto:info@conduction.nl).
@@ -146,6 +148,8 @@ Response (verkort):
 
 Gebruik `bucket.value` als waarde voor het `@self[schema]=…`-filter en `bucket.label` als zichtbaar label.
 
+> De `value`-waarden hierboven (en de `schemas`/`registers`-id's in het lijst-voorbeeld) zijn **omgevings-specifiek**: schema- en register-id's worden bij install auto-toegewezen en verschillen dus per omgeving. Vraag de actuele id's altijd op via een facet-call (`?_facetable=true&_facets[@self][schema][type]=terms`) op je eigen omgeving in plaats van ze hard-coded over te nemen.
+
 ### Documentatie
 
 Voor de API is een [Stoplight-documentatie](https://conduction.stoplight.io/studio/open-catalogi?) beschikbaar en een [Postman-collectie](https://codeberg.org/Conduction/opencatalogi/src/branch/main/docs/assets/Opencatalogi%20CRUD.postman_collection.json). Omdat de API zonder authenticatie te bevragen is, raden we developers aan hiermee te spelen. Voor de canonieke endpoint-definities + response-schemas zie de live OAS op [/api/](/api/).
@@ -170,7 +174,7 @@ GET /apps/openregister/api/objects/publication/convenanten   # register-slug + s
 
 De query-parameters zijn grotendeels gelijk aan de publicaties-API: `_search`, `_limit`, `_page`/`_offset`, `_order`, `_extend`, `_unset`, `_facets`, plus exact-match veldfilters. De publicatie-status-zichtbaarheid (hieronder) geldt hier net zo goed: anoniem zie je alleen gepubliceerde objecten.
 
-> **Let op — gewijzigd t.o.v. oudere documentatie:** er is **geen** `…/api/objects/woo/{categorie}`-endpoint en **geen** register met slug `woo`. Het register heet `publication`; de informatiecategorie zit in het **schema** (bv. `convenanten`, `woo_verzoeken_en_besluiten`). De oude aggregator op `api.gateway.commonground.nu` (met `extend[]=all`, `_queries[]=…` en content-type `application/json+aggregations`) is vervangen door bovenstaande twee lagen.
+> **Let op — gewijzigd t.o.v. oudere documentatie:** in een verse OpenCatalogi-install heet het register `publication` (`SettingsService::autoConfigure()` zoekt op die slug); de informatiecategorie zit in het **schema** (bv. `convenanten`, `woo_verzoeken_en_besluiten`). Bestaande deployments — waaronder canary op moment van schrijven — kunnen daarnaast nog een legacy `woo`-register hebben dat parallel werkt en de echte WOO-data bevat (`…/api/objects/woo/convenanten` levert daar nog 4 objecten); die wordt naar verwachting gemigreerd. Schrijf nieuwe consumenten dus tegen `publication`, maar reken niet op een onmiddellijke 404 op `woo`. De oude aggregator op `api.gateway.commonground.nu` (met `extend[]=all`, `_queries[]=…` en content-type `application/json+aggregations`) is vervangen door bovenstaande twee lagen.
 
 ## Publicatie-statussen
 
@@ -179,7 +183,9 @@ Een object heeft géén apart `status`-veld. Of een object **openbaar** zichtbaa
 - **`publicatiedatum`** — vanaf wanneer het object openbaar is.
 - **`depublicatiedatum`** — (optioneel) vanaf wanneer het object weer uit de openbaarheid verdwijnt.
 
-Dit wordt op schema-niveau geregeld via een `authorization.read`-blok met `match`-regels voor de groep `public`. Deze regels vormen de **RBAC**-laag: ze worden door OpenRegister tijdens de query in de database toegepast (zie de RBAC-waarschuwing hierboven), zodat een gebruiker nooit objecten terugkrijgt die hij/zij niet mag zien:
+Dit wordt op schema-niveau geregeld via een `authorization.read`-blok met `match`-regels voor de groep `public`. Deze regels vormen de **RBAC**-laag: ze worden door OpenRegister tijdens de query in de database toegepast (zie de RBAC-waarschuwing hierboven), zodat een gebruiker nooit objecten terugkrijgt die hij/zij niet mag zien.
+
+> **Aanbevolen schema-configuratie voor WOO — niet meegeleverd in een default install.** De gebundelde WOO-schemas in OpenCatalogi (`docs/static/oas/woo_register.json`) shippen met `authorization: null`; voeg per WOO-schema een blok als onderstaand toe om de datum-gestuurde zichtbaarheid daadwerkelijk server-side af te dwingen (anders treedt OpenRegister's default-open gedrag op — zie de RBAC-waarschuwing hierboven):
 
 ```json
 "authorization": {
@@ -189,6 +195,8 @@ Dit wordt op schema-niveau geregeld via een `authorization.read`-blok met `match
   ]
 }
 ```
+
+Ter referentie: de catalog/listing/page/organization-schemas in OpenCatalogi's `lib/Settings/publication_register.json` shippen wél met een `authorization.read`-blok, maar dat matcht op `@self.published` (het timestamp dat OpenRegister automatisch zet op elk object) met enkel `$lte $now` — geen `depublicatiedatum`-logica. Voor WOO-content wil je de afdwinging op de domein-velden `publicatiedatum`/`depublicatiedatum` zetten, zoals hierboven.
 
 Hieruit volgen drie toestanden:
 
