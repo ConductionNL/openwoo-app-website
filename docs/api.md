@@ -25,8 +25,8 @@ De spec dekt 17 TOOI-informatiecategorieën (convenanten, klachtoordelen, onderz
 
 | Aspect | Waarde |
 |---|---|
-| Source-URL | `https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas` |
-| Sync-mechanisme | `.github/workflows/woo-oas-sync.yml` — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
+| Source-URL | `https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/2/oas` |
+| Sync-mechanisme | `.forgejo/workflows/woo-oas-sync.yml` — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
 | Auth | Geen — `registers/{id}/oas` is anoniem leesbaar |
 | Mirror-file | `static/oas/woo.json` |
 
@@ -34,7 +34,7 @@ Wijzigt het schema in de bron-deployment? De volgende nachtelijke cron-tick dete
 
 ### Bron switchen
 
-Wanneer er een productie-deployment beschikbaar komt: één regel aanpassen in `.github/workflows/woo-oas-sync.yml` (`OAS_URL` env-var). Geen andere wijzigingen nodig.
+Wanneer er een productie-deployment beschikbaar komt: één regel aanpassen in `.forgejo/workflows/woo-oas-sync.yml` (`OAS_URL` env-var). Geen andere wijzigingen nodig.
 
 ## Upstream specs (canonical sources)
 
