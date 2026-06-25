@@ -8,28 +8,28 @@ Hiervoor hebben we een apart [Slack-kanaal](https://samenorganiseren.slack.com/a
 
 ## Architectuur: twee API-lagen
 
-Het koppelvlak bestaat uit twee gestapelde API's. De website (bv. de `woo-website-template`) praat **niet** rechtstreeks met de databron, maar met de **OpenCatalogi-publicaties-API**. Die delegeert op zijn beurt naar **OpenRegister**, waar de daadwerkelijke objecten, registers en schema's leven.
+Het koppelvlak bestaat uit twee gestapelde API's. De website (bv. de `woo-website-template-apiv2`) praat **niet** rechtstreeks met de databron, maar met de **OpenCatalogi-publicaties-API**. Die delegeert op zijn beurt naar **OpenRegister**, waar de daadwerkelijke objecten, registers en schema's leven.
 
 ```
-┌──────────────────────────┐
-│  Front-end / website      │   woo-website-template (Gatsby PWA)
-│  GATSBY_API_BASE_URL=/api │   roept /publications, /publications/{id}, /pages, /menus aan
-└────────────┬─────────────┘
-             │  (NGINX-proxy → UPSTREAM_BASE)
-             ▼
-┌──────────────────────────┐
-│  PRIMAIRE API             │   OpenCatalogi
-│  /apps/opencatalogi/api   │   /{catalogus-slug}  ← de "publications"-catalogus
-│  → catalogus = register   │   filtert op de registers + schema's van de catalogus
-│    + schema's             │   en handelt de publicatie-status (datum-zichtbaarheid) af
-└────────────┬─────────────┘
-             │  (delegeert naar ObjectService)
-             ▼
-┌──────────────────────────┐
-│  SECUNDAIRE API           │   OpenRegister
-│  /apps/openregister/api   │   /objects/{register}/{schema}
-│  → ruwe objecten          │   onderliggende databron; zelfde data, minder context
-└──────────────────────────┘
+┌────────────────────────────┐
+│  Front-end / website       │   woo-website-template-apiv2 (Gatsby PWA)
+│  GATSBY_API_BASE_URL=/api  │   roept /publications, /publications/{id}, /pages, /menus aan
+└─────────────┬──────────────┘
+              │  (NGINX-proxy → UPSTREAM_BASE)
+              ▼
+┌────────────────────────────┐
+│  PRIMAIRE API              │   OpenCatalogi
+│  /apps/opencatalogi/api    │   /{catalogus-slug}  ← de "publications"-catalogus
+│  → catalogus = register    │   filtert op de registers + schema's van de catalogus
+│    + schema's              │   en handelt de publicatie-status (datum-zichtbaarheid) af
+└─────────────┬──────────────┘
+              │  (delegeert naar ObjectService)
+              ▼
+┌────────────────────────────┐
+│  SECUNDAIRE API            │   OpenRegister
+│  /apps/openregister/api    │   /objects/{register}/{schema}
+│  → ruwe objecten           │   onderliggende databron; zelfde data, minder context
+└────────────────────────────┘
 ```
 
 **Vuistregel:** bouw je een publicatiewebsite of -viewer, gebruik dan de **OpenCatalogi-publicaties-API**. Die geeft je per-catalogus-scoping, schema-metadata in `@self`/`@catalog`, facetten met labels en de publicatie-status-filtering kant-en-klaar. De **OpenRegister-objects-API** is de onderliggende laag; gebruik die alleen wanneer je register/schema-specifiek en buiten een catalogus om wilt bevragen.
@@ -64,7 +64,7 @@ Als je vanuit je casus een API nodig hebt zonder throttling/rate-limit, of namen
 
 ### Het koppelen van een user interface
 
-De referentie-implementatie is de [`woo-website-template`](https://github.com/ConductionNL/woo-website-template) (Gatsby PWA). Die werkt zo:
+De referentie-implementatie is de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) (Gatsby PWA, de v2-template gericht op de OpenCatalogi-publicaties-API). Die werkt zo:
 
 - De basis-URL staat in `GATSBY_API_BASE_URL` (default `/api`). In productie/Docker proxyt NGINX `/api/*` door naar de OpenCatalogi-API van de gekozen omgeving (`UPSTREAM_BASE`, bv. `…/apps/opencatalogi/api`).
 - De template roept relatief de volgende endpoints aan:
@@ -79,6 +79,8 @@ De referentie-implementatie is de [`woo-website-template`](https://github.com/Co
 | Pagina's / menu's (CMS) | `GET /pages?_limit=50` · `GET /menus?_limit=50` |
 
 `/publications` is hier dus géén vast endpoint maar de **catalogus-slug** `publications`. Wijs je je front-end aan een andere catalogus toe, dan verandert dat pad-segment.
+
+> **Let op — sorteer-/facet-veld in de referentie-implementatie.** De voorbeelden in deze doc gebruiken het WOO-domein-veld `publicatiedatum` voor sorteren en facetten; de `woo-website-template-apiv2` gebruikt feitelijk `@self.published` (`_order[@self.published]=desc`, `_facets[@self][published][type]=date_histogram`). Beide werken; `@self.published` is de OpenRegister-lifecycle-timestamp die automatisch op elk object wordt gezet, `publicatiedatum` is de domein-datum die de redacteur invult. Welke je kiest, hangt af van wat je betekenis "publicatie" geeft — controleer de configuratie van je eigen front-end voordat je query's hard-coded overneemt.
 
 ### Bevragen
 
@@ -196,6 +198,8 @@ Dit wordt op schema-niveau geregeld via een `authorization.read`-blok met `match
 }
 ```
 
+> ⚠️ **Het schema moet de velden ook daadwerkelijk hebben.** OpenRegister's Magic Mapper bouwt SQL die direct refereert aan kolommen `publicatiedatum` / `depublicatiedatum`. Voeg je deze regels toe aan een schema dat die properties (nog) niet kent — bv. via een PATCH alleen op het JSON-schema zonder dat de bijbehorende SQL-kolommen worden aangelegd — dan crasht elke (anonieme) lijst-query op `SQLSTATE[42S22]: Unknown column 't.publicatiedatum'` en geeft de endpoint HTTP 500. Zorg dus dat het schema zowel de properties (`publicatiedatum`, `depublicatiedatum`) als de `authorization.read`-regels heeft op het moment dat het wordt geïmporteerd/aangemaakt.
+
 Ter referentie: de catalog/listing/page/organization-schemas in OpenCatalogi's `lib/Settings/publication_register.json` shippen wél met een `authorization.read`-blok, maar dat matcht op `@self.published` (het timestamp dat OpenRegister automatisch zet op elk object) met enkel `$lte $now` — geen `depublicatiedatum`-logica. Voor WOO-content wil je de afdwinging op de domein-velden `publicatiedatum`/`depublicatiedatum` zetten, zoals hierboven.
 
 Hieruit volgen drie toestanden:
@@ -210,10 +214,22 @@ Belangrijke nuances:
 
 - **Concept = nog niet (of niet) gepubliceerd.** Zowel een leeg `publicatiedatum` als een `publicatiedatum` in de toekomst maakt het object een concept; het blijft onzichtbaar voor het publiek tot die datum bereikt is.
 - **Een `depublicatiedatum` in de toekomst depubliceert nog niet** — dat is een *geplande* depublicatie; het object blijft openbaar tot die datum. Het object is pas gedepubliceerd zodra de datum (middernacht) verstreken is. Een `depublicatiedatum` gelijk aan vandaag betekent dus dat het object vandaag al gedepubliceerd is, omdat middernacht van vandaag al gepasseerd is.
-- De regels gelden voor **zowel de lijst- als de detail-endpoint**: een concept of gedepubliceerd object geeft anoniem een `404` op `/publications/{id}`, terwijl een geautoriseerde gebruiker het object wél (status `200`) ziet.
+- De regels gelden voor **zowel de lijst- als de detail-endpoint**, met verschil in response-shape tussen de twee API-lagen:
+  - Via de **OpenCatalogi-publicaties-API** (`/apps/opencatalogi/api/publications/{id}`) krijgt een anonieme caller een nette `404 Not Found` (de controller normaliseert het permission-verdict naar "publication not found").
+  - Via de **OpenRegister-objects-API** direct (`/apps/openregister/api/objects/{register}/{schema}/{id}`) bubbelt het permission-verdict op dit moment op als `500 Internal Server Error` (`User 'Anonymous' does not have permission to 'read' …`). Dit is een implementatie-detail van OpenRegister, niet de bedoelde response — bouw front-ends bij voorkeur tegen de OpenCatalogi-laag.
+  - In beide gevallen ziet een geautoriseerde gebruiker het object wél (status `200`).
 - Geautoriseerde gebruikers (ingelogd / met de juiste groep) zien álle objecten, ongeacht datum — zo kun je concepten klaarzetten en gedepubliceerde stukken nog raadplegen.
 
 > Deze datum-gestuurde zichtbaarheid is precies de reden achter de [Spelregels](#spelregels): omdat een bron op elk moment kan depubliceren, mag je de data niet kopiëren.
+
+### Twee filter-lagen — `publicatiedatum` vs `@self.published`
+
+Het is goed om te weten dat de publicaties-API anonieme zichtbaarheid op **twee plekken** filtert. Beide moeten "groen" zijn voordat een object via `/apps/opencatalogi/api/publications` aan een anonieme bezoeker wordt geserveerd:
+
+1. **OpenRegister RBAC-laag** — de `authorization.read`-regels op het schema (zie hierboven). Deze evalueert op de domein-velden `publicatiedatum` / `depublicatiedatum` zoals de redacteur ze invult.
+2. **OpenCatalogi-controller-laag** — in `PublicationsController::show()` zit een aanvullende check via `PublicationQueryService::isObjectPublic()` die kijkt naar `@self.published` en `@self.depublished` (de OpenRegister-lifecycle-timestamps, niet de WOO-domein-datums). Faalt deze, dan krijgt de anonieme caller een nette `404`, zelfs als de RBAC-laag het object zou hebben doorgelaten.
+
+In de praktijk betekent dit dat een nieuw aangemaakt publicatie-object pas via `/publications` zichtbaar wordt voor anonymes als (a) de schema-`authorization.read`-regels op `publicatiedatum`/`depublicatiedatum` matchen én (b) `@self.published` gezet is op een tijdstip in het verleden. De `@self.published`-stempel wordt door OpenRegister op het object gezet wanneer de redacteur "publiceren" triggert — in de admin-UI of via de transition/state-flow. Verschijnt een nieuwe publicatie niet anoniem terwijl de datumvelden lijken te kloppen, controleer dan altijd óók `@self.published`.
 
 ## Metadata
 
