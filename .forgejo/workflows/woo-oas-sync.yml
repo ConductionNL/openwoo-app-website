@@ -133,6 +133,38 @@ jobs:
           mv .sync-tmp/woo.banner.json .sync-tmp/woo.json
           echo "Banner injected from $BANNER_FILE."
 
+      - name: Add per-response examples for 400 / 403 errors
+        # Upstream OpenRegister ships a shared `Error` schema with a single
+        # `example: "Object not found" / code: 404`. Every operation's 400
+        # AND 403 responses `$ref` that schema, so Redocusaurus renders the
+        # misleading 404 example in BOTH error tabs (reported on the
+        # /api/ docs page). Until upstream ships per-response examples, this
+        # post-mirror transform stamps an inline example on each 400 / 403
+        # response so Redoc picks those over the schema-level default.
+        # Idempotent: re-running against an already-transformed file is a
+        # no-op (jq overwrite of the same key with the same value).
+        run: |
+          set -euo pipefail
+          jq '
+            .paths |= with_entries(
+              .value |= with_entries(
+                if (.value | type) == "object" and (.value.responses // null) != null then
+                  .value.responses |= with_entries(
+                    if .key == "400" then
+                      .value.content."application/json".example = {error: "Invalid query parameters", code: 400}
+                    elif .key == "403" then
+                      .value.content."application/json".example = {error: "Forbidden", code: 403}
+                    else .
+                    end
+                  )
+                else .
+                end
+              )
+            )
+          ' .sync-tmp/woo.json > .sync-tmp/woo.examples.json
+          mv .sync-tmp/woo.examples.json .sync-tmp/woo.json
+          echo "Per-response 400/403 examples injected."
+
       - name: Commit OAS to main and documentation if changed
         id: sync
         run: |
