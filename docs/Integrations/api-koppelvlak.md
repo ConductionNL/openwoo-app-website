@@ -11,25 +11,25 @@ Hiervoor hebben we een apart [Slack-kanaal](https://samenorganiseren.slack.com/a
 Het koppelvlak bestaat uit twee gestapelde API's. De website (bv. de `woo-website-template-apiv2`) praat **niet** rechtstreeks met de databron, maar met de **OpenCatalogi-publicaties-API**. Die delegeert op zijn beurt naar **OpenRegister**, waar de daadwerkelijke objecten, registers en schema's leven.
 
 ```
-┌──────────────────────────┐
-│  Front-end / website      │   woo-website-template-apiv2 (Gatsby PWA)
-│  GATSBY_API_BASE_URL=/api │   roept /publications, /publications/{id}, /pages, /menus aan
-└────────────┬─────────────┘
-             │  (NGINX-proxy → UPSTREAM_BASE)
-             ▼
-┌──────────────────────────┐
-│  PRIMAIRE API             │   OpenCatalogi
-│  /apps/opencatalogi/api   │   /{catalogus-slug}  ← de "publications"-catalogus
-│  → catalogus = register   │   filtert op de registers + schema's van de catalogus
-│    + schema's             │   en handelt de publicatie-status (datum-zichtbaarheid) af
-└────────────┬─────────────┘
-             │  (delegeert naar ObjectService)
-             ▼
-┌──────────────────────────┐
-│  SECUNDAIRE API           │   OpenRegister
-│  /apps/openregister/api   │   /objects/{register}/{schema}
-│  → ruwe objecten          │   onderliggende databron; zelfde data, minder context
-└──────────────────────────┘
+┌────────────────────────────┐
+│  Front-end / website       │   woo-website-template-apiv2 (Gatsby PWA)
+│  GATSBY_API_BASE_URL=/api  │   roept /publications, /publications/{id}, /pages, /menus aan
+└─────────────┬──────────────┘
+              │  (NGINX-proxy → UPSTREAM_BASE)
+              ▼
+┌────────────────────────────┐
+│  PRIMAIRE API              │   OpenCatalogi
+│  /apps/opencatalogi/api    │   /{catalogus-slug}  ← de "publications"-catalogus
+│  → catalogus = register    │   filtert op de registers + schema's van de catalogus
+│    + schema's              │   en handelt de publicatie-status (datum-zichtbaarheid) af
+└─────────────┬──────────────┘
+              │  (delegeert naar ObjectService)
+              ▼
+┌────────────────────────────┐
+│  SECUNDAIRE API            │   OpenRegister
+│  /apps/openregister/api    │   /objects/{register}/{schema}
+│  → ruwe objecten           │   onderliggende databron; zelfde data, minder context
+└────────────────────────────┘
 ```
 
 **Vuistregel:** bouw je een publicatiewebsite of -viewer, gebruik dan de **OpenCatalogi-publicaties-API**. Die geeft je per-catalogus-scoping, schema-metadata in `@self`/`@catalog`, facetten met labels en de publicatie-status-filtering kant-en-klaar. De **OpenRegister-objects-API** is de onderliggende laag; gebruik die alleen wanneer je register/schema-specifiek en buiten een catalogus om wilt bevragen.
