@@ -11,7 +11,7 @@ OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** bin
 
 | Laag | Wat | Live OAS | Bron |
 |---|---|---|---|
-| **Primair** | OpenCatalogi Publications API — catalogus-scoped publicaties, facetten, datum-driven RBAC. Wat de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) aanroept. | [/api/publications/](/api/publications/) | Handmatig — `static/oas/opencatalogi-publications.json` |
+| **Primair** | OpenCatalogi Publications API — catalogus-scoped publicaties, facetten, datum-driven RBAC. Wat de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) aanroept. | [/api/publications/](/api/publications/) | Handmatig — [`static/oas/opencatalogi-publications.json`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/static/oas/opencatalogi-publications.json) |
 | **Secundair** | OpenRegister direct — `/objects/{register}/{schema}`, ruwe object-storage. Voor register/schema-specifieke calls buiten een catalogus om. | [/api/](/api/) | Auto-gemirrord van een upstream OpenRegister-deployment |
 
 Zie [API-koppelvlak](/docs/Integrations/api-koppelvlak/) voor een uitgebreidere uitleg van de architectuur, het verschil tussen de twee lagen, en publicatie-statussen + RBAC.
@@ -20,17 +20,17 @@ Zie [API-koppelvlak](/docs/Integrations/api-koppelvlak/) voor een uitgebreidere 
 
 ➡️ **[openwoo.conduction.nl/api/publications/](/api/publications/)** — OpenCatalogi Publications OAS
 
-Dit is de API die front-ends en consumenten doorgaans aanroepen: `/publications`, `/publications/{id}`, `/publications/{id}/attachments`, `/pages`, `/menus`, plus de catalogus- en thema-endpoints. De endpoints zijn anoniem aanroepbaar; anonieme zichtbaarheid wordt server-side afgedwongen door twee filter-lagen (zie [API-koppelvlak — Publicatie-statussen](/docs/Integrations/api-koppelvlak#publicatie-statussen)).
+Dit is de API die front-ends en consumenten doorgaans aanroepen: `/publications`, `/publications/{id}`, `/publications/{id}/attachments`, `/pages`, `/menus`, `/catalogi`, `/themes`. De endpoints zijn anoniem aanroepbaar; anonieme zichtbaarheid wordt server-side afgedwongen door twee filter-lagen (zie [API-koppelvlak — Publicatie-statussen](/docs/Integrations/api-koppelvlak#publicatie-statussen)).
 
 ### Bron + onderhoud
 
-OpenCatalogi exporteert (nog) geen eigen OAS-endpoint. Deze spec wordt daarom **handmatig onderhouden** in dit repo op basis van `lib/Controller/*.php` in [`Conduction/opencatalogi`](https://codeberg.org/Conduction/opencatalogi) en de calls die `woo-website-template-apiv2` daadwerkelijk maakt.
+OpenCatalogi exporteert (nog) geen eigen OAS-endpoint. Deze spec wordt daarom **handmatig onderhouden** in dit repo op basis van [`lib/Controller/*.php`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/) in [`Conduction/opencatalogi`](https://codeberg.org/Conduction/opencatalogi) en de calls die [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) daadwerkelijk maakt.
 
 | Aspect | Waarde |
 |---|---|
-| Bron-file | `static/oas/opencatalogi-publications.json` |
-| Onderhoud | Handmatig — open een PR op `openwoo-app-website` wanneer de upstream-API verandert |
-| Upstream-referentie | [`Conduction/opencatalogi/lib/Controller/`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/) — `CatalogiController`, `PublicationsController`, `PagesController`, `MenusController`, `ThemesController`, `GlossaryController` |
+| Bron-file | [`static/oas/opencatalogi-publications.json`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/static/oas/opencatalogi-publications.json) |
+| Onderhoud | Handmatig — open een PR op [`openwoo-app-website`](https://codeberg.org/Conduction/openwoo-app-website) wanneer de upstream-API verandert |
+| Upstream-referentie | [`Conduction/opencatalogi/lib/Controller/`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/) — [`CatalogiController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/CatalogiController.php), [`PublicationsController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/PublicationsController.php), [`PagesController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/PagesController.php), [`MenusController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/MenusController.php), [`ThemesController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/ThemesController.php), [`GlossaryController`](https://codeberg.org/Conduction/opencatalogi/src/branch/main/lib/Controller/GlossaryController.php) |
 
 Wanneer OpenCatalogi een eigen OAS-endpoint krijgt, kan deze spec gemigreerd worden naar een auto-sync-flow vergelijkbaar met de OpenRegister-mirror hieronder.
 
@@ -44,17 +44,17 @@ Deze OAS dekt 17 TOOI-informatiecategorieën (convenanten, klachtoordelen, onder
 
 | Aspect | Waarde |
 |---|---|
-| Source-URL | Configured via de `OAS_URL` env-var in `.forgejo/workflows/woo-oas-sync.yml` — wijst naar het `/api/registers/{id}/oas`-endpoint van de gekozen upstream OpenRegister-deployment |
-| Sync-mechanisme | `.forgejo/workflows/woo-oas-sync.yml` — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
+| Source-URL | Configured via de `OAS_URL` env-var in [`.forgejo/workflows/woo-oas-sync.yml`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/.forgejo/workflows/woo-oas-sync.yml) — wijst naar het `/api/registers/{id}/oas`-endpoint van de gekozen upstream OpenRegister-deployment |
+| Sync-mechanisme | [`.forgejo/workflows/woo-oas-sync.yml`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/.forgejo/workflows/woo-oas-sync.yml) — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
 | Auth | Geen — `registers/{id}/oas` is anoniem leesbaar |
-| Mirror-file | `static/oas/woo.json` |
+| Mirror-file | [`static/oas/woo.json`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/static/oas/woo.json) |
 | Banner-injectie | De sync-workflow voegt een banner toe aan `info.description` zodat de gerenderde OAS-pagina duidelijk markeert dat dit de secundaire laag is. Idempotent: re-runs tegen ongewijzigde upstream geven geen extra commit. |
 
 Wijzigt het schema in de bron-deployment? De volgende nachtelijke cron-tick detecteert het verschil, committeert en triggert de deploy. Direct synchroniseren kan via Actions → "Woo OAS sync" → Run workflow.
 
 ### Bron switchen
 
-Wanneer er een productie-deployment beschikbaar komt of canary migreert naar het `publication`-register: één regel aanpassen in `.forgejo/workflows/woo-oas-sync.yml` (`OAS_URL` env-var). Geen andere wijzigingen nodig.
+Wanneer er een productie-deployment beschikbaar komt of canary migreert naar het `publication`-register: één regel aanpassen in [`.forgejo/workflows/woo-oas-sync.yml`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/.forgejo/workflows/woo-oas-sync.yml) (`OAS_URL` env-var). Geen andere wijzigingen nodig.
 
 ## Upstream specs (canonical sources)
 
@@ -107,6 +107,6 @@ Geen authenticatie nodig voor `GET`. Voor query-syntax + voorbeelden zie [Full-t
 
 ## Achtergrond
 
-OpenWoo's vroegere plan was één hand-onderhouden OpenAPI-spec voor alles. Dat is gedeeltelijk verlaten zodra duidelijk werd dat OpenRegister al per-register OAS-generation doet (`GET /api/registers/{id}/oas`) — die laag is daarom gemirrord in plaats van handmatig onderhouden. De OpenCatalogi-laag eronder heeft (nog) geen OAS-generation; daarom is `static/oas/opencatalogi-publications.json` handmatig opgesteld en wordt het bijgewerkt wanneer de upstream-API verandert.
+OpenWoo's vroegere plan was één hand-onderhouden OpenAPI-spec voor alles. Dat is gedeeltelijk verlaten zodra duidelijk werd dat OpenRegister al per-register OAS-generation doet (`GET /api/registers/{id}/oas`) — die laag is daarom gemirrord in plaats van handmatig onderhouden. De OpenCatalogi-laag eronder heeft (nog) geen OAS-generation; daarom is [`static/oas/opencatalogi-publications.json`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/static/oas/opencatalogi-publications.json) handmatig opgesteld en wordt het bijgewerkt wanneer de upstream-API verandert.
 
-Wanneer OpenCatalogi een eigen OAS-endpoint krijgt, kan de hand-curated file gemigreerd worden naar een tweede sync-flow analoog aan `.forgejo/workflows/woo-oas-sync.yml`.
+Wanneer OpenCatalogi een eigen OAS-endpoint krijgt, kan de hand-curated file gemigreerd worden naar een tweede sync-flow analoog aan [`.forgejo/workflows/woo-oas-sync.yml`](https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/.forgejo/workflows/woo-oas-sync.yml).
