@@ -69,14 +69,20 @@ const config = createConfig({
         },
       },
     ],
-    /* Redocusaurus renders the live Woo Register OAS at /api/. The
-       spec is mirrored from a reference OpenRegister deployment at
-       https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/3/oas
-       by .github/workflows/woo-oas-sync.yml (cron every 30 min +
-       workflow_dispatch). The mirror lives in static/oas/woo.json and
-       is overwritten by the sync workflow whenever the upstream OAS
-       differs. See docs/api.md for the rationale + the upstream-link
-       hub for opencatalogi / openregister. */
+    /* Redocusaurus renders two OAS specs side by side:
+       - /api/                — the SECONDARY OpenRegister-direct API.
+         Auto-mirrored from canary register 2 by
+         .forgejo/workflows/woo-oas-sync.yml (nightly 03:27 UTC +
+         workflow_dispatch). Source URL is in that workflow's OAS_URL
+         env. The sync step prepends a "this is the secondary layer"
+         banner to info.description; the banner is idempotent so
+         re-runs against unchanged upstream produce no diff.
+       - /api/publications/   — the PRIMARY OpenCatalogi Publications
+         API. Hand-curated in static/oas/opencatalogi-publications.json
+         because OpenCatalogi doesn't expose its own OAS endpoint yet
+         (verified 2026-06-25). Edit that JSON directly when the
+         upstream API contract changes. See docs/api.md for the
+         architecture context + upstream-link hub. */
     [
       'redocusaurus',
       {
@@ -85,6 +91,11 @@ const config = createConfig({
             id: 'woo',
             spec: 'static/oas/woo.json',
             route: '/api/',
+          },
+          {
+            id: 'opencatalogi-publications',
+            spec: 'static/oas/opencatalogi-publications.json',
+            route: '/api/publications/',
           },
         ],
         theme: {

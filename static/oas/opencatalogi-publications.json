@@ -1,0 +1,806 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenCatalogi Publications API",
+    "version": "0.7.x",
+    "description": "## ℹ️ Dit is de primaire publicaties-API\n\nDe **OpenCatalogi Publications API** is de bovenste laag van het OpenWoo-koppelvlak — de API die de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) en andere consumenten aanroepen. Hij ontsluit publicaties via een **catalogus** (slug `publications` voor WOO) en delegeert intern naar OpenRegister.\n\n**Onder deze laag** ligt de [OpenRegister-objects-API](/api/) — de ruwere `/objects/{register}/{schema}`-laag waar deze publicaties feitelijk in zitten opgeslagen. Gebruik die alleen wanneer je register/schema-specifiek en buiten een catalogus om wilt bevragen. Zie [API-koppelvlak](/docs/Integrations/api-koppelvlak) voor de architectuur-context.\n\n> **Belangrijk — handmatig onderhouden.** OpenCatalogi exporteert (nog) geen eigen OAS-endpoint. Deze spec is handmatig opgesteld op basis van `lib/Controller/*.php` in [`Conduction/opencatalogi`](https://codeberg.org/Conduction/opencatalogi) en de calls die `woo-website-template-apiv2` daadwerkelijk maakt. Wijzigt de upstream-API? Open een PR op [`openwoo-app-website`](https://codeberg.org/Conduction/openwoo-app-website) tegen `static/oas/opencatalogi-publications.json`.\n\n### Anonieme zichtbaarheid — twee filter-lagen\n\nAlle GET-endpoints hieronder zijn anoniem aanroepbaar (geen auth-header). De backend past server-side twee filters toe op anonieme callers, beide moeten \"groen\" zijn voordat een object wordt teruggegeven:\n\n1. **OpenRegister RBAC-laag** — de `authorization.read`-regels op het schema (datum-driven via `publicatiedatum`/`depublicatiedatum` voor WOO).\n2. **OpenCatalogi-controller-laag** — `PublicationsController::show()` checkt aanvullend dat `@self.published` gevuld is en niet in de toekomst ligt.\n\nZie de [API-koppelvlak-doc](/docs/Integrations/api-koppelvlak#publicatie-statussen) voor de volledige uitleg + JSON-voorbeelden van de `authorization.read`-regels.",
+    "contact": {
+      "name": "Conduction (OpenCatalogi)",
+      "url": "https://codeberg.org/Conduction/opencatalogi",
+      "email": "info@conduction.nl"
+    },
+    "license": {
+      "name": "EUPL-1.2",
+      "url": "https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://canary.accept.commonground.nu/apps/opencatalogi/api",
+      "description": "Canary referentie-deployment"
+    },
+    {
+      "url": "{baseUrl}/apps/opencatalogi/api",
+      "description": "Zelf-gehoste deployment",
+      "variables": {
+        "baseUrl": {
+          "default": "http://localhost:8080",
+          "description": "Hostname van je Nextcloud-instantie"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalogi",
+      "description": "Catalogus-lijst en metadata. Een catalogus is een gegroepeerde set van OpenRegister-registers + schema's, met een uniek slug-pad. Voor WOO heet de catalogus `publications`."
+    },
+    {
+      "name": "Publications",
+      "description": "Publicatie-endpoints binnen een catalogus. Het pad-segment `{catalogSlug}` is de catalogus-slug — voor WOO `publications`. Deze endpoints leveren de gefilterde publicatie-resultaten + facetten + catalogus-context (`@catalog`)."
+    },
+    {
+      "name": "Pages",
+      "description": "Content-pagina's (statische CMS-pagina's binnen de catalogus-website)."
+    },
+    {
+      "name": "Menus",
+      "description": "Navigatie-menu's voor de catalogus-website."
+    },
+    {
+      "name": "Themes",
+      "description": "Thema-taxonomie waaraan publicaties gekoppeld kunnen worden."
+    },
+    {
+      "name": "Glossary",
+      "description": "Glossarium met begrippen + definities voor de catalogus-website."
+    }
+  ],
+  "paths": {
+    "/catalogi": {
+      "get": {
+        "tags": ["Catalogi"],
+        "operationId": "listCatalogi",
+        "summary": "Lijst van catalogi",
+        "description": "Geeft alle catalogi terug in de OpenCatalogi-instantie. Voor WOO is dit typisch één catalogus met slug `publications`. Gebruik de `slug` van een catalogus als pad-segment bij de `/publications`-endpoints.",
+        "responses": {
+          "200": {
+            "description": "Lijst van catalogi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalogi/{id}": {
+      "get": {
+        "tags": ["Catalogi"],
+        "operationId": "getCatalog",
+        "summary": "Catalogus-detail",
+        "description": "Geeft één catalogus terug op id of slug.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Catalog-id (UUID) of -slug",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catalogus-object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Catalog" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/publications": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "listPublications",
+        "summary": "Lijst van publicaties (WOO-catalogus)",
+        "description": "Levert de publicaties uit de WOO-catalogus (slug `publications`).\n\n**`/publications` is hier géén vast endpoint maar de catalogus-slug `publications`.** Wijs je een andere catalogus aan, dan verandert dat pad-segment — het werkelijke route-patroon is `/api/{catalogSlug}`.\n\nAlle parameters hieronder zijn los te combineren. Anonieme callers krijgen uitsluitend gepubliceerde objecten (zie het RBAC-blok in de info-banner bovenaan).",
+        "parameters": [
+          { "$ref": "#/components/parameters/Search" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Page" },
+          { "$ref": "#/components/parameters/OrderPublicationDate" },
+          { "$ref": "#/components/parameters/Extend" },
+          { "$ref": "#/components/parameters/Unset" },
+          { "$ref": "#/components/parameters/Facetable" },
+          { "$ref": "#/components/parameters/SchemaFilter" },
+          { "$ref": "#/components/parameters/PublicatiedatumGte" },
+          { "$ref": "#/components/parameters/PublicatiedatumLte" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gepagineerde lijst van publicaties + catalogus-context.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PublicationList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publications/{id}": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "getPublication",
+        "summary": "Publicatie-detail",
+        "description": "Geeft één publicatie terug. Anoniem: 404 wanneer concept of gedepubliceerd (datum-driven RBAC + `@self.published`-check). Geautoriseerd: 200 ongeacht status.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Publication-id (UUID)",
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          { "$ref": "#/components/parameters/ExtendArray" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Publicatie-object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Publication" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/publications/{id}/attachments": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "getPublicationAttachments",
+        "summary": "Bijlagen van een publicatie",
+        "description": "Geeft de bijlagen van de publicatie. Filter optioneel op aanwezigheid van labels (`_hasLabels=true` of `_noLabels=true`). De `woo-website-template-apiv2` gebruikt beide varianten — `_hasLabels` voor categorie-getagde bijlagen, `_noLabels` voor de ongetagde restset met paginatie.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Publication-id (UUID)",
+            "schema": { "type": "string", "format": "uuid" }
+          },
+          {
+            "name": "_hasLabels",
+            "in": "query",
+            "description": "Alleen bijlagen mét labels.",
+            "schema": { "type": "boolean" }
+          },
+          {
+            "name": "_noLabels",
+            "in": "query",
+            "description": "Alleen bijlagen zonder labels.",
+            "schema": { "type": "boolean" }
+          },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gepagineerde lijst van bijlagen.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AttachmentList" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/publications/{id}/uses": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "getPublicationUses",
+        "summary": "Publicaties waarnaar deze publicatie verwijst (uses)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van verwezen publicaties.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PublicationList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publications/{id}/used": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "getPublicationUsedBy",
+        "summary": "Publicaties die naar deze publicatie verwijzen (used by)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lijst van publicaties die hiernaar verwijzen.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PublicationList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publications/{id}/download": {
+      "get": {
+        "tags": ["Publications"],
+        "operationId": "downloadPublication",
+        "summary": "Publicatie + bijlagen downloaden als bundel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bestand-bundel (ZIP/PDF afhankelijk van implementatie).",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/pages": {
+      "get": {
+        "tags": ["Pages"],
+        "operationId": "listPages",
+        "summary": "Lijst van content-pagina's",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gepagineerde lijst van pagina's.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PageList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages/{slug}": {
+      "get": {
+        "tags": ["Pages"],
+        "operationId": "getPage",
+        "summary": "Content-pagina op slug",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "Slug van de pagina (mag slashes bevatten).",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pagina-object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Page" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/menus": {
+      "get": {
+        "tags": ["Menus"],
+        "operationId": "listMenus",
+        "summary": "Lijst van navigatie-menu's",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gepagineerde lijst van menu's.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MenuList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menus/{id}": {
+      "get": {
+        "tags": ["Menus"],
+        "operationId": "getMenu",
+        "summary": "Menu-detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menu-object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Menu" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/themes": {
+      "get": {
+        "tags": ["Themes"],
+        "operationId": "listThemes",
+        "summary": "Lijst van thema's",
+        "responses": {
+          "200": {
+            "description": "Lijst van thema's.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ThemeList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/themes/{id}": {
+      "get": {
+        "tags": ["Themes"],
+        "operationId": "getTheme",
+        "summary": "Thema-detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thema-object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Theme" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/glossary": {
+      "get": {
+        "tags": ["Glossary"],
+        "operationId": "listGlossary",
+        "summary": "Lijst van glossarium-begrippen",
+        "responses": {
+          "200": {
+            "description": "Lijst van glossarium-items.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlossaryList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/glossary/{id}": {
+      "get": {
+        "tags": ["Glossary"],
+        "operationId": "getGlossaryItem",
+        "summary": "Glossarium-item-detail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Glossarium-item",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlossaryItem" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Search": {
+        "name": "_search",
+        "in": "query",
+        "description": "Full-text zoekopdracht. Zie de [Full-text search](/docs/Integrations/fulltext-search)-doc voor query-syntax, gewogen velden en geïndexeerde velden.",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "_limit",
+        "in": "query",
+        "description": "Aantal resultaten per pagina (default 20).",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 500, "default": 20 }
+      },
+      "Page": {
+        "name": "_page",
+        "in": "query",
+        "description": "Paginanummer (1-geïndexeerd).",
+        "schema": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "OrderPublicationDate": {
+        "name": "_order[publicatiedatum]",
+        "in": "query",
+        "description": "Sorteer op `publicatiedatum`. De `woo-website-template-apiv2` gebruikt zelf `_order[@self.published]=desc`; beide werken. Wisselen kan ook naar elk ander veld (`titel`, `thema`, …).",
+        "schema": { "type": "string", "enum": ["asc", "desc"] }
+      },
+      "Extend": {
+        "name": "_extend",
+        "in": "query",
+        "description": "Komma-gescheiden lijst van velden om bij te laden (bv. `themes,attachments`).",
+        "schema": { "type": "string" }
+      },
+      "ExtendArray": {
+        "name": "extend[]",
+        "in": "query",
+        "description": "Veld om bij te laden, herhaalbaar (`?extend[]=themes&extend[]=@self.schema`).",
+        "schema": { "type": "array", "items": { "type": "string" } },
+        "style": "form",
+        "explode": true
+      },
+      "Unset": {
+        "name": "_unset",
+        "in": "query",
+        "description": "Komma-gescheiden lijst van velden om weg te laten uit de response.",
+        "schema": { "type": "string" }
+      },
+      "Facetable": {
+        "name": "_facetable",
+        "in": "query",
+        "description": "Activeer facet-engine. Combineer met `_facets[<veld>][type]=terms` of `date_histogram`.",
+        "schema": { "type": "boolean" }
+      },
+      "SchemaFilter": {
+        "name": "@self[schema]",
+        "in": "query",
+        "description": "Filter op één schema (informatiecategorie). De beschikbare schema-id's haal je uit `_facets[@self][schema][type]=terms` op je eigen omgeving — id's zijn omgevings-specifiek.",
+        "schema": { "type": "integer" }
+      },
+      "PublicatiedatumGte": {
+        "name": "publicatiedatum[gte]",
+        "in": "query",
+        "description": "Bracket-operator: `publicatiedatum >= <ISO-datum>`. Combineer met `[lte]` voor bereiken.",
+        "schema": { "type": "string", "format": "date" }
+      },
+      "PublicatiedatumLte": {
+        "name": "publicatiedatum[lte]",
+        "in": "query",
+        "description": "Bracket-operator: `publicatiedatum <= <ISO-datum>`.",
+        "schema": { "type": "string", "format": "date" }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Resource niet gevonden — óf de resource bestaat niet, óf is voor anonieme callers niet zichtbaar (concept / gedepubliceerd / `@self.published` leeg).",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "message": { "type": "string" },
+          "id": { "type": "string" }
+        }
+      },
+      "Self": {
+        "type": "object",
+        "description": "Metadata-blok dat door OpenRegister op elk object wordt gezet.",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "register": { "type": ["string", "integer"], "description": "Register-id of -slug" },
+          "schema": { "type": ["string", "integer"], "description": "Schema-id of -slug" },
+          "name": { "type": "string" },
+          "uri": { "type": "string", "format": "uri" },
+          "published": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Lifecycle-timestamp dat OpenRegister zet bij publiceren. Wordt door OpenCatalogi's `isObjectPublic()` gebruikt als tweede anon-filter — zonder gevulde `published` toont `/publications` het object niet aan anonymes."
+          },
+          "depublished": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Lifecycle-timestamp voor depublicatie."
+          },
+          "owner": { "type": "string" },
+          "organisation": { "type": "string" },
+          "created": { "type": "string", "format": "date-time" },
+          "updated": { "type": "string", "format": "date-time" }
+        }
+      },
+      "PaginatedMeta": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pages": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "offset": { "type": "integer" }
+        }
+      },
+      "CatalogContext": {
+        "type": "object",
+        "description": "Catalogus-context bij `/publications`-responses (`@catalog`-blok).",
+        "properties": {
+          "slug": { "type": "string", "example": "publications" },
+          "title": { "type": "string" },
+          "registers": { "type": "array", "items": { "type": ["integer", "string"] } },
+          "schemas": { "type": "array", "items": { "type": ["integer", "string"] } }
+        }
+      },
+      "Catalog": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "description": { "type": "string" },
+          "listed": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["draft", "stable", "deprecated"] },
+          "registers": { "type": "array", "items": { "type": ["integer", "string"] } },
+          "schemas": { "type": "array", "items": { "type": ["integer", "string"] } },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "CatalogList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Catalog" }
+              }
+            }
+          }
+        ]
+      },
+      "Publication": {
+        "type": "object",
+        "description": "Publicatie-object. Properties zijn schema-afhankelijk (`convenanten`, `woo_verzoeken_en_besluiten`, …); de meest voorkomende velden zijn hieronder opgenomen. Voor de volledige veld-set per informatiecategorie, zie de OpenRegister-schema's via de [Secundaire API](/api/) of de bron-schemas in [`Conduction/openwoo-schemas`](https://codeberg.org/Conduction/) (waar van toepassing).",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "titel": { "type": "string" },
+          "samenvatting": { "type": "string" },
+          "beschrijving": { "type": "string" },
+          "thema": { "type": "string" },
+          "categorie": { "type": "string" },
+          "publicatiedatum": { "type": "string", "format": "date" },
+          "depublicatiedatum": { "type": ["string", "null"], "format": "date" },
+          "kenmerk": { "type": "string" },
+          "besluitdatum": { "type": "string", "format": "date" },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "PublicationList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Publication" }
+              },
+              "facets": {
+                "type": "object",
+                "description": "Facetten — alleen aanwezig wanneer `_facetable=true` is meegestuurd."
+              },
+              "@self": {
+                "type": "object",
+                "description": "Query-context (bron, metrics, query-echo)."
+              },
+              "@catalog": { "$ref": "#/components/schemas/CatalogContext" }
+            }
+          }
+        ]
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "label": { "type": "string" },
+          "endpoint": { "type": "string", "format": "uri" },
+          "published": { "type": ["string", "null"] }
+        }
+      },
+      "AttachmentList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Attachment" }
+              }
+            }
+          }
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "content": { "type": "string", "description": "Pagina-inhoud (HTML/Markdown afhankelijk van implementatie)." },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "PageList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Page" }
+              }
+            }
+          }
+        ]
+      },
+      "Menu": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "url": { "type": "string" }
+              }
+            }
+          },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "MenuList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Menu" }
+              }
+            }
+          }
+        ]
+      },
+      "Theme": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "ThemeList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Theme" }
+              }
+            }
+          }
+        ]
+      },
+      "GlossaryItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "term": { "type": "string" },
+          "definition": { "type": "string" },
+          "@self": { "$ref": "#/components/schemas/Self" }
+        }
+      },
+      "GlossaryList": {
+        "type": "object",
+        "allOf": [
+          { "$ref": "#/components/schemas/PaginatedMeta" },
+          {
+            "type": "object",
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/GlossaryItem" }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
