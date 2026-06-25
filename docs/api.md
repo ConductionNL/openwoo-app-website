@@ -12,7 +12,7 @@ OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** bin
 | Laag | Wat | Live OAS | Bron |
 |---|---|---|---|
 | **Primair** | OpenCatalogi Publications API — catalogus-scoped publicaties, facetten, datum-driven RBAC. Wat de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) aanroept. | [/api/publications/](/api/publications/) | Handmatig — `static/oas/opencatalogi-publications.json` |
-| **Secundair** | OpenRegister direct — `/objects/{register}/{schema}`, ruwe object-storage. Voor register/schema-specifieke calls buiten een catalogus om. | [/api/](/api/) | Auto-gemirrord van canary register 2 |
+| **Secundair** | OpenRegister direct — `/objects/{register}/{schema}`, ruwe object-storage. Voor register/schema-specifieke calls buiten een catalogus om. | [/api/](/api/) | Auto-gemirrord van een upstream OpenRegister-deployment |
 
 Zie [API-koppelvlak](/docs/Integrations/api-koppelvlak/) voor een uitgebreidere uitleg van de architectuur, het verschil tussen de twee lagen, en publicatie-statussen + RBAC.
 
@@ -44,7 +44,7 @@ Deze OAS dekt 17 TOOI-informatiecategorieën (convenanten, klachtoordelen, onder
 
 | Aspect | Waarde |
 |---|---|
-| Source-URL | `https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/2/oas` |
+| Source-URL | Configured via de `OAS_URL` env-var in `.forgejo/workflows/woo-oas-sync.yml` — wijst naar het `/api/registers/{id}/oas`-endpoint van de gekozen upstream OpenRegister-deployment |
 | Sync-mechanisme | `.forgejo/workflows/woo-oas-sync.yml` — cron `27 3 * * *` (nachtelijk) + `workflow_dispatch` (handmatig) |
 | Auth | Geen — `registers/{id}/oas` is anoniem leesbaar |
 | Mirror-file | `static/oas/woo.json` |

@@ -4,7 +4,7 @@ Deze OAS documenteert de **ruwe OpenRegister-objects-API** — `/objects/{regist
 
 Zie [API-koppelvlak](/docs/Integrations/api-koppelvlak) voor de architectuur-context en de keuze tussen de twee lagen.
 
-> **Bron + sync.** Deze spec wordt automatisch gemirrord vanuit canary register 2 (de legacy `woo`-register, slug `woo`) via een nachtelijke Forgejo-workflow. De getoonde TOOI-categorieën weerspiegelen wat momenteel op canary staat; deployments met het nieuwere `publication`-register exposen dezelfde categorieën onder een ander pad-segment (`/objects/publication/{schema}`).
+> **Bron + sync.** Deze spec wordt automatisch gemirrord vanuit een upstream OpenRegister-deployment via een nachtelijke Forgejo-workflow. De getoonde paden weerspiegelen de inrichting van die bron-deployment; jouw eigen deployment kan dezelfde informatiecategorieën onder een ander register-slug en pad-segment exposen.
 
 ---
 

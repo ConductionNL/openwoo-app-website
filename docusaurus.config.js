@@ -71,12 +71,13 @@ const config = createConfig({
     ],
     /* Redocusaurus renders two OAS specs side by side:
        - /api/                — the SECONDARY OpenRegister-direct API.
-         Auto-mirrored from canary register 2 by
+         Auto-mirrored from an upstream OpenRegister deployment by
          .forgejo/workflows/woo-oas-sync.yml (nightly 03:27 UTC +
-         workflow_dispatch). Source URL is in that workflow's OAS_URL
-         env. The sync step prepends a "this is the secondary layer"
-         banner to info.description; the banner is idempotent so
-         re-runs against unchanged upstream produce no diff.
+         workflow_dispatch). Source URL is configured in that
+         workflow's OAS_URL env var. The sync step prepends a "this is
+         the secondary layer" banner to info.description; the banner
+         is idempotent so re-runs against unchanged upstream produce
+         no diff.
        - /api/publications/   — the PRIMARY OpenCatalogi Publications
          API. Hand-curated in static/oas/opencatalogi-publications.json
          because OpenCatalogi doesn't expose its own OAS endpoint yet
