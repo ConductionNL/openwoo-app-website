@@ -213,7 +213,7 @@ Hieruit volgen drie toestanden:
 Belangrijke nuances:
 
 - **Concept = nog niet (of niet) gepubliceerd.** Zowel een leeg `publicatiedatum` als een `publicatiedatum` in de toekomst maakt het object een concept; het blijft onzichtbaar voor het publiek tot die datum bereikt is.
-- **Een `depublicatiedatum` in de toekomst depubliceert nog niet** — dat is een *geplande* depublicatie; het object blijft openbaar tot die datum. Het object is pas gedepubliceerd zodra de datum (middernacht) verstreken is. Een `depublicatiedatum` gelijk aan vandaag betekent dus dat het object vandaag al gedepubliceerd is, omdat middernacht van vandaag al gepasseerd is.
+- **Een `depublicatiedatum` in de toekomst depubliceert nog niet** — dat is een *geplande* depublicatie; het object blijft openbaar tot die datum. Het object is pas gedepubliceerd zodra de datum (middernacht) verstreken is. Een `depublicatiedatum` gelijk aan de huidige dag betekent dus dat het object al gedepubliceerd is, omdat middernacht van die dag al gepasseerd is.
 - De regels gelden voor **zowel de lijst- als de detail-endpoint**, met verschil in response-shape tussen de twee API-lagen:
   - Via de **OpenCatalogi-publicaties-API** (`/apps/opencatalogi/api/publications/{id}`) krijgt een anonieme caller een nette `404 Not Found` (de controller normaliseert het permission-verdict naar "publication not found").
   - Via de **OpenRegister-objects-API** direct (`/apps/openregister/api/objects/{register}/{schema}/{id}`) bubbelt het permission-verdict op dit moment op als `500 Internal Server Error` (`User 'Anonymous' does not have permission to 'read' …`). Dit is een implementatie-detail van OpenRegister, niet de bedoelde response — bouw front-ends bij voorkeur tegen de OpenCatalogi-laag.
