@@ -113,9 +113,11 @@
         "description": "Levert de publicaties uit de WOO-catalogus (slug `publications`).\n\n**`/publications` is hier géén vast endpoint maar de catalogus-slug `publications`.** Wijs je een andere catalogus aan, dan verandert dat pad-segment — het werkelijke route-patroon is `/api/{catalogSlug}`.\n\nAlle parameters hieronder zijn los te combineren. Anonieme callers krijgen uitsluitend gepubliceerde objecten (zie het RBAC-blok in de info-banner bovenaan).",
         "parameters": [
           { "$ref": "#/components/parameters/Search" },
+          { "$ref": "#/components/parameters/Fuzzy" },
           { "$ref": "#/components/parameters/Limit" },
           { "$ref": "#/components/parameters/Page" },
           { "$ref": "#/components/parameters/OrderPublicationDate" },
+          { "$ref": "#/components/parameters/OrderRelevance" },
           { "$ref": "#/components/parameters/Extend" },
           { "$ref": "#/components/parameters/Unset" },
           { "$ref": "#/components/parameters/Facetable" },
@@ -469,8 +471,20 @@
       "Search": {
         "name": "_search",
         "in": "query",
-        "description": "Full-text zoekopdracht. Zie de [Full-text search](/docs/Integrations/fulltext-search)-doc voor query-syntax, gewogen velden en geïndexeerde velden.",
+        "description": "Full-text zoekopdracht — implementatie is een case-insensitive `ILIKE '%term%'` substring-match over alle `type: string` schema-properties plus de metadata-velden `_name`, `_description`, `_summary`. Geen Lucene-syntax: boolean operatoren (`OR`/`AND`), phrase-quotes (`\"...\"`), wildcards (`*`), fuzzy-tilde (`~`) en boost (`^N`) worden als letterlijke tekens behandeld, niet geparsed. Voor typo-tolerantie zie `_fuzzy` hieronder. Zie de [Full-text search](/docs/Integrations/fulltext-search)-doc voor de volledige semantiek + gotchas.",
         "schema": { "type": "string" }
+      },
+      "Fuzzy": {
+        "name": "_fuzzy",
+        "in": "query",
+        "description": "Schakelt typo-tolerante fuzzy matching in op het metadata-veld `_name` via PostgreSQL's `pg_trgm`-extensie. Voegt een `similarity(_name, '<query>') > 0.1` OR-clausule toe aan de ILIKE-condities, EN voegt `@self.relevance` (integer 0–100) toe aan elke result-rij. Werkt ALLEEN op PostgreSQL-deployments met `pg_trgm` geïnstalleerd; op MySQL of PostgreSQL zonder extensie valt de query stil terug op de standaard ILIKE-mode (geen `@self.relevance`-veld). De fuzzy scope is uitsluitend `_name` — andere velden worden niet fuzzy doorzocht.",
+        "schema": { "type": "boolean" }
+      },
+      "OrderRelevance": {
+        "name": "_order[@self.relevance]",
+        "in": "query",
+        "description": "Sorteer resultaten op `@self.relevance` (trigram-similariteit van `_name` met de zoekterm). Alleen zinvol gecombineerd met `_fuzzy=true` — zonder die parameter wordt `@self.relevance` niet berekend en is sortering hierop een no-op.",
+        "schema": { "type": "string", "enum": ["asc", "desc"] }
       },
       "Limit": {
         "name": "_limit",
@@ -576,7 +590,13 @@
           "owner": { "type": "string" },
           "organisation": { "type": "string" },
           "created": { "type": "string", "format": "date-time" },
-          "updated": { "type": "string", "format": "date-time" }
+          "updated": { "type": "string", "format": "date-time" },
+          "relevance": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Trigram-similariteit van `_name` met de `_search`-term, geheel getal in [0, 100]. Alléén aanwezig wanneer `_fuzzy=true` is meegegeven EN PostgreSQL met `pg_trgm` actief is. Op MySQL of zonder fuzzy mode is dit veld afwezig."
+          }
         }
       },
       "PaginatedMeta": {
