@@ -1,12 +1,12 @@
 ---
 title: Full-text search
-description: Hoe het `_search`-endpoint werkt vandaag — substring-matching via OpenRegister, optionele typo-tolerante fuzzy mode, en wat (nog) niet ondersteund wordt vanuit een Lucene/Elastic-perspectief.
+description: Hoe het `_search`-endpoint werkt in de huidige stack — substring-matching via OpenRegister, optionele typo-tolerante fuzzy mode, en wat (nog) niet ondersteund wordt vanuit een Lucene/Elastic-perspectief.
 sidebar_position: 4
 ---
 
 # Full-text search
 
-Hoe het `_search`-endpoint van de publicatie-API vandaag werkt: welke query-vormen ondersteund zijn, hoe matching gebeurt, en wat (nog) **niet** werkt zoals lezers van klassieke Lucene-documentatie misschien zouden verwachten.
+Hoe het `_search`-endpoint van de publicatie-API in de huidige stack werkt: welke query-vormen ondersteund zijn, hoe matching gebeurt, en wat (nog) **niet** werkt zoals lezers van klassieke Lucene-documentatie misschien zouden verwachten.
 
 :::tip Eerst lezen
 [API-koppelvlak](api-koppelvlak.md) — de algemene introductie tot de OpenWoo-API, de twee API-lagen (primaire OpenCatalogi-publicaties en secundaire OpenRegister-direct), authenticatie en datum-driven zichtbaarheid.
