@@ -6,12 +6,6 @@ sidebar_position: 4
 
 # Full-text search
 
-:::warning Work in progress — pagina nog niet volledig accuraat
-Deze pagina wordt momenteel herzien. Een deel van wat hier staat klopt op dit moment **niet** met het feitelijke gedrag van de API, en er zijn onderdelen die nog nader onderzocht of afgestemd moeten worden.
-
-De verwachting is dat de bijbehorende werkzaamheden in de **week van 6 t/m 12 juli 2026** worden afgerond; deze documentatiepagina wordt daarna geüpdatet zodat de inhoud weer overeenkomt met de daadwerkelijke implementatie. Behandel de details op deze pagina tot die tijd als indicatief, niet als contract.
-:::
-
 Hoe het `_search`-endpoint van de publicatie-API in de huidige stack werkt: welke query-vormen ondersteund zijn, hoe matching gebeurt, en wat (nog) **niet** werkt zoals lezers van klassieke Lucene-documentatie misschien zouden verwachten.
 
 :::tip Eerst lezen
