@@ -17,6 +17,35 @@ Deze zoekfunctie is ook buiten OpenWoo bruikbaar en kan bijvoorbeeld worden inge
 
 Federatief zoeken is in de kern een simpel principe: één binnenkomende zoekvraag wordt parallel doorgezet naar meerdere OpenCatalogi-instanties, en de antwoorden worden op één plek weer bij elkaar gebracht. Zo ontstaat een **virtuele landelijke catalogus** die onder water bestaat uit meerdere lokale catalogi.
 
+```
+                    consument
+                        │
+                        │  1× zoekvraag
+                        ▼
+                ┌──────────────────┐
+                │  peer A          │◀── peer-lijst uit directory
+                │  (ontvanger)     │
+                └────────┬─────────┘
+                         │  parallel
+              ┌──────────┴──────────┐
+              ▼                     ▼
+         ┌─────────┐           ┌─────────┐
+         │ peer B  │           │ peer C  │
+         └────┬────┘           └────┬────┘
+              │  resultaten         │
+              └──────────┬──────────┘
+                         ▼
+                ┌──────────────────┐
+                │  peer A          │
+                │  • combineert    │  [+ eigen lokale zoek]
+                │  • merge facets  │
+                │  • bron-attr.    │
+                └────────┬─────────┘
+                         │  1× samengesteld antwoord
+                         ▼
+                    consument
+```
+
 Concreet: de aangeroepen instantie bevraagt haar peer-instanties, combineert de antwoorden met haar eigen publicaties (inclusief bijbehorende filters en facetten), en stuurt het geheel als één resultaat terug. Elk afzonderlijk resultaat blijft traceerbaar naar de bronorganisatie zodat consumenten altijd weten wie welke publicatie beheert, en het aggregaat draagt een expliciete markering dat het antwoord federatief was.
 
 Er wordt hierbij dus **géén** gebruik gemaakt van een landelijke index. Dat heeft drie belangrijke gevolgen voor deelnemers:
@@ -28,6 +57,10 @@ Er wordt hierbij dus **géén** gebruik gemaakt van een landelijke index. Dat he
 Dit concept is verder uitgewerkt in koophulpje.nl. De facto is hiermee dus ook een landelijke Woo-API gerealiseerd, met de beperking dat deze alleen organisaties bevat die participeren in OpenWoo.
 
 De bevragingen tussen de federatieve zoekvraag en de verschillende organisaties kunnen via NLX/FSC lopen, of daarbuiten. Aangezien het publieke bevragingen zijn op openbare informatie is NLX an sich niet verplicht en kan het inregelen van een PKI-certificaat nodeloos complex zijn. Dat gezegd hebbende, biedt NLX ook voordelen met betrekking tot het monitoren en loggen van verkeer.
+
+### Federatie is inter-organisatorisch
+
+Federatie loopt altijd tussen organisaties, nooit tussen afdelingen binnen dezelfde organisatie. Elke deelnemende organisatie draait haar eigen OpenWoo-instantie; de federatie regelt uitsluitend het delen van publicaties over die organisatie-grenzen heen. Afdelingen of teams binnen één organisatie delen dezelfde instantie en gebruiken het gewone rollen- en tenant-model om intern zichtbaarheid te regelen. Deze scheiding zorgt ervoor dat de vertrouwensgrens van de federatie parallel loopt aan de organisatie-grens — geen kruisverbanden tussen interne tenants of afdelingen.
 
 ### Peer discovery via de directory
 
@@ -45,6 +78,16 @@ Ingebouwde controles voorkomen misbruik of ongewenst gedrag:
 
 De volledige beheer-workflow (peer toevoegen, scope kiezen, sync forceren, troubleshoot-logs) staat in de admin-runbook van OpenCatalogi: [`docs/tutorials/admin/02-manage-federation-sources.md`](https://codeberg.org/Conduction/opencatalogi/src/branch/development/docs/tutorials/admin/02-manage-federation-sources.md).
 
+### Doorfederatie naar nationale en Europese portals (roadmap)
+
+:::note Op de roadmap, nog niet geïmplementeerd
+De onderstaande DCAT-harvest-koppeling staat als voorstel in de OpenCatalogi-openspec (`dcat-national-portal-federation`) maar is nog niet uitgevoerd. Beschouw het als richting, niet als bestaande functionaliteit.
+:::
+
+Naast peer-to-peer federatie tussen OpenWoo-instanties kan een OpenCatalogi-instantie haar publicaties ook aanbieden als **DCAT-AP harvestbron** — het protocol waarmee het nationale open-data portaal ([data.overheid.nl](https://data.overheid.nl)) en het Europese portaal ([data.europa.eu](https://data.europa.eu)) externe catalogi inlezen. De DCAT-feed bestaat al als passieve pull-endpoint; de roadmap-stap is registratie als officiële harvestbron zodat OpenWoo-publicaties automatisch verschijnen in de nationale en EU-catalogi, zonder dat er data gerepliceerd hoeft te worden.
+
+Op deze manier ontstaat een tweede laag van federatie: peer-to-peer tussen deelnemende OpenWoo-instanties én bulk-harvest richting nationale/EU-portals. In beide gevallen blijft de OpenWoo-instantie de canonieke bron van de publicaties.
+
 ## Domeinen
 
 OpenWoo is een organisatie­specifieke applicatie waarvan de installaties onderling een federatief netwerk vormen. Dat kan het wat onduidelijk maken wat waar leeft.
@@ -53,37 +96,11 @@ OpenWoo is een organisatie­specifieke applicatie waarvan de installaties onderl
 Het hele punt van een federatief netwerk is dat er niet één centraal lijstje van deelnemende domeinen bestaat — iedere OpenCatalogi-instantie registreert zichzelf bij de centrale directory op [`directory.opencatalogi.nl`](https://directory.opencatalogi.nl/apps/opencatalogi/api/directory), en die directory publiceert de actuele lijst van deelnemers. Op termijn wordt de tabel hieronder vervangen door een widget die deze lijst rechtstreeks uit de directory ophaalt. Tot dan wordt de tabel handmatig bijgehouden — behandel het daarom als indicatief, niet als de bron van waarheid.
 :::
 
-:::caution Beschikbaarheid — bijgewerkt 2026-07-07
-Deze tabel beschrijft de **beoogde** domein-topologie; niet elke rij is op dit moment live/valide. Stand van zaken per 2026-07-07:
-
-- `koophulpje.nl` — ✅ productie live (echt TLS-certificaat).
-- `[organisatie_naam].koophulpje.nl` — deels live (bijv. `epe.koophulpje.nl` werkt; de meeste organisatie-subdomeinen zijn nog niet uitgerold).
-- `acceptatie.koophulpje.nl` en `acceptatie.[organisatie_naam].koophulpje.nl` — ⚠️ server antwoordt maar met een ongeldig (Kubernetes-ingress) TLS-certificaat.
-- `OpenWoo.app` — ⚠️ redirecte inmiddels naar `https://www.conduction.nl/solutions/openwoo/`; geen eigenstandige productpagina meer op dit domein.
-- `acceptatie.OpenWoo.app` — ⚠️ server antwoordt maar met ongeldig TLS-certificaat.
-- `[organisatie_naam].OpenWoo.app` en `acceptatie.[organisatie_naam].OpenWoo.app` — ❌ niet actief (getest: `epe.OpenWoo.app` → 404).
-- `api.OpenWoo.app` — ❌ momenteel `503 Service Temporarily Unavailable` + ongeldig TLS-certificaat. De federatieve API leeft (nog) niet op dit domein.
-- `acceptatie.api.OpenWoo.app` — ❌ 404 + ongeldig TLS-certificaat.
-- `api.[organisatie_naam].OpenWoo.app` — ❌ geen DNS-wildcard (getest: `api.epe.OpenWoo.app` → NXDOMAIN).
-
-Tot deze omissies zijn opgelost is de effectieve productieve federation-entry-point `koophulpje.nl` (plus de per-organisatie subdomeinen die daar wél op zitten).
-:::
-
 | Type                  | Domein                                       | Status     | Type             |
 |-----------------------|----------------------------------------------|------------|------------------|
 | Federatief            | koophulpje.nl                                | productie  | Publicatiepagina |
-| Federatief            | acceptatie.koophulpje.nl                     | acceptatie | Publicatiepagina |
 | Organisatie specifiek | [organisatie_naam].koophulpje.nl             | productie  | Publicatiepagina |
-| Organisatie specifiek | acceptatie.[organisatie_naam].koophulpje.nl  | acceptatie | Publicatiepagina |
-| n.v.t.                | OpenWoo.app                                  | productie  | Productpagina    |
-| n.v.t.                | acceptatie.OpenWoo.app                       | acceptatie | Productpagina    |
-| Organisatie specifiek | [organisatie_naam].OpenWoo.app               | productie  | Publicatiepagina |
-| Organisatie specifiek | acceptatie.[organisatie_naam].OpenWoo.app    | acceptatie | Publicatiepagina |
-| Federatief            | api.OpenWoo.app                              | productie  | API              |
-| Federatief            | acceptatie.api.OpenWoo.app                   | acceptatie | API              |
-| Organisatie specifiek | api.[organisatie_naam].OpenWoo.app           | productie  | API              |
-| Organisatie specifiek | acceptatie.api.[organisatie_naam].OpenWoo.app| acceptatie | API              |
 
-<small>_Tabelinhoud voor het laatst inhoudelijk herzien op 19 mei 2026._</small>
+<small>_Tabelinhoud voor het laatst inhoudelijk herzien op 2026-07-07._</small>
 
 Dit zijn de aangeboden domeinen vanuit OpenWoo. Daarnaast zien we dat de meeste organisaties hun publicatiepagina ontsluiten op hun eigen domein, bijvoorbeeld `open.[organisatie_naam].nl`.
