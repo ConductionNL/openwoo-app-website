@@ -6,36 +6,52 @@ De kern van de Woo is het zoeken in de openbare informatie van een overheidsorga
 
 OpenWoo geeft invulling aan deze integrale zoekvraag door de zoekfunctie op te splitsen in twee lagen die apart evolueren:
 
-- **OpenRegister** is de data- en zoeklaag. Het bezit de opslag van publicaties en de zoekbackend (SQL `ILIKE` substring-match met optionele `pg_trgm`-fuzzy-mode, per schema doorzoekbaar). Elke OpenWoo-instantie draait haar eigen OpenRegister — data blijft bij de organisatie.
-- **OpenCatalogi** is de catalogus- en federatielaag. Zij ontsluit de publicaties per organisatie via publieke endpoints en verzorgt daarnaast de federatieve fan-out over meerdere instanties.
+- **OpenRegister** is de data- en zoeklaag. Elke deelnemende organisatie draait haar eigen OpenRegister waarin haar publicaties leven en direct doorzocht kunnen worden. Data blijft daarmee altijd bij de bronorganisatie — er is geen kopie ergens anders in het netwerk.
+- **OpenCatalogi** is de catalogus- en federatielaag. Zij ontsluit de publicaties van één organisatie via publieke endpoints en verzorgt daarnaast de federatieve zoekvraag zodra er over meerdere organisaties heen gezocht moet worden.
 
-Waarin OpenWoo afwijkt van een generieke zoekstack, is dat zij alleen publieke informatie via deze weg beschikbaar maakt: alleen publicaties met een geldige `publicatiedatum` en `published`-vlag komen terug in de resultaten. Dit heeft een aantal privacy-, security- en architectuurvoordelen.
+Alleen publieke informatie komt via deze weg beschikbaar: publicaties zonder geldige publicatiedatum of zonder expliciete publicatie-status blijven onzichtbaar voor externe zoekvragen. Dit heeft privacy-, security- en architectuurvoordelen ten opzichte van een klassieke centrale zoekindex.
 
 Deze zoekfunctie is ook buiten OpenWoo bruikbaar en kan bijvoorbeeld worden ingezet vanuit de website, het zaaksysteem of het klantcontactcentrum om burgers, inwoners en medewerkers van relevante informatie te voorzien.
 
 ## Federatief (landelijk) zoeken
 
-Federatief zoeken zit in **OpenCatalogi** en werkt via één publiek endpoint per instantie:
+Federatief zoeken is in de kern een simpel principe: één binnenkomende zoekvraag wordt parallel doorgezet naar meerdere OpenCatalogi-instanties, en de antwoorden worden op één plek weer bij elkaar gebracht. Zo ontstaat een **virtuele landelijke catalogus** die onder water bestaat uit meerdere lokale catalogi.
 
-```
-GET /apps/opencatalogi/api/federation/publications?_search=<term>
-```
+Concreet: de aangeroepen instantie bevraagt haar peer-instanties, combineert de antwoorden met haar eigen publicaties (inclusief bijbehorende filters en facetten), en stuurt het geheel als één resultaat terug. Elk afzonderlijk resultaat blijft traceerbaar naar de bronorganisatie zodat consumenten altijd weten wie welke publicatie beheert, en het aggregaat draagt een expliciete markering dat het antwoord federatief was.
 
-De aangeroepen instantie doet fan-out naar haar peer-instanties (bekend via de directory, zie hieronder), voegt de resultaten samen met de eigen lokale publicaties, voegt de facets van beide kanten samen, en geeft het geheel terug als één antwoord. Elk resultaat draagt een `@self.directory`-veld zodat de bron traceerbaar blijft; op het aggregaat staat `_performance.federation: true` zodat consumenten weten dat het antwoord federatief was.
+Er wordt hierbij dus **géén** gebruik gemaakt van een landelijke index. Dat heeft drie belangrijke gevolgen voor deelnemers:
 
-Er wordt hierbij dus **géén** gebruik gemaakt van een landelijke index, wat data­duplicatie voorkomt en organisaties zelf in controle houdt op hun publicaties. Dit concept is verder uitgewerkt in koophulpje.nl, waarbij ook een voorziening is gerealiseerd voor het genereren van `robot.txt`- en `sitemap.xml`-bestanden (ten behoeve van KOOP). De facto is hiermee dus ook een landelijke Woo-API gerealiseerd, met de beperking dat deze alleen organisaties bevat die participeren in OpenWoo.
+- **Geen dataduplicatie** — publicaties leven op één plek (bij de bronorganisatie) en worden nergens gerepliceerd.
+- **Bron behoudt regie** — publiceren, wijzigen en depubliceren gebeurt lokaal en werkt direct door in álle federatieve zoekvragen. Er is geen aparte upload-stap richting een centrale voorziening.
+- **Organisatiedomein blijft leidend** — de publicaties leven onder een organisatie-eigen URL (bijvoorbeeld `open.gemeente-x.nl`); het federatieve antwoord verwijst naar die bron in plaats van naar een landelijk mirror-adres.
+
+Dit concept is verder uitgewerkt in koophulpje.nl. De facto is hiermee dus ook een landelijke Woo-API gerealiseerd, met de beperking dat deze alleen organisaties bevat die participeren in OpenWoo.
 
 De bevragingen tussen de federatieve zoekvraag en de verschillende organisaties kunnen via NLX/FSC lopen, of daarbuiten. Aangezien het publieke bevragingen zijn op openbare informatie is NLX an sich niet verplicht en kan het inregelen van een PKI-certificaat nodeloos complex zijn. Dat gezegd hebbende, biedt NLX ook voordelen met betrekking tot het monitoren en loggen van verkeer.
 
 ### Peer discovery via de directory
 
-Peer-instanties worden ontdekt via een centrale directory. Standaard staat die op `https://directory.opencatalogi.nl/apps/opencatalogi/api/directory`; per omgeving overschrijfbaar via de app-config-key `default_directory_url`. Iedere instantie registreert zich bij haar directory en synchroniseert periodiek de bekende peers (cron-sync + expliciete `connect-federation`-actie in de setup-wizard). Ingebouwde beveiligingslagen: anti-loop User-Agent-detectie tegen broadcast-storms, SSRF-guard op de outbound URL (blokkeert loopback / RFC1918 / cloud-metadata / non-https), en self-detection op host + port + `instance_aliases` zodat een instantie zichzelf niet als peer registreert.
+Om federatief te kunnen zoeken moet elke instantie weten welke andere instanties er in het netwerk actief zijn. Dat regelen we via een **centrale directory**: een openbare lijst waarop iedere deelnemende OpenCatalogi-instantie zich registreert.
+
+Standaard staat die directory op [`directory.opencatalogi.nl`](https://directory.opencatalogi.nl/apps/opencatalogi/api/directory) — de "wie-doet-mee-lijst" van het OpenCatalogi-netwerk. Iedere instantie synchroniseert regelmatig met haar directory zodat nieuwe peers automatisch beschikbaar komen; admins kunnen deze sync ook handmatig triggeren.
+
+Een nieuwe instantie hoeft zichzelf maar bij één bekende peer aan te melden om vervolgens via de directory door alle andere peers gevonden te worden — een klein sneeuwbaleffect dat een nieuwe deelnemer in korte tijd volledig ingeplugd krijgt in het netwerk.
+
+Ingebouwde controles voorkomen misbruik of ongewenst gedrag:
+
+- Een instantie herkent zichzelf en registreert zich niet als peer.
+- Interne of loopback-adressen worden geweigerd zodat het federatiekanaal niet misbruikt kan worden om achter de firewall te kijken.
+- Broadcast-lussen worden gedetecteerd en gestopt, zodat sync-berichten niet oneindig rondgaan.
 
 De volledige beheer-workflow (peer toevoegen, scope kiezen, sync forceren, troubleshoot-logs) staat in de admin-runbook van OpenCatalogi: [`docs/tutorials/admin/02-manage-federation-sources.md`](https://codeberg.org/Conduction/opencatalogi/src/branch/development/docs/tutorials/admin/02-manage-federation-sources.md).
 
 ## Domeinen
 
 OpenWoo is een organisatie­specifieke applicatie waarvan de installaties onderling een federatief netwerk vormen. Dat kan het wat onduidelijk maken wat waar leeft.
+
+:::info Toekomstige directory-widget
+Het hele punt van een federatief netwerk is dat er niet één centraal lijstje van deelnemende domeinen bestaat — iedere OpenCatalogi-instantie registreert zichzelf bij de centrale directory op [`directory.opencatalogi.nl`](https://directory.opencatalogi.nl/apps/opencatalogi/api/directory), en die directory publiceert de actuele lijst van deelnemers. Op termijn wordt de tabel hieronder vervangen door een widget die deze lijst rechtstreeks uit de directory ophaalt. Tot dan wordt de tabel handmatig bijgehouden — behandel het daarom als indicatief, niet als de bron van waarheid.
+:::
 
 :::caution Beschikbaarheid — bijgewerkt 2026-07-07
 Deze tabel beschrijft de **beoogde** domein-topologie; niet elke rij is op dit moment live/valide. Stand van zaken per 2026-07-07:
