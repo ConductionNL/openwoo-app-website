@@ -68,4 +68,6 @@ Tot deze omissies zijn opgelost is de effectieve productieve federation-entry-po
 | Organisatie specifiek | api.[organisatie_naam].OpenWoo.app           | productie  | API              |
 | Organisatie specifiek | acceptatie.api.[organisatie_naam].OpenWoo.app| acceptatie | API              |
 
+<small>_Tabelinhoud voor het laatst inhoudelijk herzien op 19 mei 2026._</small>
+
 Dit zijn de aangeboden domeinen vanuit OpenWoo. Daarnaast zien we dat de meeste organisaties hun publicatiepagina ontsluiten op hun eigen domein, bijvoorbeeld `open.[organisatie_naam].nl`.
