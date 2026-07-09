@@ -39,13 +39,6 @@ const config = createConfig({
   onBrokenLinks: 'warn',
   trailingSlash: true,
 
-  /* Enable Mermaid diagram rendering in Markdown code blocks with the
-     `mermaid` language tag. Used on architecture pages to visualise
-     flows (e.g. docs/Architecture/federatief-zoeken.md). */
-  markdown: {
-    mermaid: true,
-  },
-
   /* Nederlands first; the Dutch government is the primary audience.
      English follows once the docs/ markdown is mirrored under i18n/en/. */
   i18n: {
@@ -178,5 +171,15 @@ const config = createConfig({
     },
   },
 });
+
+/* Enable Mermaid diagram rendering in Markdown code blocks with the
+   `mermaid` language tag. This is assigned AFTER createConfig() because
+   the brand preset's createConfig() builds its return object with an
+   explicit shape and silently drops unknown top-level keys — passing
+   `markdown` inside createConfig({...}) does nothing. Setting it on
+   the returned config here reaches Docusaurus' merger unchanged.
+   The theme itself is loaded via `themes: [BRAND_THEME,
+   '@docusaurus/theme-mermaid']` above. */
+config.markdown = Object.assign({}, config.markdown, {mermaid: true});
 
 module.exports = config;
