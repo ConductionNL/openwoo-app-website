@@ -58,10 +58,6 @@ Dit concept is verder uitgewerkt in koophulpje.nl. De facto is hiermee dus ook e
 
 De bevragingen tussen de federatieve zoekvraag en de verschillende organisaties kunnen via NLX/FSC lopen, of daarbuiten. Aangezien het publieke bevragingen zijn op openbare informatie is NLX an sich niet verplicht en kan het inregelen van een PKI-certificaat nodeloos complex zijn. Dat gezegd hebbende, biedt NLX ook voordelen met betrekking tot het monitoren en loggen van verkeer.
 
-### Federatie is inter-organisatorisch
-
-Federatie loopt altijd tussen organisaties, nooit tussen afdelingen binnen dezelfde organisatie. Elke deelnemende organisatie draait haar eigen OpenWoo-instantie; de federatie regelt uitsluitend het delen van publicaties over die organisatie-grenzen heen. Afdelingen of teams binnen één organisatie delen dezelfde instantie en gebruiken het gewone rollen- en tenant-model om intern zichtbaarheid te regelen. Deze scheiding zorgt ervoor dat de vertrouwensgrens van de federatie parallel loopt aan de organisatie-grens — geen kruisverbanden tussen interne tenants of afdelingen.
-
 ### Peer discovery via de directory
 
 Om federatief te kunnen zoeken moet elke instantie weten welke andere instanties er in het netwerk actief zijn. Dat regelen we via een **centrale directory**: een openbare lijst waarop iedere deelnemende OpenCatalogi-instantie zich registreert.
@@ -81,7 +77,7 @@ De volledige beheer-workflow (peer toevoegen, scope kiezen, sync forceren, troub
 ### Doorfederatie naar nationale en Europese portals (roadmap)
 
 :::note Op de roadmap, nog niet geïmplementeerd
-De onderstaande DCAT-harvest-koppeling staat als voorstel in de OpenCatalogi-openspec (`dcat-national-portal-federation`) maar is nog niet uitgevoerd. Beschouw het als richting, niet als bestaande functionaliteit.
+De onderstaande DCAT-harvest-koppeling is voorgenomen op de OpenCatalogi-roadmap, maar nog niet gebouwd. Beschouw het als richting, niet als bestaande functionaliteit.
 :::
 
 Naast peer-to-peer federatie tussen OpenWoo-instanties kan een OpenCatalogi-instantie haar publicaties ook aanbieden als **DCAT-AP harvestbron** — het protocol waarmee het nationale open-data portaal ([data.overheid.nl](https://data.overheid.nl)) en het Europese portaal ([data.europa.eu](https://data.europa.eu)) externe catalogi inlezen. De DCAT-feed bestaat al als passieve pull-endpoint; de roadmap-stap is registratie als officiële harvestbron zodat OpenWoo-publicaties automatisch verschijnen in de nationale en EU-catalogi, zonder dat er data gerepliceerd hoeft te worden.
