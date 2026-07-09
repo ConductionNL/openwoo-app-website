@@ -17,31 +17,6 @@ Deze zoekfunctie is ook buiten OpenWoo bruikbaar en kan bijvoorbeeld worden inge
 
 Federatief zoeken is in de kern een simpel principe: één binnenkomende zoekvraag wordt parallel doorgezet naar meerdere OpenCatalogi-instanties, en de antwoorden worden op één plek weer bij elkaar gebracht. Zo ontstaat een **virtuele landelijke catalogus** die onder water bestaat uit meerdere lokale catalogi.
 
-**Variant A — sequenceDiagram** (procesmatig, laat de tijdslijn zien):
-
-```mermaid
-sequenceDiagram
-    participant C as Consument
-    participant A as Peer A (ontvanger)
-    participant B as Peer B
-    participant D as Peer C
-
-    C->>A: 1× zoekvraag
-    Note over A: peer-lijst uit directory
-    par parallel fan-out
-        A->>B: zoekvraag
-        A->>D: zoekvraag
-    and eigen lokale zoek
-        A->>A: zoek in eigen publicaties
-    end
-    B-->>A: resultaten
-    D-->>A: resultaten
-    Note over A: combineert +<br/>merge facets +<br/>bron-attributie
-    A-->>C: 1× samengesteld antwoord
-```
-
-**Variant B — flowchart** (structureel, laat de directory als aparte node zien):
-
 ```mermaid
 flowchart TD
     C([Consument])
