@@ -17,33 +17,48 @@ Deze zoekfunctie is ook buiten OpenWoo bruikbaar en kan bijvoorbeeld worden inge
 
 Federatief zoeken is in de kern een simpel principe: één binnenkomende zoekvraag wordt parallel doorgezet naar meerdere OpenCatalogi-instanties, en de antwoorden worden op één plek weer bij elkaar gebracht. Zo ontstaat een **virtuele landelijke catalogus** die onder water bestaat uit meerdere lokale catalogi.
 
+**Variant A — sequenceDiagram** (procesmatig, laat de tijdslijn zien):
+
+```mermaid
+sequenceDiagram
+    participant C as Consument
+    participant A as Peer A (ontvanger)
+    participant B as Peer B
+    participant D as Peer C
+
+    C->>A: 1× zoekvraag
+    Note over A: peer-lijst uit directory
+    par parallel fan-out
+        A->>B: zoekvraag
+        A->>D: zoekvraag
+    and eigen lokale zoek
+        A->>A: zoek in eigen publicaties
+    end
+    B-->>A: resultaten
+    D-->>A: resultaten
+    Note over A: combineert +<br/>merge facets +<br/>bron-attributie
+    A-->>C: 1× samengesteld antwoord
 ```
-                    consument
-                        │
-                        │  1× zoekvraag
-                        ▼
-                ┌──────────────────┐
-                │  peer A          │◀── peer-lijst uit directory
-                │  (ontvanger)     │
-                └────────┬─────────┘
-                         │  parallel
-              ┌──────────┴──────────┐
-              ▼                     ▼
-         ┌─────────┐           ┌─────────┐
-         │ peer B  │           │ peer C  │
-         └────┬────┘           └────┬────┘
-              │  resultaten         │
-              └──────────┬──────────┘
-                         ▼
-                ┌──────────────────┐
-                │  peer A          │
-                │  • combineert    │  [+ eigen lokale zoek]
-                │  • merge facets  │
-                │  • bron-attr.    │
-                └────────┬─────────┘
-                         │  1× samengesteld antwoord
-                         ▼
-                    consument
+
+**Variant B — flowchart** (structureel, laat de directory als aparte node zien):
+
+```mermaid
+flowchart TD
+    C([Consument])
+    DIR[(Directory)]
+    A[Peer A - ontvanger]
+    B[Peer B]
+    D[Peer C]
+    Agg[Peer A combineert<br/>+ merge facets<br/>+ bron-attributie]
+
+    C -->|1× zoekvraag| A
+    DIR -.peer-lijst.-> A
+    A -->|parallel| B
+    A -->|parallel| D
+    A -.eigen lokale zoek.-> Agg
+    B -->|resultaten| Agg
+    D -->|resultaten| Agg
+    Agg -->|1× samengesteld antwoord| C
 ```
 
 Concreet: de aangeroepen instantie bevraagt haar peer-instanties, combineert de antwoorden met haar eigen publicaties (inclusief bijbehorende filters en facetten), en stuurt het geheel als één resultaat terug. Elk afzonderlijk resultaat blijft traceerbaar naar de bronorganisatie zodat consumenten altijd weten wie welke publicatie beheert, en het aggregaat draagt een expliciete markering dat het antwoord federatief was.

@@ -39,6 +39,13 @@ const config = createConfig({
   onBrokenLinks: 'warn',
   trailingSlash: true,
 
+  /* Enable Mermaid diagram rendering in Markdown code blocks with the
+     `mermaid` language tag. Used on architecture pages to visualise
+     flows (e.g. docs/Architecture/federatief-zoeken.md). */
+  markdown: {
+    mermaid: true,
+  },
+
   /* Nederlands first; the Dutch government is the primary audience.
      English follows once the docs/ markdown is mirrored under i18n/en/. */
   i18n: {
@@ -106,7 +113,7 @@ const config = createConfig({
     ],
   ],
 
-  themes: [BRAND_THEME],
+  themes: [BRAND_THEME, '@docusaurus/theme-mermaid'],
 
   /* Navbar ported from the old openwoo.app (Open Webconcept) menu so
      long-time users land in familiar places. The brand preset's
