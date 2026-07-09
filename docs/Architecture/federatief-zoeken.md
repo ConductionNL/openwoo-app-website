@@ -76,7 +76,7 @@ Ingebouwde controles voorkomen misbruik of ongewenst gedrag:
 - Interne of loopback-adressen worden geweigerd zodat het federatiekanaal niet misbruikt kan worden om achter de firewall te kijken.
 - Broadcast-lussen worden gedetecteerd en gestopt, zodat sync-berichten niet oneindig rondgaan.
 
-De volledige beheer-workflow (peer toevoegen, scope kiezen, sync forceren, troubleshoot-logs) staat in de admin-runbook van OpenCatalogi: [`docs/tutorials/admin/02-manage-federation-sources.md`](https://codeberg.org/Conduction/opencatalogi/src/branch/development/docs/tutorials/admin/02-manage-federation-sources.md).
+De volledige beheer-workflow (peer toevoegen, scope kiezen, sync forceren, troubleshoot-logs) staat in de admin-runbook van OpenCatalogi: [Manage federation sources](https://opencatalogi.conduction.nl/docs/tutorials/admin/manage-federation-sources/).
 
 ### Doorfederatie naar nationale en Europese portals (roadmap)
 
