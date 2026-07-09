@@ -106,7 +106,7 @@ const config = createConfig({
     ],
   ],
 
-  themes: [BRAND_THEME],
+  themes: [BRAND_THEME, '@docusaurus/theme-mermaid'],
 
   /* Navbar ported from the old openwoo.app (Open Webconcept) menu so
      long-time users land in familiar places. The brand preset's
@@ -171,5 +171,15 @@ const config = createConfig({
     },
   },
 });
+
+/* Enable Mermaid diagram rendering in Markdown code blocks with the
+   `mermaid` language tag. This is assigned AFTER createConfig() because
+   the brand preset's createConfig() builds its return object with an
+   explicit shape and silently drops unknown top-level keys — passing
+   `markdown` inside createConfig({...}) does nothing. Setting it on
+   the returned config here reaches Docusaurus' merger unchanged.
+   The theme itself is loaded via `themes: [BRAND_THEME,
+   '@docusaurus/theme-mermaid']` above. */
+config.markdown = Object.assign({}, config.markdown, {mermaid: true});
 
 module.exports = config;
