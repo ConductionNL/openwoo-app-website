@@ -48,6 +48,35 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Use cases',
+      link: {
+        type: 'generated-index',
+        description: 'De drie meest gestelde "wat wil je bereiken"-vragen waar OpenWoo een antwoord op geeft.',
+      },
+      items: [
+        'UseCases/actieve-openbaarmaking',
+        'UseCases/publicatie-vanuit-zaaksysteem',
+        'UseCases/federatieve-zoekindex',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Features',
+      link: {
+        type: 'generated-index',
+        description: 'De zes belangrijkste functionaliteiten van OpenWoo, één per pagina.',
+      },
+      items: [
+        'Features/centrale-index',
+        'Features/multibron-data',
+        'Features/publicatieplatformen',
+        'Features/automatische-aanlevering-koop',
+        'Features/proactieve-publicatie',
+        'Features/audit-log',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Architectuur',
       link: {
         type: 'generated-index',
