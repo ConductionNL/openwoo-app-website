@@ -724,7 +724,14 @@
                     {
                       "$ref": "#/components/schemas/Document"
                     }
-                  ]
+                  ],
+                  "discriminator": {
+                    "propertyName": "@self.schema",
+                    "mapping": {
+                      "publication": "#/components/schemas/Publication",
+                      "document": "#/components/schemas/Document"
+                    }
+                  }
                 }
               }
             }
@@ -910,9 +917,9 @@
         }
       },
       "OrderRelevance": {
-        "name": "_order[@self.relevance]",
+        "name": "_order[_relevance]",
         "in": "query",
-        "description": "Sorteer resultaten op `@self.relevance` (trigram-similariteit van `_name` met de zoekterm). Alleen zinvol gecombineerd met `_fuzzy=true` — zonder die parameter wordt `@self.relevance` niet berekend en is sortering hierop een no-op.",
+        "description": "Sorteer resultaten op relevance (trigram-similariteit tussen de zoekterm en het naamveld). Bij een actieve `_search` sorteert het endpoint standaard al aflopend op relevance; deze parameter forceert of draait dat om (`desc` / `asc`). Elke hit krijgt een `@self.relevance`-veld (geheel getal 0–100).",
         "schema": {
           "type": "string",
           "enum": [
@@ -1592,7 +1599,14 @@
                     {
                       "$ref": "#/components/schemas/Document"
                     }
-                  ]
+                  ],
+                  "discriminator": {
+                    "propertyName": "@self.schema",
+                    "mapping": {
+                      "publication": "#/components/schemas/Publication",
+                      "document": "#/components/schemas/Document"
+                    }
+                  }
                 }
               },
               "facets": {
