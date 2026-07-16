@@ -95,7 +95,7 @@ Voor typo-tolerantie is er een aparte parameter `_fuzzy=true`:
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=evenemnt&_fuzzy=true
 ```
 
-Voegt een trigram-similariteit toe op het naamveld van elk object. Een rij komt terug als óf de gewone substring-match slaagt óf de naam voldoende lijkt op de zoekterm. Elke hit krijgt een `@self.relevance`-veld (geheel getal 0–100) waarop je kunt sorteren via `_order[@self.relevance]=desc`.
+Voegt een trigram-similariteit toe op het naamveld van elk object. Een rij komt terug als óf de gewone substring-match slaagt óf de naam voldoende lijkt op de zoekterm. Elke hit krijgt een `@self.relevance`-veld (geheel getal 0–100) — de score is de trigram-similariteit tussen zoekterm en het naamveld, dus zelfs een exacte substring-match kan een lagere score krijgen wanneer de zoekterm maar een klein deel van de volledige naam beslaat. Bij een actieve `_search` wordt standaard al op relevance aflopend gesorteerd; wil je expliciet forceren of omdraaien: `_order[_relevance]=desc` of `_order[_relevance]=asc`.
 
 Beperkingen:
 
@@ -171,7 +171,7 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenemnt
     &_fuzzy=true
-    &_order[@self.relevance]=desc
+    &_order[_relevance]=desc
     &_limit=10
 ```
 
