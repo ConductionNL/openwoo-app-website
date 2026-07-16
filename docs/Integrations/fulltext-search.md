@@ -27,11 +27,13 @@ Beide endpoints respecteren dezelfde toegangs- en zichtbaarheidsregels: gebruike
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=<query>
 ```
 
-Doorzoekt alle publicaties in de WOO-catalogus waar de gebruiker toegang toe heeft. Matcht op alle tekst-velden van het publicatie-schema (`titel`, `samenvatting`, `beschrijving`, `thema`, …) plus de algemene metadata-velden.
+Doorzoekt alle publicaties in de WOO-catalogus waar de gebruiker toegang toe heeft. Matcht op alle tekst-velden van het publicatie-schema (`title`, `summary`, `description`, `themes`, …) plus de algemene metadata-velden.
 
 Een publicatie telt als hit zodra één van deze velden de zoekterm bevat. De sortering volgt `_order[<veld>]` als je die opgeeft; zonder expliciete sortering is de volgorde niet gegarandeerd.
 
 Deze variant is ideaal wanneer je resultaten wilt binnen één catalogus-context, bijvoorbeeld voor de publicatie-overzichtspagina van een organisatie.
+
+> **Let op:** het pad-segment `publications` is de **slug van de catalog**, geen vaste routenaam. Op een deployment zonder een catalog met deze slug krijg je `HTTP 404 — Catalog not found`. Op `openwoo.commonground.nu` is deze catalog standaard aanwezig.
 
 ## Endpoint 2 — Brede zoekopdracht over publicaties én documenten
 
@@ -52,9 +54,11 @@ Elk document dat als hit terugkomt draagt een verwijzing naar de bijbehorende pu
 }
 ```
 
-Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar de publicatie waar het document bijhoort.
+Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar de publicatie waar het document bijhoort. Documenten die geen geldige `publication`-verwijzing hebben (`id` + `slug`) verschijnen niet in de resultaten.
 
 **Wat wordt doorzocht:** de metadata van publicaties én documenten — dus titels, samenvattingen, bestandsnamen, MIME-types en overige tekst-velden op het schema. **De inhoud van PDF- of DOCX-bestanden zelf wordt (nog) niet meegenomen** — zie [Wat komt er nog](#wat-komt-er-nog) hieronder.
+
+> **Vorm van `@self.schema` verschilt per endpoint:** endpoint 2 geeft de slug (`"publication"` / `"document"`), endpoint 1 geeft het numerieke schema-ID als string (`"15"`, `"16"`). Bouw je één card-renderer voor beide endpoints? Normaliseer dan aan de client-kant.
 
 ## Query-vorm & gedrag
 
@@ -62,7 +66,7 @@ De volgende regels gelden voor beide endpoints:
 
 | Wat je intypt | Wat er gebeurt |
 |---|---|
-| `_search=verzoek` | Matcht "verzoek", "verzoeken", "Woo-verzoek", "aanvraagverzoeken" — substring |
+| `_search=verzoek` | Matcht "verzoek", "verzoeken", "Woo-verzoek", "aanvraagverzoeken" — substring op `title`/`summary`/`description` en overige tekst-velden |
 | `_search=verzoek vergunning` | Wordt als één string behandeld, **niet** als "beide woorden" |
 | `_search="evenement vergunning"` | Quotes zijn onderdeel van de match — geen phrase-operator |
 | `_search=verzoek OR klacht` | `OR` is gewone tekst, geen operator |
@@ -127,7 +131,16 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     &_limit=10
 ```
 
-`@self[schema]` filtert op één schema. Het schema-id is omgevings-specifiek — vraag op via een facet-call op je eigen omgeving.
+`@self[schema]` filtert op één schema en verwacht het **numerieke schema-ID** (geen slug). Het ID is omgevings-specifiek — vraag op via een facet-call op je eigen omgeving:
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
+    ?_facetable=true
+    &_facets[@self][schema][type]=terms
+    &_limit=0
+```
+
+De `buckets` in het `facets`-blok geven per voorkomend schema-ID de count.
 
 ### Centrale zoekbalk (publicaties + documenten)
 
@@ -181,16 +194,15 @@ Response bevat een `facets`-blok met buckets per veld, geschikt voor filter-chec
 | `_search=verzoek vergunning` geeft minder hits dan verwacht | Wordt als één substring behandeld, niet als twee termen. Splits client-side of laat de UI losse velden aanbieden. |
 | `_search=WOZ` matcht ook losse 'w', 'o', 'z' | Substring-match is letterlijk; korte termen produceren veel false positives. Eis minimaal 3 karakters in de UI. |
 | Inhoud van een PDF-bijlage komt niet terug | De **body** van bestanden wordt nog niet doorzocht — alleen bestandsnaam, MIME en overige metadata. Zie [Wat komt er nog](#wat-komt-er-nog). |
+| Document verschijnt niet in `/api/search`-resultaten | Documenten hebben een geldige `publication`-verwijzing met `id` én `slug` nodig om in de envelope te verschijnen. |
 | `_search=café` matcht niet `cafe` | Diacritics-normalisatie is deployment-afhankelijk. Strip diacritics client-side voor consistent gedrag. |
 | Meervouden — `verzoek` vs `verzoeken` | Geen stemming, maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. |
 | `_search="evenement vergunning"` doet niets bijzonders | Quotes zijn geen phrase-delimiter. Strip ze client-side. |
 | Volgorde lijkt willekeurig op pagina 2 | Zonder expliciete sortering is de volgorde niet gegarandeerd. Voeg altijd `&_order[<veld>]=…` toe. |
 
-## Rate-limiting
+## Schrijfacties (POST / PUT / DELETE)
 
-Zonder authenticatie: 60 requests per minuut per IP, 1000 per uur. Hits boven die drempel krijgen `429 Too Many Requests` met een `Retry-After`-header.
-
-Voor productie-front-ends raden we aan een Conduction-API-key aan te vragen ([info@conduction.nl](mailto:info@conduction.nl)) — die heft de rate-limit op én ontgrendelt `POST`/`PUT`/`DELETE` voor namens-een-organisatie-publishing.
+Anonieme toegang geldt alleen voor lezen. Voor schrijfacties (bijvoorbeeld publiceren namens een organisatie) is standaard Nextcloud-authenticatie nodig — Basic-auth, OAuth of een app-token. Neem contact op met [info@conduction.nl](mailto:info@conduction.nl) voor productie-toegang.
 
 ## OpenAPI
 
