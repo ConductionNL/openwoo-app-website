@@ -35,6 +35,8 @@ Deze variant is ideaal wanneer je resultaten wilt binnen één catalogus-context
 
 > **Let op:** het pad-segment `publications` is de **slug van de catalog**, geen vaste routenaam. Op een deployment zonder een catalog met deze slug krijg je `HTTP 404 — Catalog not found`. Op `openwoo.commonground.nu` is deze catalog standaard aanwezig.
 
+> **Scope wordt bepaald door de catalog-configuratie.** Endpoint 1 doorzoekt de schemas die in de catalog zijn geconfigureerd (`registers` + `schemas` op het catalog-object). Standaard bevat een verse catalog alleen het `publication`-schema, dus krijg je alleen publicaties terug — passend bij het "publicatie-scoped"-karakter van dit endpoint. Voegt een beheerder ook `document` (of andere schemas) toe aan de catalog, dan verschijnen die object-types hier ook. Wil je bewust een mixed envelope met documenten? Gebruik [Endpoint 2](#endpoint-2--brede-zoekopdracht-over-publicaties-én-documenten) — dat endpoint negeert de catalog-scope en zoekt altijd over publicaties én documenten in één antwoord.
+
 ## Endpoint 2 — Brede zoekopdracht over publicaties én documenten
 
 ```
