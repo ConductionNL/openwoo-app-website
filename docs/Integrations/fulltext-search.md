@@ -1,188 +1,214 @@
 ---
 title: Full-text search
-description: Hoe het `_search`-endpoint werkt in de huidige stack — substring-matching via OpenRegister, optionele typo-tolerante fuzzy mode, en wat (nog) niet ondersteund wordt vanuit een Lucene/Elastic-perspectief.
+description: Twee endpoints voor zoeken binnen de OpenWoo-API — een publicatie-scoped variant en een brede variant die publicaties én documenten in één resultaat teruggeeft.
 sidebar_position: 4
 ---
 
 # Full-text search
 
-Hoe het `_search`-endpoint van de publicatie-API in de huidige stack werkt: welke query-vormen ondersteund zijn, hoe matching gebeurt, en wat (nog) **niet** werkt zoals lezers van klassieke Lucene-documentatie misschien zouden verwachten.
+De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
+
+- **Endpoint 1** doorzoekt alleen publicaties (op titel, samenvatting, thema en andere publicatie-velden).
+- **Endpoint 2** doorzoekt publicaties **én** documenten in één resultatenset — geschikt voor een centrale zoekbalk.
+
+Beide endpoints respecteren dezelfde toegangs- en zichtbaarheidsregels: gebruikers krijgen alleen resultaten waar ze op basis van hun rol en de status van de publicatie recht op hebben.
 
 :::tip Eerst lezen
-[API-koppelvlak](api-koppelvlak.md) — de algemene introductie tot de OpenWoo-API, de twee API-lagen (primaire OpenCatalogi-publicaties en secundaire OpenRegister-direct), authenticatie en datum-driven zichtbaarheid.
+[API-koppelvlak](api-koppelvlak.md) — algemene introductie tot de OpenWoo-API, authenticatie en datum-driven zichtbaarheid.
 :::
 
-:::caution Belangrijk om vooraf te weten — geen Lucene
-De huidige OpenRegister-implementatie van `_search` is **een SQL `ILIKE`-substring-match** over alle string-velden van het schema (plus `_name`, `_description`, `_summary` uit de metadata). Geen tokenisatie, geen field-weighting, geen relevantie-score, geen booleaanse operatoren, geen wildcards, geen fuzzy-tilde, geen boosting.
-
-Eerdere versies van deze pagina beschreven Lucene-achtige features (`AND`/`OR`, `term^3`, `term*`, `term~`, `_score`, gewogen velden). Die hoorden bij de oude 1.0-aggregator (`api.gateway.commonground.nu`) en zijn **niet** aanwezig in de 2.0-stack (OpenCatalogi + OpenRegister). Een tussentijds geplande OpenCatalogi-laag die deze features toevoegt staat op de roadmap — zie [Roadmap](#roadmap) onderaan.
+:::caution Wat je in gedachten moet houden
+`_search` doet een **letterlijke substring-match**. Er zijn geen booleaanse operatoren (`AND`/`OR`), geen wildcards (`*`), geen phrase-quotes, geen fuzzy-tilde (`~`) en geen relevantie-boosts (`^n`). Voor typo-tolerantie is er een aparte parameter — zie [Fuzzy search](#fuzzy-search) hieronder.
 :::
 
-## Endpoint
-
-Twee opties, afhankelijk van of je catalogus-context wilt of niet:
-
-**Primaire laag — `/apps/opencatalogi/api/publications`** (aanbevolen):
+## Endpoint 1 — Zoeken binnen publicaties
 
 ```
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications?_search=<query>
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=<query>
 ```
 
-Catalogus-slug `publications` voor de WOO-catalogus. Retourneert publicaties uit álle registers/schema's die aan die catalogus gekoppeld zijn, inclusief `@catalog`-context. Anonieme RBAC-filtering wordt toegepast (zie [Publicatie-statussen](api-koppelvlak.md#publicatie-statussen)).
+Doorzoekt alle publicaties in de WOO-catalogus waar de gebruiker toegang toe heeft. Matcht op alle tekst-velden van het publicatie-schema (`title`, `summary`, `description`, `themes`, …) plus de algemene metadata-velden.
 
-**Secundaire laag — `/apps/openregister/api/objects/{register}/{schema}`**:
+Een publicatie telt als hit zodra één van deze velden de zoekterm bevat. De sortering volgt `_order[<veld>]` als je die opgeeft; zonder expliciete sortering is de volgorde niet gegarandeerd.
 
-```
-GET https://canary.accept.commonground.nu/apps/openregister/api/objects/{register}/{schema}?_search=<query>
-```
+Deze variant is ideaal wanneer je resultaten wilt binnen één catalogus-context, bijvoorbeeld voor de publicatie-overzichtspagina van een organisatie.
 
-Voor register/schema-specifieke calls buiten een catalogus om. `{register}` en `{schema}` mogen id of slug zijn.
+> **Let op:** het pad-segment `publications` is de **slug van de catalog**, geen vaste routenaam. Op een deployment zonder een catalog met deze slug krijg je `HTTP 404 — Catalog not found`. Op `openwoo.commonground.nu` is deze catalog standaard aanwezig.
 
-Beide endpoints delegeren `_search` naar dezelfde [`MagicSearchHandler`](https://codeberg.org/Conduction/openregister/src/branch/main/lib/Db/MagicMapper/MagicSearchHandler.php) in OpenRegister, dus de matching-semantiek is gelijk.
+> **Scope wordt bepaald door de catalog-configuratie.** Endpoint 1 doorzoekt de schemas die in de catalog zijn geconfigureerd (`registers` + `schemas` op het catalog-object). Standaard bevat een verse catalog alleen het `publication`-schema, dus krijg je alleen publicaties terug — passend bij het "publicatie-scoped"-karakter van dit endpoint. Voegt een beheerder ook `document` (of andere schemas) toe aan de catalog, dan verschijnen die object-types hier ook. Wil je bewust een mixed envelope met documenten? Gebruik [Endpoint 2](#endpoint-2--brede-zoekopdracht-over-publicaties-én-documenten) — dat endpoint negeert de catalog-scope en zoekt altijd over publicaties én documenten in één antwoord.
 
-## Hoe matching werkt
-
-Voor elke ingegeven `_search=<term>` bouwt OpenRegister een SQL-WHERE-clausule die over de volgende kolommen een `ILIKE '%<term>%'` doet (PostgreSQL — case-insensitive substring match):
-
-- Alle properties van het schema die `type: string` hebben (bv. `titel`, `samenvatting`, `beschrijving`, `thema`, …)
-- De metadata-tekstvelden `_name`, `_description`, `_summary`
-
-Op MySQL wordt dit `LOWER(CAST(column AS CHAR)) LIKE LOWER('%<term>%')` — functioneel hetzelfde.
-
-Een rij telt als hit zodra **één** van deze kolommen de substring bevat. Er is geen ranking, geen veld-weging, geen scoring. De default-sortering is wat je opgeeft via `_order[<veld>]=desc`, anders inkomstvolgorde van OpenRegister.
-
-### Wat dit betekent voor query-vorm
-
-| Wat je intypt | Wat er gebeurt |
-|---|---|
-| `_search=verzoek` | ILIKE `%verzoek%` op alle string-velden — matcht "verzoek", "verzoeken", "Woo-verzoek" |
-| `_search=verzoek vergunning` | ILIKE `%verzoek vergunning%` — letterlijke substring, **niet** "beide woorden" |
-| `_search=verzoek+vergunning` | ILIKE `%verzoek+vergunning%` — `+` is gewone tekst |
-| `_search="evenement vergunning"` | ILIKE `%"evenement vergunning"%` — de quotes zijn onderdeel van de match |
-| `_search=verzoek OR klacht` | ILIKE `%verzoek OR klacht%` — `OR` is hier gewone tekst, geen operator |
-| `_search=evenem*` | ILIKE `%evenem*%` — `*` is gewone tekst (en niet nodig: zonder `*` matcht al "evenement", "evenementen", "evenementenvergunning") |
-| `_search=evenement~` | ILIKE `%evenement~%` — `~` is gewone tekst, geen fuzzy operator |
-| `_search=verzoek^3` | ILIKE `%verzoek^3%` — `^3` is gewone tekst, geen boost |
-
-**Praktische gevolgen voor consumenten:**
-- Geef gebruikers de keuze om hun zoekterm te splitsen in losse calls als ze "beide woorden" willen — server-side ondersteunt dit niet.
-- Voor "lijkt op"-zoeken (typo-tolerantie), zie [Fuzzy search](#fuzzy-search-pg_trgm) hieronder.
-- Voor categorie-/datum-/veld-filtering: gebruik echte query-parameters (`@self[schema]=<id>`, `publicatiedatum[gte]=…`, etc.) náást `_search`. Zie [API-koppelvlak — Bevragen](api-koppelvlak.md#bevragen).
-
-### Eigenschappen die wél kloppen
-
-- **Case-insensitive** — `_search=verzoek` matcht `Verzoek`, `VERZOEK`.
-- **Substring-match** — `_search=enem` matcht `evenement`, `bedrijvenemissies`. Stam-tolerant zonder expliciete stemming.
-- **Diacritics** — afhankelijk van de DB-collation. PostgreSQL-defaults (`UTF8 + en_US`) doen géén automatische diacritics-normalisatie; `café` matcht niet `cafe`. Test op je eigen deployment.
-- **Combinatie met filters** — `?_search=verzoek&publicatiedatum[gte]=2026-01-01&_limit=20&_order[publicatiedatum]=desc` werkt zoals verwacht (search AND filter AND sort AND paginate).
-
-## Fuzzy search (pg_trgm)
-
-OpenRegister biedt **één** typo-tolerantie-mechanisme: een aparte `?_fuzzy=true` query-parameter die — alleen op PostgreSQL deployments met de `pg_trgm`-extensie ingeschakeld — trigram-similariteit toevoegt op het metadata-veld `_name`.
+## Endpoint 2 — Brede zoekopdracht over publicaties én documenten
 
 ```
-GET /apps/opencatalogi/api/publications?_search=evenement&_fuzzy=true
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search?_search=<query>
 ```
 
-Eigenschappen:
+Doorzoekt publicaties **en** documenten die daaraan hangen. Het resultaat is een gemengde lijst waarin beide soorten objecten samen voorkomen; het veld `@self.schema` geeft per rij aan wat het is — een publicatie of een document.
 
-- Werkt alléén op PostgreSQL met `CREATE EXTENSION pg_trgm` enabled (de code probeert dit te detecteren; valt anders stil terug op de ILIKE-only mode).
-- Voegt een `similarity(_name, '<query>') > 0.1`-conditie OR'd met de ILIKE-condities — een rij telt als hit als óf de ILIKE matcht óf de naam fuzzy lijkt.
-- Voegt een berekende kolom `@self.relevance` toe aan elke result-rij — een geheel getal 0–100 dat de trigram-similariteit van `_name` met de query weergeeft.
-- ⚠️ **Alleen op `_name`** — andere velden zijn geen fuzzy-doel. Een typo in `titel` of `beschrijving` profiteert niet van deze mode.
-
-Voorbeeld-response (verkort):
+Elk document dat als hit terugkomt draagt een verwijzing naar de bijbehorende publicatie mee:
 
 ```json
 {
-  "results": [
-    {
-      "id": "f6551cb8-…",
-      "titel": "Evenementenvergunning verzoek",
-      "@self": { "id": "…", "schema": 10, "relevance": 87, "...": "..." }
-    }
-  ]
+  "id": "…",
+  "title": "…",
+  "publication": { "id": "…", "slug": "…", "title": "…" },
+  "@self": { "schema": "document", "…": "…" }
 }
 ```
 
-> **Let op — niet `_score`, niet `_order[_score]`.** Het veld heet `@self.relevance` (niet `_score`). Sorteren op fuzzy-similariteit doe je via `_order[@self.relevance]=desc`. De combinatie wordt ondersteund maar is alleen zinvol als `_fuzzy=true` is meegegeven; zonder die parameter is `@self.relevance` afwezig.
+Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar de publicatie waar het document bijhoort. Documenten die geen geldige `publication`-verwijzing hebben (`id` + `slug`) verschijnen niet in de resultaten.
 
-## Solr-/Elasticsearch-backend
+**Wat wordt doorzocht:** standaard de metadata van publicaties én documenten — dus titels, samenvattingen, bestandsnamen, MIME-types en overige tekst-velden op het schema. **De inhoud van PDF- of DOCX-bestanden** wordt optioneel meegenomen door `_content=true` aan de query toe te voegen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search) hieronder.
 
-OpenRegister kent een tweede zoek-pad: wanneer een Solr- of Elasticsearch-backend in de deployment is geconfigureerd, routeert `searchObjects` automatisch naar dat backend in plaats van naar de ILIKE-handler. Zie [`openregister/lib/Service/Index/Backends/`](https://codeberg.org/Conduction/openregister/src/branch/main/lib/Service/Index/Backends/) — `SolrBackend.php` en `ElasticsearchBackend.php`.
+> **Vorm van `@self.schema` verschilt per endpoint:** endpoint 2 geeft de slug (`"publication"` / `"document"`), endpoint 1 geeft het numerieke schema-ID als string (`"15"`, `"16"`). Bouw je één card-renderer voor beide endpoints? Normaliseer dan aan de client-kant.
 
-Zodra Solr/Elasticsearch actief is, **kunnen** Lucene-style features (boolean operatoren, phrase-queries, wildcards, fuzzy tildes, boosting, scoring, sort op `_score`) wél werken — die backends ondersteunen Lucene query-syntax natively. Dit is echter:
+## Zoeken in bestandsinhoud (content-search)
 
-- **Niet de default-configuratie** — canary en de meeste OpenWoo-deployments draaien zonder.
-- **Niet expliciet getest binnen OpenWoo** vanuit deze docs — verifieer per deployment voordat je productie-code op deze features baseert.
-- **Geen onderdeel van de actuele OpenWoo-API-contract** — als de Solr-features in de toekomst breed worden uitgerold, kondigen we dat aan via een release-note + update van deze pagina.
+Endpoint 2 kan optioneel ook zoeken in de **inhoud** van bijgehangen documenten — de tekst uit PDF-, DOCX-, XLSX- en andere ondersteunde bestandsformaten. Dit is een **opt-in via `_content=true`**:
 
-Heb je een use-case die structureel Lucene-niveau zoekfunctionaliteit nodig heeft? Mail [info@conduction.nl](mailto:info@conduction.nl) zodat we kunnen prioriteren.
+```
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search?_search=<query>&_content=true
+```
 
-## Concrete integratievoorbeelden
+Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de flag worden documenten waarvan de body-tekst matcht toegevoegd aan het resultaat — dezelfde platte envelope, dezelfde `@self.schema`-discriminator, geen extra response-velden.
 
-### Eenvoudige zoekbalk met paginatie
+**Hoe het werkt:** OpenRegister extraheert de tekst uit elke document-upload via zijn eigen text-extractie-pipeline en indexeert de resulterende chunks. Endpoint 2 forward `_content=true` als `_content_search=true` naar OpenRegister; de matchende chunks worden terug-gemapt naar het bijbehorende document-object. OpenCatalogi doet zelf geen extractie of indexering.
+
+**Gedrag:**
+
+- **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
+- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicatiedatum` in het verleden, geen `depublicatiedatum` of één die nog in de toekomst ligt).
+- **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
+- **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
+
+**Voorbeeld:**
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=stikstof
+    &_content=true
+    &_limit=10
+```
+
+Retourneert publicaties én documenten waarvan óf metadata óf body-tekst "stikstof" bevat.
+
+## Query-vorm & gedrag
+
+De volgende regels gelden voor beide endpoints:
+
+| Wat je intypt | Wat er gebeurt |
+|---|---|
+| `_search=verzoek` | Matcht "verzoek", "verzoeken", "Woo-verzoek", "aanvraagverzoeken" — substring op `title`/`summary`/`description` en overige tekst-velden |
+| `_search=verzoek vergunning` | Wordt als één string behandeld, **niet** als "beide woorden" |
+| `_search="evenement vergunning"` | Quotes zijn onderdeel van de match — geen phrase-operator |
+| `_search=verzoek OR klacht` | `OR` is gewone tekst, geen operator |
+| `_search=evenem*` | `*` is gewone tekst; zonder `*` matcht al "evenement", "evenementen", "evenementenvergunning" |
+| `_search=verzoek~` | `~` is gewone tekst, geen fuzzy-operator |
+
+**Wat wél klopt:**
+
+- **Case-insensitive** — `verzoek` matcht `Verzoek`, `VERZOEK`.
+- **Substring-match** — `_search=enem` matcht `evenement`, `bedrijvenemissies`.
+- **Combineerbaar met filters** — `?_search=verzoek&publicatiedatum[gte]=2026-01-01&_limit=20&_order[publicatiedatum]=desc` werkt zoals verwacht.
+
+**Praktische tips voor consumenten:**
+
+- Wil de gebruiker "beide woorden" matchen? Splits de query client-side of laat de UI meerdere zoektermen aanbieden — server-side ondersteunt dit niet.
+- Voor "lijkt op"-zoeken (typo-tolerantie): zie [Fuzzy search](#fuzzy-search).
+- Voor filtering op categorie of datum: gebruik echte query-parameters (`@self[schema]=<id>`, `publicatiedatum[gte]=…`) náást `_search`.
+
+## Fuzzy search
+
+Voor typo-tolerantie is er een aparte parameter `_fuzzy=true`:
+
+```
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=evenemnt&_fuzzy=true
+```
+
+Voegt een trigram-similariteit toe op het naamveld van elk object. Een rij komt terug als óf de gewone substring-match slaagt óf de naam voldoende lijkt op de zoekterm. Elke hit krijgt een `@self.relevance`-veld (geheel getal 0–100) — de score is de trigram-similariteit tussen zoekterm en het naamveld, dus zelfs een exacte substring-match kan een lagere score krijgen wanneer de zoekterm maar een klein deel van de volledige naam beslaat. Bij een actieve `_search` wordt standaard al op relevance aflopend gesorteerd; wil je expliciet forceren of omdraaien: `_order[_relevance]=desc` of `_order[_relevance]=asc`.
+
+Beperkingen:
+
+- Werkt alleen op deployments met PostgreSQL en de `pg_trgm`-extensie ingeschakeld (`openwoo.commonground.nu` heeft dit aan staan).
+- Vergelijkt alleen op het naamveld — typos in `titel`, `samenvatting` of `beschrijving` profiteren niet.
+
+## Concrete voorbeelden
+
+### Zoekbalk met paginatie
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
     &_order[publicatiedatum]=desc
     &_limit=10
     &_page=1
 ```
 
-Substring-match op alle string-velden + metadata. Resultaten gesorteerd op publicatiedatum aflopend.
-
 ### Zoekbalk met datumfilter
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
     &publicatiedatum[gte]=2026-01-01
     &publicatiedatum[lte]=2026-12-31
     &_limit=20
 ```
 
-Substring-match + datum-range (bracket-operator-syntax `[gte]`/`[lte]` werkt op de publicaties-API).
-
 ### Zoeken binnen één informatiecategorie
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=convenant
     &@self[schema]=<schema-id>
     &_limit=10
 ```
 
-`@self[schema]` filtert op één schema. Het schema-id is omgevings-specifiek — vraag op via een facet-call (`?_facetable=true&_facets[@self][schema][type]=terms`) op je eigen omgeving.
-
-### Type-ahead / suggesties met lichte payload
+`@self[schema]` filtert op één schema en verwacht het **numerieke schema-ID** (geen slug). Het ID is omgevings-specifiek — vraag op via een facet-call op je eigen omgeving:
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
+    ?_facetable=true
+    &_facets[@self][schema][type]=terms
+    &_limit=0
+```
+
+De `buckets` in het `facets`-blok geven per voorkomend schema-ID de count.
+
+### Centrale zoekbalk (publicaties + documenten)
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=evenementenvergunning
+    &_limit=10
+```
+
+Retourneert gemengde resultaten. Onderscheid maken tussen publicaties en documenten kan via het `@self.schema`-veld op elke rij.
+
+### Type-ahead met lichte payload
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenem
     &_limit=5
     &_unset=attachments,beschrijving,bevindingen,conclusies
 ```
 
-`_unset` laat de opgesomde velden weg uit elke result-rij — handig om response-grootte klein te houden voor real-time suggesties. (`_filter` wordt op canary stil genegeerd; gebruik `_unset` als blacklist.)
+`_unset` laat de opgesomde velden weg uit elke resultaat-rij — handig om response-grootte klein te houden voor real-time suggesties.
 
-### Typo-tolerant zoeken (PostgreSQL + pg_trgm)
+### Typo-tolerant zoeken
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenemnt
     &_fuzzy=true
-    &_order[@self.relevance]=desc
+    &_order[_relevance]=desc
     &_limit=10
 ```
-
-Vraagt fuzzy mode aan. Resultaten gesorteerd op trigram-similariteit van `_name` aflopend.
 
 ### Faceted-search UI
 
 ```http
-GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
     &_facetable=true
     &_facets[@self][schema][type]=terms
@@ -191,38 +217,30 @@ GET https://canary.accept.commonground.nu/apps/opencatalogi/api/publications
     &_limit=10
 ```
 
-Response bevat een `facets`-blok met buckets per veld, geschikt om filter-checkboxes met counts te tonen. De `woo-website-template-apiv2` gebruikt dit patroon.
+Response bevat een `facets`-blok met buckets per veld, geschikt voor filter-checkboxes met counts.
 
 ## Gotchas
 
 | Symptoom | Oorzaak / oplossing |
 |---|---|
-| `_search=verzoek vergunning` geeft minder hits dan verwacht | Wordt als één substring behandeld, niet als twee termen. Geef twee aparte calls af of laat de UI de termen los aanbieden. |
-| `_search=WOZ` matcht ook losse 'w', 'o', 'z' | Substring match is letterlijk; korte termen produceren veel false positives. Tip: laat zoekvelden minimaal 3 karakters eisen. |
-| PDF-bijlage met match komt niet terug | Bijlage-inhoud (`_attachments.body`) wordt **niet** door `_search` mee-doorzocht in de ILIKE-mode; alleen schema-properties en metadata. Voor PDF-text-search is een Solr/Elasticsearch-backend vereist. |
-| `_search=café` matcht niet `cafe` | DB-collation-afhankelijk; PostgreSQL-defaults doen geen diacritics-normalisatie. Strip diacritics client-side bij de query én bij display als je dit consistent wilt. |
-| Snel meervoud-toggling (`verzoek` ≠ `verzoeken`) | Geen stemming. Maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. Voor "verzoeken" → "verzoek": gebruik de kortere stam in de query. |
+| `_search=verzoek vergunning` geeft minder hits dan verwacht | Wordt als één substring behandeld, niet als twee termen. Splits client-side of laat de UI losse velden aanbieden. |
+| `_search=WOZ` matcht ook losse 'w', 'o', 'z' | Substring-match is letterlijk; korte termen produceren veel false positives. Eis minimaal 3 karakters in de UI. |
+| Inhoud van een PDF-bijlage komt niet terug | Standaard wordt alleen metadata (bestandsnaam, MIME) doorzocht. Voeg `_content=true` toe aan de query om ook body-tekst mee te nemen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search). Werkt de flag maar krijg je nog steeds niks? De OR-extractie loopt asynchroon; retry na ~1 min. |
+| Document verschijnt niet in `/api/search`-resultaten | Documenten hebben een geldige `publication`-verwijzing met `id` én `slug` nodig om in de envelope te verschijnen. |
+| `_search=café` matcht niet `cafe` | Diacritics-normalisatie is deployment-afhankelijk. Strip diacritics client-side voor consistent gedrag. |
+| Meervouden — `verzoek` vs `verzoeken` | Geen stemming, maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. |
 | `_search="evenement vergunning"` doet niets bijzonders | Quotes zijn geen phrase-delimiter. Strip ze client-side. |
-| Resultaten lijken willekeurig in tweede paginering | Default-sort is database-order. Voeg expliciet een tiebreaker toe: `&_order[publicatiedatum]=desc&_order[titel]=asc`. |
+| Volgorde lijkt willekeurig op pagina 2 | Zonder expliciete sortering is de volgorde niet gegarandeerd. Voeg altijd `&_order[<veld>]=…` toe. |
 
-## Rate-limiting
+## Schrijfacties (POST / PUT / DELETE)
 
-Zonder authenticatie geldt: 60 requests per minuut per IP, 1000 per uur. Hits boven die drempel krijgen `429 Too Many Requests` met een `Retry-After`-header.
-
-Voor productie-front-ends raden we aan een Conduction-API-key aan te vragen ([info@conduction.nl](mailto:info@conduction.nl)) — die heft de rate-limit op én ontgrendelt `POST`/`PUT`/`DELETE` voor namens-een-organisatie-publishing.
+Anonieme toegang geldt alleen voor lezen. Voor schrijfacties (bijvoorbeeld publiceren namens een organisatie) is standaard Nextcloud-authenticatie nodig — Basic-auth, OAuth of een app-token. Neem contact op met [info@conduction.nl](mailto:info@conduction.nl) voor productie-toegang.
 
 ## OpenAPI
 
-De volledige API-specificatie inclusief request- en response-schemas leeft onder [/api/publications/](/api/publications/) (primaire laag) en [/api/](/api/) (secundaire laag). Zie [API-overzicht](../api.md) voor de sync-details.
-
-## Roadmap
-
-Echte Lucene-style FTS (boolean operatoren, phrase-queries, gewogen velden, scoring, sort op `_score`) is **in voorbereiding als OC-laag** bovenop OpenRegister: de OpenCatalogi-laag krijgt een query-parser en scoring-engine die `_search` server-side decomponeert in OR-conditie-ketens, weegt per veld, en `@self.relevance` per record terugzet. Dat houdt OpenRegister als pure object-storage, en concentreert de zoek-intelligentie op de plek waar de catalogus-context al woont.
-
-Tracker: [`Conduction/opencatalogi`](https://codeberg.org/Conduction/opencatalogi) — kijk naar issues met label `search` / `fts`. Tot die engine in canary draait, geldt: substring + optionele pg_trgm fuzzy, zoals hierboven beschreven.
+De volledige API-specificatie leeft onder [/api/publications/](/api/publications/) en [/api/](/api/). Zie [API-overzicht](../api.md) voor de sync-details.
 
 ## Referentie-implementaties
 
-- [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) — de publieke WOO-publicatiepagina voor de 2.0-stack (Nextcloud + OpenRegister); gebruikt dit endpoint met faceted-search UI. De voormalige `woo-website-template` (1.0, Gateway-backend) wordt op termijn afgebouwd ten gunste van -apiv2.
-- [`api-koppelvlak`](api-koppelvlak.md) — generiek koppelvlak-overzicht inclusief metadata-schema's, datum-driven zichtbaarheid, en de architectuur achter de twee API-lagen.
-- [`openregister/lib/Db/MagicMapper/MagicSearchHandler.php`](https://codeberg.org/Conduction/openregister/src/branch/main/lib/Db/MagicMapper/MagicSearchHandler.php) — de daadwerkelijke implementatie van `_search` en `_fuzzy`.
+- [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) — de publieke WOO-publicatiepagina; gebruikt beide endpoints met een faceted-search UI.
+- [`api-koppelvlak`](api-koppelvlak.md) — generiek koppelvlak-overzicht inclusief metadata-schema's, datum-driven zichtbaarheid en de architectuur achter de API-lagen.
