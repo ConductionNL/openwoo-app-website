@@ -77,7 +77,7 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 **Gedrag:**
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
-- **Zichtbaarheid** — dezelfde `isObjectPublic`-regel: alleen documenten van een gepubliceerde, niet-gedepubliceerde publicatie verschijnen.
+- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicatiedatum` in het verleden, geen `depublicatiedatum` of één die nog in de toekomst ligt).
 - **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
 
