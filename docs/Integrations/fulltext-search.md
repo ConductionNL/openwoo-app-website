@@ -58,9 +58,39 @@ Elk document dat als hit terugkomt draagt een verwijzing naar de bijbehorende pu
 
 Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar de publicatie waar het document bijhoort. Documenten die geen geldige `publication`-verwijzing hebben (`id` + `slug`) verschijnen niet in de resultaten.
 
-**Wat wordt doorzocht:** de metadata van publicaties én documenten — dus titels, samenvattingen, bestandsnamen, MIME-types en overige tekst-velden op het schema. **De inhoud van PDF- of DOCX-bestanden zelf wordt (nog) niet meegenomen** — zie [Wat komt er nog](#wat-komt-er-nog) hieronder.
+**Wat wordt doorzocht:** standaard de metadata van publicaties én documenten — dus titels, samenvattingen, bestandsnamen, MIME-types en overige tekst-velden op het schema. **De inhoud van PDF- of DOCX-bestanden** wordt optioneel meegenomen door `_content=true` aan de query toe te voegen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search) hieronder.
 
 > **Vorm van `@self.schema` verschilt per endpoint:** endpoint 2 geeft de slug (`"publication"` / `"document"`), endpoint 1 geeft het numerieke schema-ID als string (`"15"`, `"16"`). Bouw je één card-renderer voor beide endpoints? Normaliseer dan aan de client-kant.
+
+## Zoeken in bestandsinhoud (content-search)
+
+Endpoint 2 kan optioneel ook zoeken in de **inhoud** van bijgehangen documenten — de tekst uit PDF-, DOCX-, XLSX- en andere ondersteunde bestandsformaten. Dit is een **opt-in via `_content=true`**:
+
+```
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search?_search=<query>&_content=true
+```
+
+Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de flag worden documenten waarvan de body-tekst matcht toegevoegd aan het resultaat — dezelfde platte envelope, dezelfde `@self.schema`-discriminator, geen extra response-velden.
+
+**Hoe het werkt:** OpenRegister extraheert de tekst uit elke document-upload via zijn eigen text-extractie-pipeline en indexeert de resulterende chunks. Endpoint 2 forward `_content=true` als `_content_search=true` naar OpenRegister; de matchende chunks worden terug-gemapt naar het bijbehorende document-object. OpenCatalogi doet zelf geen extractie of indexering.
+
+**Gedrag:**
+
+- **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
+- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicatiedatum` in het verleden, geen `depublicatiedatum` of één die nog in de toekomst ligt).
+- **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
+- **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
+
+**Voorbeeld:**
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=stikstof
+    &_content=true
+    &_limit=10
+```
+
+Retourneert publicaties én documenten waarvan óf metadata óf body-tekst "stikstof" bevat.
 
 ## Query-vorm & gedrag
 
@@ -195,7 +225,7 @@ Response bevat een `facets`-blok met buckets per veld, geschikt voor filter-chec
 |---|---|
 | `_search=verzoek vergunning` geeft minder hits dan verwacht | Wordt als één substring behandeld, niet als twee termen. Splits client-side of laat de UI losse velden aanbieden. |
 | `_search=WOZ` matcht ook losse 'w', 'o', 'z' | Substring-match is letterlijk; korte termen produceren veel false positives. Eis minimaal 3 karakters in de UI. |
-| Inhoud van een PDF-bijlage komt niet terug | De **body** van bestanden wordt nog niet doorzocht — alleen bestandsnaam, MIME en overige metadata. Zie [Wat komt er nog](#wat-komt-er-nog). |
+| Inhoud van een PDF-bijlage komt niet terug | Standaard wordt alleen metadata (bestandsnaam, MIME) doorzocht. Voeg `_content=true` toe aan de query om ook body-tekst mee te nemen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search). Werkt de flag maar krijg je nog steeds niks? De OR-extractie loopt asynchroon; retry na ~1 min. |
 | Document verschijnt niet in `/api/search`-resultaten | Documenten hebben een geldige `publication`-verwijzing met `id` én `slug` nodig om in de envelope te verschijnen. |
 | `_search=café` matcht niet `cafe` | Diacritics-normalisatie is deployment-afhankelijk. Strip diacritics client-side voor consistent gedrag. |
 | Meervouden — `verzoek` vs `verzoeken` | Geen stemming, maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. |
@@ -209,12 +239,6 @@ Anonieme toegang geldt alleen voor lezen. Voor schrijfacties (bijvoorbeeld publi
 ## OpenAPI
 
 De volledige API-specificatie leeft onder [/api/publications/](/api/publications/) en [/api/](/api/). Zie [API-overzicht](../api.md) voor de sync-details.
-
-## Wat komt er nog
-
-Op dit moment doorzoekt endpoint 2 wél de **metadata** van documenten (bestandsnaam, MIME, titel, samenvatting), maar niet de **inhoud** van PDF- en DOCX-bestanden. Die uitbreiding is de volgende stap.
-
-De richting is duidelijk: OpenRegister heeft al een text-extractie-pipeline die de tekst uit PDF-, DOCX- en spreadsheet-bestanden kan halen. Daar wordt op geleund; er komt geen aparte zoekmachine bij. Zodra de content-indexering live staat, verandert de vorm van de resultaten niet — dezelfde platte envelope met `@self.schema`-discriminator, alleen breidt de match-kracht uit naar de bestandsinhoud.
 
 ## Referentie-implementaties
 
