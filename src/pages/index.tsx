@@ -1,189 +1,106 @@
-import React from 'react';
+import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
-import {
-  DetailHero,
-  Section,
-  SectionHead,
-  FeatureList,
-  FeatureItem,
-  PairRow,
-  PairCard,
-  CtaBanner,
-} from '@conduction/docusaurus-preset/components';
+import Heading from '@theme/Heading';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
-/**
- * openwoo.conduction.nl landing page.
- *
- * Heavily trimmed compared to the commercial copy on
- * www.conduction.nl/solutions/openwoo — the audience here is the
- * implementing team (gemeente IT, leverancier, partner). Goal of this
- * page: get them into either the Techniek docs or the Product docs in
- * one click. Commercial framing stays on the solutions page.
- */
-export default function Home(): JSX.Element {
+import styles from './index.module.css';
+
+function HomepageHeader() {
+  const { siteConfig } = useDocusaurusContext();
+  const heroImg = useBaseUrl('/img/heroImage.svg');
+  return (
+    <header className={styles.heroBanner}>
+      <div className="container">
+        <div className="row">
+          <div className="col col--6">
+            <Heading as="h1" className={styles.heroTitle}>
+              {siteConfig.title}
+            </Heading>
+            <p className={styles.heroSubtitle}><i>{siteConfig.tagline}</i></p>
+            <p className={styles.heroDescription}>
+              Ontdek de toekomst van overheidscommunicatie met OpenWoo.app, dé geavanceerde oplossing die uw organisatie transformeert door moeiteloos en efficiënt beheer van openbare gegevens. OpenWoo.app stelt overheden in staat om documenten en informatie - van zaken en verzoeken tot nieuwsberichten en officiële publicaties - automatisch te verzamelen en te publiceren vanuit een breed scala aan bronnen. Dit innovatieve platform biedt een centrale plek voor alle openbare data, waardoor inwoners, journalisten en onderzoekers via één gebruiksvriendelijke interface toegang hebben tot alle benodigde informatie. Verschillende organisaties hebben de oplossing inmiddels in productie en begin 2024 is deze ook succesvol getest met KOOP en WOOgle.
+            </p>
+          </div>
+          <div className="col col--6">
+            <img
+              src={heroImg}
+              alt="OpenWOO.app illustratie"
+              className={styles.heroImage}
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function MarkdownContent() {
+  const [markdown, setMarkdown] = useState<string>('Loading...');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMarkdown = async () => {
+      try {
+        const response = await fetch(
+          'https://raw.githubusercontent.com/ConductionNL/woo-website-template/main/README.md'
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to load: ${response.status}`);
+        }
+
+        const text = await response.text();
+        setMarkdown(text);
+      } catch (err) {
+        console.error('Failed to load markdown:', err);
+        setError('Failed to load content');
+      }
+    };
+
+    fetchMarkdown();
+  }, []);
+
+  if (error) {
+    return (
+      <section className={styles.markdownSection}>
+        <div className="container">
+          <p style={{ color: 'red' }}>{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.markdownSection}>
+      <div className="container">
+        <div className="markdown-content">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+          >
+            {markdown}
+          </ReactMarkdown>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function Home(): ReactNode {
+  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title="OpenWoo — technische documentatie"
-      description="Technische documentatie en productinformatie voor OpenWoo, het publicatieplatform voor alle overheidsbronnen op Nextcloud."
-    >
-      <DetailHero
-        crumb={['OpenWoo']}
-        status={{label: 'Productie-ready', color: 'var(--c-mint-500)'}}
-        version="Doelgroep: implementatie­teams"
-        title="OpenWoo. Documentatie."
-        tagline={
-          <>
-            OpenWoo is een publicatieplatform voor alle overheidsbronnen, gebouwd op{' '}
-            <span className="next-blue">Nextcloud</span>. De elf Wet open overheid-categorieën worden typed
-            registers in OpenRegister, OpenCatalogi indexeert ze publiek, en OpenConnector haalt ze uit je
-            zaaksysteem of DMS. Deze site bevat de technische documentatie en productinformatie.
-          </>
-        }
-        primaryCta={{label: 'Architectuur', href: '/docs/Architecture/overview'}}
-        secondaryCta={{label: 'Installatie', href: '/docs/Technical/installation'}}
-        iconColor="var(--c-blue-cobalt)"
-        icon={
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3l9 4v5c0 5-4 8-9 9-5-1-9-4-9-9V7l9-4z" />
-            <path d="M9 12l2 2 4-4" />
-          </svg>
-        }
-      />
-
-      <Section spacing="default">
-        <SectionHead
-          eyebrow="In het kort"
-          title="Drie apps, één configuratiepas."
-          align="stack"
-          lede="OpenWoo is geen losse app, maar een compositiepatroon: OpenRegister voor de typed registers, OpenCatalogi voor de publieke catalogus, OpenConnector voor de ingest uit je bron­systemen. Plus een seed-configuratie met de elf Woo-categorieën, audit log en citation-stable URLs."
-        />
-        <FeatureList>
-          <FeatureItem
-            icon={
-              <svg viewBox="0 0 24 24">
-                <ellipse cx="12" cy="6" rx="8" ry="3" />
-                <path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6" />
-              </svg>
-            }
-            title="Eleven typed registers."
-          >
-            Elke Woo-categorie wordt een eigen register in OpenRegister. Schema, audit log en
-            citation-stable IDs zijn standaard onderdeel van de install.
-          </FeatureItem>
-          <FeatureItem
-            icon={
-              <svg viewBox="0 0 24 24">
-                <path d="M3 7l9-4 9 4-9 4-9-4z" />
-                <path d="M3 12l9 4 9-4M3 17l9 4 9-4" />
-              </svg>
-            }
-            title="Publiek doorzoekbaar."
-          >
-            OpenCatalogi indexeert elk register en publiceert het op{' '}
-            <strong>jouwgemeente.nl/woo</strong>. Federatieve zoek via FSC/NLX, KOOP-aanlevering uit
-            de doos.
-          </FeatureItem>
-          <FeatureItem
-            icon={
-              <svg viewBox="0 0 24 24">
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="6" r="3" />
-                <circle cx="18" cy="18" r="3" />
-                <path d="M9 12h9M9 12l9-6M9 12l9 6" />
-              </svg>
-            }
-            title="Connector pulls from your DMS."
-          >
-            OpenConnector haalt Woo-records via REST, SOAP of file-drops uit Zaaksysteem.nl, DECOS,
-            Djuma, Sharepoint, RXMission, Notubiz, of wat er ook draait.
-          </FeatureItem>
-        </FeatureList>
-      </Section>
-
-      <Section spacing="default" background="tinted">
-        <SectionHead
-          eyebrow="Gebouwd op"
-          title="Drie Conduction-apps."
-          align="stack"
-          lede="OpenWoo bestaat uit drie open-source apps die elk ook los inzetbaar zijn voor andere doeleinden. Elke app heeft zijn eigen documentatiesite met API-referentie."
-        />
-        <PairRow>
-          <PairCard
-            href="https://opencatalogi.conduction.nl/"
-            icon={
-              <svg viewBox="0 0 24 24">
-                <path d="M3 7l9-4 9 4-9 4-9-4z" />
-                <path d="M3 12l9 4 9-4M3 17l9 4 9-4" />
-              </svg>
-            }
-            name="OpenCatalogi"
-            why="Publieke catalogus en federatieve zoek voor elk Woo-register."
-          />
-          <PairCard
-            href="https://openregister.conduction.nl/"
-            icon={
-              <svg viewBox="0 0 24 24">
-                <ellipse cx="12" cy="6" rx="8" ry="3" />
-                <path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6" />
-              </svg>
-            }
-            name="OpenRegister"
-            why="Typed registers, schema's, audit log, citation-stable IDs."
-          />
-          <PairCard
-            href="https://openconnector.conduction.nl/"
-            icon={
-              <svg viewBox="0 0 24 24">
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="6" r="3" />
-                <circle cx="18" cy="18" r="3" />
-                <path d="M9 12h9M9 12l9-6M9 12l9 6" />
-              </svg>
-            }
-            name="OpenConnector"
-            why="Ingest uit zaaksysteem, DMS, of wat er ook draait via REST, SOAP, file drops."
-          />
-        </PairRow>
-      </Section>
-
-      <Section spacing="default">
-        <SectionHead
-          eyebrow="Verder"
-          title="Solutions, Academy, en de Slack-community."
-          align="stack"
-          lede="Het commerciële verhaal en de actuele lijst van twaalf gemeenten in productie staan op de Conduction-solutionspagina. Tutorials en opnames van de maandelijkse community-meetings zijn beschikbaar in Academy."
-        />
-        <PairRow>
-          <PairCard
-            href="https://www.conduction.nl/solutions/openwoo"
-            name="Solution — conduction.nl"
-            why="Hero, value props, twaalf gemeenten in productie, zeven deelnemende leveranciers."
-          />
-          <PairCard
-            href="https://www.conduction.nl/academy/?app=openwoo"
-            name="Academy — tutorials & video"
-            why="Stap-voor-stap setup-gidsen plus alle opgenomen community-meetings sinds 2023."
-          />
-          <PairCard
-            href="https://samenorganiseren.slack.com/archives/C067Q3UE9F0"
-            name="Slack — community"
-            why="Vragen tussen meetings door, leveranciers + gemeenten + Conduction in één kanaal."
-          />
-        </PairRow>
-      </Section>
-
-      <CtaBanner
-        title="Klaar om te beginnen?"
-        lede={
-          <>
-            Start bij <strong>Techniek</strong> als je gaat installeren, bij <strong>Product</strong> als je
-            wil weten wat er onder de motorkap zit, of praat met een partner als je liever de uitrol
-            uit handen geeft.
-          </>
-        }
-        primaryCta={{label: 'Naar de documentatie', href: '/docs/'}}
-        secondaryCta={{label: 'Praat met een partner', href: 'https://www.conduction.nl/partners'}}
-      />
+      title="Home"
+      description="OpenWOO.app - Een publicatie platform voor alle overheidsbronnen">
+      <HomepageHeader />
+      <main>
+        <MarkdownContent />
+      </main>
     </Layout>
   );
 }

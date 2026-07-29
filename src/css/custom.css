@@ -93,12 +93,17 @@ table td {
   border: 1px solid var(--ifm-color-emphasis-300);
 }
 
-/* Code blocks: the brand preset already wires `--ifm-code-background`
-   to cobalt-50 (light) and cobalt-800 (dark), and Infima's default
-   `code { background-color: var(--ifm-code-background) }` consumes it.
-   Don't re-set the bg here — it pulls in `--ifm-color-emphasis-100`,
-   which Infima flips to near-black in dark mode and renders inline
-   code as a dark box of dark text. */
+/* Code blocks */
+code {
+  background-color: var(--ifm-color-emphasis-100);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
 
 /* Links */
 a {
@@ -318,12 +323,15 @@ h1, h2, h3, h4, h5, h6 {
   color: #454545;
 }
 
-/* Paragraph links: trust the brand preset's `--ifm-link-color`
-   (KNVB orange) and `--ifm-link-hover-color` (cobalt-700). Forcing
-   teal here recoloured every inline-code-inside-a-link (e.g.
-   [`woo-website-template-apiv2`](url)) to teal-on-light-gray —
-   ~2.5:1 contrast, and effectively invisible inside the green
-   `:::tip` admonition. */
+p a {
+  color: var(--ifm-color-secondary);
+  font-weight: 600;
+}
+
+p a:hover {
+  color: black;
+  text-decoration: none;
+}
 
 /* Hide table of contents on docs pages */
 .theme-doc-toc-desktop {
@@ -332,30 +340,4 @@ h1, h2, h3, h4, h5, h6 {
 
 .theme-doc-toc-mobile {
   display: none !important;
-}
-
-/* Dark-mode doc-content text. The brand preset (brand.css ≤ 3.20.0)
-   hardcodes `.theme-doc-markdown p/ul/ol/li/strong/h1/h2/h3` to
-   cobalt-800/900 without a `[data-theme='dark']` variant, so on the
-   cobalt-900 dark body background the text renders ~1.3:1 contrast —
-   essentially invisible. Lift the body type to cobalt-100 and headings
-   to white, matching the brand's own dark-mode tokens. Upstream as a
-   preset fix when convenient. */
-[data-theme='dark'] .theme-doc-markdown p,
-[data-theme='dark'] .theme-doc-markdown ul,
-[data-theme='dark'] .theme-doc-markdown ol,
-[data-theme='dark'] .theme-doc-markdown li {
-  color: var(--c-cobalt-100);
-}
-[data-theme='dark'] .theme-doc-markdown h1,
-[data-theme='dark'] .theme-doc-markdown h2,
-[data-theme='dark'] .theme-doc-markdown h3,
-[data-theme='dark'] .theme-doc-markdown strong {
-  color: white;
-}
-/* Bold links (`<a><strong>…</strong></a>`): keep the link colour
-   instead of inheriting the `strong { color: white }` override above,
-   mirroring Infima's `a code { color: inherit }` pattern. */
-[data-theme='dark'] .theme-doc-markdown a strong {
-  color: inherit;
 }

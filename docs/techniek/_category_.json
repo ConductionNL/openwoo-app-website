@@ -1,0 +1,8 @@
+{
+    "label": "Techniek",
+    "position": 2,
+    "link": {
+        "type": "generated-index",
+        "description": "Technische documentatie voor implementatie en integratie van OpenWoo.app."
+    }
+}
