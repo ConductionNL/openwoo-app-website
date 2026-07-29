@@ -14,7 +14,7 @@
 }
 
 .heroTitle {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-size: 2.5rem;
   font-weight: 700;
   font-optical-sizing: auto;
@@ -23,8 +23,8 @@
 }
 
 .heroSubtitle {
-  font-family: "Open Sans", sans-serif;
-  font-size: 1.1rem;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
+  font-size: var(--openwoo-font-size-lg); /* 20px */
   font-weight: 500;
   font-optical-sizing: auto;
   font-style: italic;
@@ -32,8 +32,8 @@
 }
 
 .heroDescription {
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
+  font-size: var(--utrecht-document-font-size);
   font-weight: 400;
   font-optical-sizing: auto;
   font-style: normal;
@@ -42,7 +42,7 @@
 }
 
 .sectionTitle {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-size: 2.25rem;
   font-weight: 700;
   font-optical-sizing: auto;
@@ -52,7 +52,7 @@
 }
 
 .sectionSubtitle {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-size: 1.5rem;
   font-weight: 700;
   font-optical-sizing: auto;
@@ -60,7 +60,7 @@
 }
 
 .subSectionTitle {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-size: 1.5rem;
   font-weight: 700;
   font-optical-sizing: auto;
@@ -88,10 +88,10 @@
 }
 
 .vendorsContainer {
-  border: 1px solid #ddd;
+  border: 1px solid var(--openwoo-color-grey-90);
   padding: 2rem;
   margin-top: 2rem;
-  background: white;
+  background: var(--openwoo-color-white-100);
 }
 
 .vendorGrid {
@@ -113,10 +113,10 @@
 }
 
 .vendorName {
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
+  font-size: var(--utrecht-document-font-size);
   font-weight: 700;
-  color: #454545;
+  color: var(--openwoo-color-blue-19);
   text-align: left;
 }
 
@@ -132,9 +132,9 @@
 }
 
 .featureTitle {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-weight: 700;
-  color: #555 !important;
+  color: var(--openwoo-color-blue-19) !important;
   font-optical-sizing: auto;
   font-style: normal;
 }
@@ -146,14 +146,16 @@
 
 .webinarLink {
   text-decoration: none;
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   font-weight: 600;
   transition: 0.3s ease;
 }
 
 .webinarLink:hover {
-  color: black;
-  text-decoration: none;
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
 }
 
 @media screen and (max-width: 1200px) {
@@ -274,7 +276,7 @@
 }
 
 .solutionSection ul {
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
   line-height: 1.6;
 }
 
@@ -293,18 +295,20 @@
 
 .examplesSection td a {
   text-decoration: none;
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   font-weight: 600;
   transition: 0.3s ease;
 }
 
 .examplesSection td a:hover {
-  color: black;
-  text-decoration: none;
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
 }
 
 .examplesSection p {
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
 }
 
 .examplesSection .table-wrapper {
@@ -321,16 +325,17 @@
 .examplesSection table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  border-bottom: var(--utrecht-table-row-border-block-end-width) solid
+    var(--utrecht-table-row-border-block-end-color);
 }
 
 .examplesSection table th {
-  background: var(--ifm-color-emphasis-100);
+  background: var(--utrecht-table-header-background-color);
   font-weight: 600;
 }
 
 .examplesSection table tbody tr:hover {
-  background: var(--ifm-color-emphasis-50);
+  background: var(--utrecht-table-row-hover-background-color);
 }
 
 .futureSection {
@@ -342,7 +347,7 @@
 }
 
 .futureSection p {
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
   line-height: 1.6;
   margin-bottom: 1.5rem;
 }
@@ -350,7 +355,7 @@
 .futureSection ul {
   max-width: 900px;
   margin: 0 auto;
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
   line-height: 1.6;
 }
 
@@ -365,7 +370,7 @@
 }
 
 .markdownSection :global(.markdown-content) {
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
   line-height: 1.6;
 }
 
@@ -405,7 +410,7 @@
 }
 
 .markdownSection :global(.markdown-content) > ul:not(blockquote ul) {
-  font-size: 1rem;
+  font-size: var(--utrecht-document-font-size);
   line-height: 1.6;
 }
 
@@ -414,20 +419,22 @@
 }
 
 .markdownSection :global(.markdown-content) > ul:not(blockquote ul) > li strong {
-  color: #555;
+  color: var(--utrecht-document-color);
   font-weight: 700;
 }
 
 .markdownSection :global(.markdown-content) a {
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   text-decoration: none;
   font-weight: 600;
   transition: 0.3s ease;
 }
 
 .markdownSection :global(.markdown-content) a:hover {
-  color: black;
-  text-decoration: none;
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
 }
 
 .markdownSection :global(.markdown-content) blockquote {
@@ -438,7 +445,7 @@
 }
 
 .markdownSection :global(.markdown-content) blockquote p strong {
-  font-family: "Open Sans", sans-serif;
+  font-family: var(--openwoo-typography-sans-serif-font-family);
   font-size: 1.5rem;
   font-weight: 700;
   display: block;
@@ -456,14 +463,16 @@
 
 .markdownSection :global(.markdown-content) blockquote a {
   text-decoration: none;
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   font-weight: 600;
   transition: 0.3s ease;
 }
 
 .markdownSection :global(.markdown-content) blockquote a:hover {
-  color: black;
-  text-decoration: none;
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
 }
 
 .markdownSection :global(.markdown-content) img {
@@ -482,11 +491,12 @@
 .markdownSection :global(.markdown-content) table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  border-bottom: var(--utrecht-table-row-border-block-end-width) solid
+    var(--utrecht-table-row-border-block-end-color);
 }
 
 .markdownSection :global(.markdown-content) table th {
-  background: var(--ifm-color-emphasis-100);
+  background: var(--utrecht-table-header-background-color);
   font-weight: 600;
 }
 
@@ -495,30 +505,32 @@
 }
 
 .markdownSection :global(.markdown-content) table tbody tr:hover {
-  background: var(--ifm-color-emphasis-50);
+  background: var(--utrecht-table-row-hover-background-color);
 }
 
 .markdownSection :global(.markdown-content) table td a {
   text-decoration: none;
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   font-weight: 600;
   transition: 0.3s ease;
 }
 
 .markdownSection :global(.markdown-content) table td a:hover {
-  color: black;
-  text-decoration: none;
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
 }
 
 .markdownSection :global(.markdown-content) code {
-  background-color: var(--ifm-color-emphasis-100);
+  background-color: var(--utrecht-code-background-color);
   padding: 0.2rem 0.4rem;
   border-radius: 3px;
   font-size: 0.9em;
 }
 
 .markdownSection :global(.markdown-content) pre {
-  background-color: var(--ifm-color-emphasis-100);
+  background-color: var(--utrecht-code-background-color);
   padding: 1rem;
   border-radius: 5px;
   overflow-x: auto;
@@ -531,8 +543,8 @@
 }
 
 .markdownSection :global(.markdown-content) table:first-of-type {
-  border: 1px solid #ddd;
-  background: white;
+  border: 1px solid var(--openwoo-color-grey-90);
+  background: var(--openwoo-color-white-100);
   margin: 2rem 0;
 }
 
@@ -546,11 +558,11 @@
 }
 
 .markdownSection :global(.markdown-content) table:first-of-type th {
-  background: white;
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
+  background: var(--openwoo-color-white-100);
+  font-family: var(--openwoo-typography-sans-serif-font-family);
+  font-size: var(--utrecht-document-font-size);
   font-weight: 700;
-  color: #454545;
+  color: var(--openwoo-color-blue-19);
 }
 
 .markdownSection :global(.markdown-content) table:first-of-type img {
@@ -565,13 +577,13 @@
 .markdownSection :global(.markdown-content) table:first-of-type a {
   display: inline-block;
   text-decoration: none;
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
   transition: transform 0.3s ease;
 }
 
 .markdownSection :global(.markdown-content) table:first-of-type a:hover {
   transform: scale(1.05);
-  color: var(--ifm-color-secondary);
+  color: var(--utrecht-link-color);
 }
 
 .markdownSection :global(.markdown-content) table:first-of-type tbody tr:hover {

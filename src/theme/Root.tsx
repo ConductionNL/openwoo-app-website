@@ -18,6 +18,13 @@ export default function Root({ children }: { children: React.ReactNode }) {
         });
       }, [location.pathname]);
       
-    return <>{children}</>;
+    // Activate the OpenWoo design tokens from @conduction/theme: the generated
+    // design-tokens.css scopes all variables under .openwoo-theme.
+    // display: contents keeps this wrapper out of the layout flow.
+    return (
+      <div className="openwoo-theme" style={{ display: 'contents' }}>
+        {children}
+      </div>
+    );
 }
 

@@ -12,7 +12,7 @@ const config: Config = {
   projectName: 'openwoo-app-website',
   title: 'OpenWOO.app',
   tagline: 'Een publicatie platform voor alle overheidsbronnen',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -38,30 +38,8 @@ const config: Config = {
     locales: ['nl'],
   },
 
-  headTags: [
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'preconnect',
-        href: 'https://fonts.googleapis.com',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'preconnect',
-        href: 'https://fonts.gstatic.com',
-        crossorigin: 'anonymous',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap',
-      },
-    },
-  ],
+  // No webfont headTags: the OpenWoo brand font is Arial (a system font),
+  // per the openwoo typography tokens in @conduction/theme.
 
   presets: [
     [
@@ -75,7 +53,13 @@ const config: Config = {
             'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            // OpenWoo design tokens (NL Design System) from @conduction/theme,
+            // scoped under the .openwoo-theme class applied in src/theme/Root.tsx.
+            require.resolve('@conduction/theme/other/openwoo-design-tokens/dist/design-tokens.css'),
+            require.resolve('@conduction/theme/other/openwoo-design-tokens/dist/font.css'),
+            './src/css/custom.css',
+          ],
         },
         blog: {
           showReadingTime: true,
@@ -107,8 +91,8 @@ const config: Config = {
     navbar: {
       title: '',
       logo: {
-        alt: 'Open Webconcept Logo',
-        src: 'https://github.com/ConductionNL/conduction-theme/assets/43807324/e15ee773-f23e-429a-858e-fb677e8dd64e',
+        alt: 'OpenWoo logo',
+        src: 'img/openwoo-logo.svg',
         href: siteBaseUrl,
         height: 64,
       },
@@ -148,12 +132,13 @@ const config: Config = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
       logo: {
-        alt: 'Open Webconcept Logo',
-        src: 'https://github.com/ConductionNL/conduction-theme/assets/43807324/e15ee773-f23e-429a-858e-fb677e8dd64e',
-        href: 'https://openwebconcept.nl/',
-        width: 180,
+        alt: 'OpenWoo logo',
+        src: 'img/openwoo-logo.svg',
+        href: siteBaseUrl,
+        // Sized in CSS by the conduction-logo-footer tokens (.footer__logo
+        // in src/css/custom.css) — no hardcoded dimensions here.
       },
       links: [
         {
