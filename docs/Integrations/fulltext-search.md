@@ -6,6 +6,10 @@ sidebar_position: 4
 
 # Full-text search
 
+:::warning Nog niet geïmplementeerd
+De full-text search die op deze pagina wordt beschreven is **nog niet geïmplementeerd**. Deze pagina documenteert het beoogde gedrag; de beschreven endpoints en parameters zijn op dit moment niet beschikbaar en de voorbeelden werken nog niet.
+:::
+
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
 
 - **Endpoint 1** doorzoekt alleen publicaties (op titel, samenvatting, thema en andere publicatie-velden).
