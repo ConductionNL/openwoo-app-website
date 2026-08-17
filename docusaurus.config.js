@@ -1,17 +1,16 @@
 // @ts-check
 
 /**
- * OpenWoo documentation site, openwoo.conduction.nl.
+ * OpenWoo documentation site — openwoo.app.
  *
- * Built on @conduction/docusaurus-preset for brand defaults (tokens,
- * Navbar/Footer swizzles, locale scaffolding, KvK/BTW copyright).
- * Modeled on openregister/docs/docusaurus.config.js as the canonical
- * fleet pattern (preset 3.5+, navbar/footer as top-level createConfig
- * opts, baseFooterLinks helper, minigames disabled on product pages).
+ * OpenWoo is part of the Conduction family but carries its own identity:
+ * the site runs on plain @docusaurus/preset-classic with the OpenWoo
+ * design tokens (NL Design System) from @conduction/theme. The generated
+ * design-tokens.css scopes all variables under .openwoo-theme — applied
+ * site-wide by src/theme/Root.js — and src/css/custom.css bridges those
+ * tokens onto Docusaurus/Infima variables.
  *
- * The site lives at https://openwoo.conduction.nl — a custom-domain
- * Pages deploy via static/CNAME, replacing the previous
- * conductionnl.github.io/openwoo-app-website/ project-Pages URL.
+ * The openwoo theme has no dark variant, so dark mode is disabled.
  *
  * Audience: implementing teams (gemeente IT, leverancier, partner).
  * Commercial copy lives on www.conduction.nl/solutions/openwoo;
@@ -19,21 +18,15 @@
  * www.conduction.nl/academy/?app=openwoo.
  */
 
-const {createConfig, baseFooterLinks} = require('@conduction/docusaurus-preset');
-
-/* createConfig replaces themes wholesale when `themes:` is passed, so
-   we re-include the brand theme plugin. Without the brand theme entry
-   the Navbar/Footer swizzles and brand.css auto-load would silently
-   drop. */
-const BRAND_THEME = require.resolve('@conduction/docusaurus-preset/theme');
-
-const config = createConfig({
+/** @type {import('@docusaurus/types').Config} */
+const config = {
   title: 'OpenWoo',
   tagline: 'Een publicatieplatform voor alle overheidsbronnen, op je Nextcloud.',
-  url: 'https://openwoo.conduction.nl',
+  url: 'https://openwoo.app',
   baseUrl: '/',
+  favicon: 'img/favicon.svg',
 
-  organizationName: 'Conduction',
+  organizationName: 'ConductionNL',
   projectName: 'openwoo-app-website',
 
   onBrokenLinks: 'warn',
@@ -49,35 +42,46 @@ const config = createConfig({
     },
   },
 
-  /* Override the preset's classic block to keep the existing docs/
-     tree (product/ + techniek/) and drop the placeholder sample blog
-     that the create-docusaurus template seeded into blog/. The full
-     reshape into the fleet-canonical Features/Architecture/Integrations
-     layout is tracked as a follow-up; this PR only swaps the preset
-     and lands the brand landing page. */
+  /* Mermaid diagram rendering for ```mermaid code blocks (used by
+     docs/Architecture/federatief-zoeken.md). Theme loaded below. */
+  markdown: {
+    mermaid: true,
+  },
+
   presets: [
     [
       'classic',
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/',
+          editUrl: 'https://github.com/ConductionNL/openwoo-app-website/tree/main/',
         },
         blog: false,
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          /* OpenWoo design tokens (NL Design System) from @conduction/theme,
+             scoped under the .openwoo-theme class applied in src/theme/Root.js.
+             font.css: the OpenWoo brand font is Arial (a system font), so no
+             webfont preconnect/head tags are needed.
+             nlds-bridge.css translates the theme's tokens onto the site's
+             --site-* vocabulary and Infima's --ifm-* variables — it is the
+             ONLY file to touch (besides this list and Root.js) when swapping
+             to another NLDS theme. custom.css holds the component rules and
+             consumes only site, utrecht and ifm variables. */
+          customCss: [
+            require.resolve('@conduction/theme/other/openwoo-design-tokens/dist/design-tokens.css'),
+            require.resolve('@conduction/theme/other/openwoo-design-tokens/dist/font.css'),
+            require.resolve('./src/css/nlds-bridge.css'),
+            require.resolve('./src/css/custom.css'),
+          ],
         },
       },
     ],
     /* Redocusaurus renders two OAS specs side by side:
        - /api/                — the SECONDARY OpenRegister-direct API.
-         Auto-mirrored from an upstream OpenRegister deployment by
-         .forgejo/workflows/woo-oas-sync.yml (nightly 03:27 UTC +
-         workflow_dispatch). Source URL is configured in that
-         workflow's OAS_URL env var. The sync step prepends a "this is
-         the secondary layer" banner to info.description; the banner
-         is idempotent so re-runs against unchanged upstream produce
-         no diff.
+         Auto-mirrored from an upstream OpenRegister deployment (see
+         docs/api.md). The sync step prepends a "this is the secondary
+         layer" banner to info.description; the banner is idempotent so
+         re-runs against unchanged upstream produce no diff.
        - /api/publications/   — the PRIMARY OpenCatalogi Publications
          API. Hand-curated in static/oas/opencatalogi-publications.json
          because OpenCatalogi doesn't expose its own OAS endpoint yet
@@ -100,76 +104,101 @@ const config = createConfig({
           },
         ],
         theme: {
-          primaryColor: '#1890ff',
+          /* OpenWoo brand green (--openwoo-color-green-46). */
+          primaryColor: '#23845c',
         },
       },
     ],
   ],
 
-  themes: [BRAND_THEME],
-
-  /* Navbar ported from the old openwoo.app (Open Webconcept) menu so
-     long-time users land in familiar places. The brand preset's
-     Navbar swizzle only renders flat href/to items (dropdown / docSidebar
-     types are silently dropped), so Product + Techniek become single
-     links to the category-index pages auto-generated by sidebars.js
-     for each category. Over Open Webconcept stays as an external link
-     to its origin org. Solution + Academy bridge back to the conduction.nl
-     surfaces that own the commercial copy and the community videos. */
-  navbar: {
-    title: 'OpenWoo',
-    items: [
-      {to: '/docs/category/reference/',                            label: 'Product',  position: 'left'},
-      {to: '/docs/category/architectuur/',                         label: 'Techniek', position: 'left'},
-      {to: '/docs/api-overview',                                   label: 'API',      position: 'left'},
-      {href: 'https://www.conduction.nl/solutions/openwoo',        label: 'Solution', position: 'left'},
-      {href: 'https://www.conduction.nl/academy/?app=openwoo',     label: 'Academy',  position: 'left'},
-      {href: 'https://openwebconcept.nl/',                         label: 'Over Open Webconcept', position: 'right'},
-      {href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0', label: 'Slack',  position: 'right'},
-      {href: 'https://codeberg.org/Conduction/openwoo-app-website',     label: 'Codeberg', position: 'right'},
-    ],
-  },
-
-  /* Per-property footer override (preset 1.2.0+): we pass `links` only,
-     so the brand `style: 'dark'` and the brand KvK/BTW/IBAN/address
-     copyright string both inherit unchanged. OpenWoo-specific column
-     first, then the brand Conduction column from baseFooterLinks(). */
-  footer: {
-    links: [
-      {
-        title: 'OpenWoo',
-        items: [
-          {label: 'Solution',  href: 'https://www.conduction.nl/solutions/openwoo'},
-          {label: 'Academy',   href: 'https://www.conduction.nl/academy/?app=openwoo'},
-          {label: 'Slack',     href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0'},
-          {label: 'Codeberg',  href: 'https://codeberg.org/Conduction/openwoo-app-website'},
-        ],
-      },
-      ...baseFooterLinks().filter((column) => column.title === 'Conduction'),
-    ],
-  },
-
-  /* Drop the canal-footer mini-games on this product-page footer
-     (preset 1.3.0+). The static skyline + canal decoration are kept;
-     the interactive layer goes away. */
-  minigames: false,
+  themes: ['@docusaurus/theme-mermaid'],
 
   themeConfig: {
     colorMode: {
       defaultMode: 'light',
-      disableSwitch: false,
-      /* Site-wide guard: stay opt-in for dark mode (manual navbar
-         toggle) instead of auto-flipping on `prefers-color-scheme:
-         dark`. The docs-content readability bug is already patched
-         by the `.theme-doc-markdown` dark-mode overrides in
-         `src/css/custom.css`, but the brand preset's dark theme
-         still has unaudited contrast on navbar / sidebar / footer /
-         marketing surfaces — until that's fixed upstream, opt-in
-         keeps the whole site readable by default for users whose
-         OS is set to dark. */
+      /* The openwoo token set has no dark variant; a dark toggle would
+         render half-styled pages. Switch stays off until the tokens
+         grow a dark mode. */
+      disableSwitch: true,
       respectPrefersColorScheme: false,
     },
+
+    /* Navbar ported from the old openwoo.app (Open Webconcept) menu so
+       long-time users land in familiar places. Product + Techniek link
+       to the category-index pages auto-generated by sidebars.js.
+       Solution + Academy bridge to the conduction.nl surfaces that own
+       the commercial copy and the community videos. */
+    navbar: {
+      title: '',
+      logo: {
+        alt: 'OpenWoo logo',
+        src: 'img/openwoo-logo.svg',
+        height: 64,
+      },
+      items: [
+        {to: '/docs/category/reference/',                            label: 'Product',  position: 'left'},
+        {to: '/docs/category/architectuur/',                         label: 'Techniek', position: 'left'},
+        {to: '/docs/api-overview',                                   label: 'API',      position: 'left'},
+        {href: 'https://www.conduction.nl/solutions/openwoo',        label: 'Solution', position: 'left'},
+        {href: 'https://www.conduction.nl/academy/?app=openwoo',     label: 'Academy',  position: 'left'},
+        {href: 'https://openwebconcept.nl/',                         label: 'Over Open Webconcept', position: 'right'},
+        {href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0', label: 'Slack',  position: 'right'},
+        {href: 'https://github.com/ConductionNL/openwoo-app-website',    label: 'GitHub', position: 'right'},
+      ],
+    },
+
+    /* Standard Docusaurus footer in OpenWoo identity: light style with
+       the OpenWoo logo. The Conduction column stays as a family link,
+       without the Conduction brand decoration. */
+    footer: {
+      style: 'light',
+      logo: {
+        alt: 'OpenWoo logo',
+        src: 'img/openwoo-logo.svg',
+      },
+      links: [
+        {
+          title: 'Links',
+          items: [
+            {label: 'Home',            to: '/'},
+            {label: 'Slack',           href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0'},
+            {label: 'GitHub',          href: 'https://github.com/ConductionNL/openwoo-app-website'},
+            {label: 'Open Webconcept', href: 'https://openwebconcept.nl/'},
+          ],
+        },
+        {
+          title: 'Product',
+          items: [
+            {label: 'Kosten',               to: '/docs/reference/pricing'},
+            {label: 'Privacy',              to: '/docs/reference/privacy'},
+            {label: 'Beveiliging',          to: '/docs/reference/security'},
+            {label: 'Toegankelijkheid',     to: '/docs/reference/accessibility'},
+            {label: 'Roadmap',              to: '/docs/reference/roadmap'},
+            {label: 'Veelgestelde vragen',  to: '/docs/reference/faq'},
+          ],
+        },
+        {
+          title: 'Techniek',
+          items: [
+            {label: 'Architectuur',   to: '/docs/category/architectuur/'},
+            {label: 'Installatie',    to: '/docs/Technical/installation'},
+            {label: 'Configuratie',   to: '/docs/Technical/configuration'},
+            {label: 'Naar productie', to: '/docs/Technical/production'},
+            {label: 'API',            to: '/docs/api-overview'},
+          ],
+        },
+        {
+          title: 'Conduction',
+          items: [
+            {label: 'Website',  href: 'https://www.conduction.nl/'},
+            {label: 'Solution', href: 'https://www.conduction.nl/solutions/openwoo'},
+            {label: 'Academy',  href: 'https://www.conduction.nl/academy/?app=openwoo'},
+          ],
+        },
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} OpenWoo — een open source-publicatieplatform uit de Conduction-familie. EUPL-1.2.`,
+    },
   },
-});
+};
 
 module.exports = config;
