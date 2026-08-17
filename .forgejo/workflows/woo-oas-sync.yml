@@ -22,10 +22,15 @@ name: Woo OAS sync
 #
 # To switch source URL (e.g. when a production deployment lands):
 # update the OAS_URL env var below.
+#
+# MOTHBALLED (2026-08-17): GitHub is the source of truth and Codeberg is a
+# one-way mirror — the nightly cron is removed because its commits to main +
+# documentation would make the mirror diverge from GitHub (and chain-trigger
+# the retired Cloudflare Pages deploy). workflow_dispatch is kept as the
+# emergency lever. The OAS mirror job should be re-created as a GitHub
+# Actions workflow when needed.
 
 on:
-  schedule:
-    - cron: "27 3 * * *"
   workflow_dispatch:
 
 permissions:
