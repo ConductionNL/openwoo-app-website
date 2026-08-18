@@ -18,7 +18,9 @@
 # (re-runnable via workflow_dispatch after adding the secrets).
 #
 # Triggers:
-#   pull_request → documentation   build check only, never deploys
+#   pull_request → documentation   build + wrangler dry-run + auth check,
+#                                  never publishes — a red PR means the
+#                                  merge-time deploy would have failed
 #   push documentation             build + deploy
 #   workflow_dispatch              manual (re)deploy of any ref
 #
@@ -58,7 +60,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          # 22+: wrangler 4.x refuses to start on older Node (the Codeberg
+          # flow ran its deploy in a node:24 container for the same reason).
+          node-version: 22
           cache: npm
 
       # --ignore-scripts because @conduction/theme's postinstall rebuilds
@@ -83,7 +87,6 @@ jobs:
           test -f build/docs/reference/faq/index.html
 
       - name: Generate wrangler.toml
-        if: github.event_name != 'pull_request'
         run: |
           cat > wrangler.toml <<EOF
           name = "openwoo-docs"
@@ -93,6 +96,24 @@ jobs:
           directory = "./build"
           EOF
           cat wrangler.toml
+
+      # PR check: run wrangler for real but WITHOUT publishing. --dry-run
+      # boots wrangler (catching Node/engine breakage like the v4 Node-22
+      # requirement), parses wrangler.toml and bundles the assets — every
+      # failure mode of the deploy step except the upload itself, visible
+      # BEFORE merge. Needs no credentials.
+      - name: Deploy dry-run (PR check, no publish)
+        if: github.event_name == 'pull_request'
+        run: npx -y wrangler@4.123.0 deploy --dry-run
+
+      # PR check: verify the CF credentials actually authenticate, without
+      # deploying. Only on same-repo PRs — fork PRs get no secrets.
+      - name: Cloudflare auth check (PR, same-repo only)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: npx -y wrangler@4.123.0 whoami
 
       - name: Deploy to Cloudflare Workers (Static Assets)
         if: github.event_name != 'pull_request'
