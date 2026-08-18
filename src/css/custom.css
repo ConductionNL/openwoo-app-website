@@ -4,45 +4,72 @@
  * work well for content-centric websites.
  */
 
-/* OpenWoo.app Custom Styles */
+/* OpenWoo.app Custom Styles.
+   NO hardcoded brand colors in this file: every color comes from the
+   active NLDS theme via src/css/nlds-bridge.css (--site-* aliases and
+   the --ifm-* mappings). :root only holds theme-neutral dimensions.
+   The openwoo theme has no dark variant, so dark mode is disabled in
+   docusaurus.config.js. */
 :root {
-  /* Primary colors - Dutch government blue */
-  --ifm-color-primary: #154273;
-  --ifm-color-primary-dark: #123a65;
-  --ifm-color-primary-darker: #10365f;
-  --ifm-color-primary-darkest: #0d2c4e;
-  --ifm-color-primary-light: #184a81;
-  --ifm-color-primary-lighter: #1a4e87;
-  --ifm-color-primary-lightest: #1f5a9b;
-  --ifm-color-background-main: #cce5ff;
-  
-  /* Secondary colors */
-  --ifm-color-secondary: #1abd9c;
-  
-  /* Typography */
-  --ifm-font-family-base: "Open Sans", sans-serif;
+  /* Theme-neutral typography/spacing (no brand values) */
   --ifm-code-font-size: 95%;
   --ifm-line-height-base: 1.6;
-  
-  /* Spacing */
   --ifm-spacing-horizontal: 1.5rem;
   --ifm-spacing-vertical: 1.5rem;
-  
-  /* Other */
-  --docusaurus-highlighted-code-line-bg: rgba(21, 66, 115, 0.1);
-  --ifm-navbar-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
-}
 
-/* Dark mode adjustments */
-[data-theme='dark'] {
-  --ifm-color-primary: #4a90e2;
-  --ifm-color-primary-dark: #3581db;
-  --ifm-color-primary-darker: #2e7ad6;
-  --ifm-color-primary-darkest: #2565b4;
-  --ifm-color-primary-light: #5f9fe9;
-  --ifm-color-primary-lighter: #6ca6ee;
-  --ifm-color-primary-lightest: #8db9f3;
-  --docusaurus-highlighted-code-line-bg: rgba(74, 144, 226, 0.3);
+  /* Neutral (black-alpha) elevation shadows — not brand colors */
+  --site-shadow-navbar: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  --site-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --ifm-navbar-shadow: var(--site-shadow-navbar);
+
+  /* Site-level dimension tokens: every tweaked dimension gets a token
+     here so it's adjusted in one place. */
+  /* Navbar logo: 44px is the max that fits the 60px navbar with its
+     8px vertical padding — any larger and the navbar itself grows. */
+  --site-navbar-logo-height: 44px;
+  /* Docs sidebar: slightly smaller type with roomier rows, so the
+     tree reads as a calm list instead of a wall of bold text.
+     Scoped to the docs sidebar only — content/navbar/footer links
+     keep their normal size. */
+  --site-menu-font-size: 0.875rem;          /* 14px links */
+  --site-menu-category-font-size: 0.9375rem; /* 15px category labels */
+  --site-menu-line-height: 1.4;
+  --site-menu-row-padding-vertical: 0.375rem;
+  --site-menu-category-spacing: 0.625rem;   /* air between top-level categories */
+  --site-menu-active-bar-width: 3px;        /* accent bar on the active trail */
+
+  /* Doc pages: breathing room between the sidebar and the content
+     column (desktop only — mobile keeps the full width). 4rem matches
+     the gutter feel of the previous (preset-based) live site. */
+  --site-doc-content-gap: 4rem;
+
+  /* Prev/next pagination: compact cards instead of Infima's tall ones */
+  --site-pagination-padding: 0.75rem 1rem;
+  --site-pagination-label-font-size: 0.9375rem; /* 15px */
+  --site-pagination-sublabel-font-size: 0.75rem; /* 12px */
+
+  /* "Bewerk deze pagina": subtle utility link, not a content link */
+  --site-edit-link-font-size: 0.875rem;
+
+  /* Breadcrumbs: tighter than Infima's defaults (0.5rem gap, 0.8rem
+     item padding) — the utrecht-breadcrumb tokens carry no item gap,
+     so this is a site-level choice. */
+  --site-breadcrumb-spacing: 0.25rem;
+  --site-breadcrumb-padding-horizontal: 0.5rem;
+
+  /* Corner radii */
+  --site-radius-sm: 0.25rem;  /* code, dropdowns */
+  --site-radius-md: 0.5rem;   /* images, cards */
+
+  /* Landing-page display sizes (site-level: the openwoo type scale has
+     no steps between 2rem and 3rem, so these are deliberate site
+     choices, kept from the v1 design) */
+  --site-hero-title-font-size: 2.5rem;
+  --site-section-title-font-size: 2.25rem;
+
+  /* Medium weight (site-level: the openwoo tokens ship 400/600/700 but
+     no 500; used for navbar and dropdown links) */
+  --site-font-weight-medium: 500;
 }
 
 /* Custom utility classes */
@@ -63,42 +90,44 @@ article {
   max-width: 100%;
 }
 
-.markdown > h2 {
-  --ifm-h2-font-size: 2rem;
+/* Docusaurus's classic theme hardcodes a markdown heading scale
+   (h1:first-child 3rem, h2 2rem, h3 1.5rem) as LOCAL custom-property
+   overrides, which beat the inherited token values from the bridge.
+   Re-assert the utrecht-heading tokens here so markdown headings
+   follow the theme instead of Docusaurus's defaults. */
+.nlds-site .markdown h1:first-child {
+  --ifm-h1-font-size: var(--utrecht-heading-1-font-size);
+}
+
+.nlds-site .markdown > h2 {
+  --ifm-h2-font-size: var(--utrecht-heading-2-font-size);
   margin-top: 3rem;
   margin-bottom: 1.5rem;
 }
 
-.markdown > h3 {
-  --ifm-h3-font-size: 1.5rem;
+.nlds-site .markdown > h3 {
+  --ifm-h3-font-size: var(--utrecht-heading-3-font-size);
   margin-top: 2rem;
   margin-bottom: 1rem;
 }
 
-/* Tables */
+/* Tables: layout only — colors/borders come from the OpenWoo token
+   bridge below. */
 table {
   display: table;
   width: 100%;
-  border-collapse: collapse;
-  margin: 1.5rem 0;
 }
 
-table thead tr {
-  background-color: var(--ifm-color-emphasis-100);
+/* Code blocks */
+code {
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--site-radius-sm);
 }
 
-table th,
-table td {
-  padding: 0.75rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
+pre code {
+  background-color: transparent;
+  padding: 0;
 }
-
-/* Code blocks: the brand preset already wires `--ifm-code-background`
-   to cobalt-50 (light) and cobalt-800 (dark), and Infima's default
-   `code { background-color: var(--ifm-code-background) }` consumes it.
-   Don't re-set the bg here — it pulls in `--ifm-color-emphasis-100`,
-   which Infima flips to near-black in dark mode and renders inline
-   code as a dark box of dark text. */
 
 /* Links */
 a {
@@ -109,23 +138,28 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Navbar adjustments */
+/* Navbar adjustments — colors come from the token bridge (nlds-bridge.css). */
 .navbar {
   box-shadow: var(--ifm-navbar-shadow);
-  background: white;
+}
+
+/* Logo: Infima defaults to 2rem (32px), too small for the OpenWoo
+   wordmark. Sized by the site token (see :root). */
+.navbar__logo {
+  height: var(--site-navbar-logo-height);
+}
+
+.navbar__logo img {
+  height: 100%;
+  width: auto;
 }
 
 .navbar__title {
-  font-weight: 700;
+  font-weight: var(--site-font-weight-bold);
 }
 
 .navbar__link {
-  font-weight: 500;
-  color: #454545;
-}
-
-.navbar__link:hover {
-  color: var(--ifm-color-secondary);
+  font-weight: var(--site-font-weight-medium);
 }
 
 .navbar__item--dropdown .navbar__link {
@@ -135,7 +169,7 @@ a:hover {
 
 .navbar__item--dropdown .navbar__link::after {
   content: '';
-  border: solid #454545;
+  border: solid currentColor;
   border-width: 0 1.5px 1.5px 0;
   display: inline-block;
   padding: 3px;
@@ -145,21 +179,22 @@ a:hover {
 }
 
 .navbar__item--dropdown:hover .navbar__link::after {
-  border-color: var(--ifm-color-secondary);
+  border-color: var(--site-color-primary);
 }
 
 .dropdown__menu {
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: var(--site-radius-sm);
+  box-shadow: var(--site-shadow-dropdown);
 }
 
 .dropdown__link {
-  font-weight: 500;
+  font-weight: var(--site-font-weight-medium);
 }
 
 .dropdown__link:hover {
-  background-color: rgba(26, 189, 156, 0.1);
-  color: var(--ifm-color-secondary);
+  /* Primary at 10% strength, derived from the theme token */
+  background-color: color-mix(in srgb, var(--site-color-primary) 10%, transparent);
+  color: var(--site-color-primary);
 }
 
 .navbar-slack-link::before,
@@ -168,48 +203,44 @@ a:hover {
   display: inline-block;
   width: 1.2em;
   height: 1.2em;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
   vertical-align: middle;
   margin-right: 0.3rem;
 }
 
 .navbar-slack-link::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%23454545"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%23454545"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%23454545"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
 }
 
 .navbar-github-link::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%23454545"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%23454545"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%23454545"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
 }
 
 .navbar__link::after {
   display: none !important;
 }
 
-.footer {
-  background-color: rgb(41, 41, 41);
-  color: #5f5f5f;
-}
-
+/* Footer colors/surface come from the token bridge (nlds-bridge.css).
+   (utrecht-page-footer tokens). Only layout/typography here. */
 .footer__title {
-  color: #5f5f5f;
-  font-weight: 700;
-  font-size: 1.313rem;
+  font-weight: var(--site-font-weight-bold);
+  font-size: var(--site-font-size-lg, 1.25rem);
   text-transform: none;
 }
 
 .footer__link-item {
-  color: #5f5f5f;
-  font-weight: 500;
+  font-weight: var(--site-font-weight-medium);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.footer__link-item:hover {
-  color: var(--ifm-color-secondary);
-  text-decoration: none;
 }
 
 .iconExternalLink_IVal {
@@ -224,62 +255,79 @@ a:hover {
   display: inline-block;
   width: 1em;
   height: 1em;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 /* Home icon */
 .footer__link-item[href="/"]::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="%235f5f5f"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="%235f5f5f"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="%235f5f5f"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>');
 }
 
 /* Slack icon */
 .footer__link-item[href*="slack"]::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%235f5f5f"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%235f5f5f"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="%235f5f5f"><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>');
 }
 
 /* GitHub icon */
 .footer__link-item[href*="github"]::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%235f5f5f"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%235f5f5f"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" fill="%235f5f5f"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>');
 }
 
 /* Open Webconcept icon */
 .footer__link-item[href*="openwebconcept"]::before {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="%235f5f5f"><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z"/></svg>');
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="%235f5f5f"><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="%235f5f5f"><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z"/></svg>');
 }
 
-.footer__link-item:hover::before {
-  filter: brightness(0) saturate(100%) invert(72%) sepia(40%) saturate(697%) hue-rotate(120deg) brightness(91%) contrast(85%);
+/* Logo + copyright ("coded with love by Conduction") on one centered row,
+   mirroring the reference footer's logoAndConduction layout. */
+.footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer__bottom > .margin-bottom--sm {
+  margin-bottom: 0;
 }
 
 .footer__copyright {
-  color: #5f5f5f;
   text-align: right;
 }
 
+@media screen and (max-width: 576px) {
+  .footer__bottom {
+    display: block;
+  }
+}
+
 .footer__copyright a {
-  color: #5f5f5f !important;
   transition: color 0.2s ease;
 }
 
-.footer__copyright a:hover {
-  color: var(--ifm-color-secondary) !important;
-  text-decoration: none;
-}
-
 .footer__copyright a:hover svg path {
-  fill: var(--ifm-color-secondary);
+  fill: var(--site-color-primary);
 }
 
+/* Footer logo: sized per the conduction-logo-footer tokens (250x80),
+   and not dimmed — Docusaurus's own footerLogoLink rule sets opacity .5. */
 .footer__logo {
-  max-width: 180px;
-  margin-bottom: 1rem;
+  max-width: var(--conduction-logo-footer-inline-size, 250px);
+  max-height: var(--conduction-logo-footer-block-size, 80px);
+  display: block;
 }
 
-.footer__bottom > div:first-child {
-  text-align: left;
-  justify-content: flex-start;
+.footer a[class*='footerLogoLink'] {
+  opacity: 1;
 }
 
 /* Custom admonitions */
@@ -293,37 +341,26 @@ a:hover {
     --ifm-spacing-horizontal: 1rem;
   }
   
-  .markdown > h2 {
-    font-size: 1.5rem;
+  /* Mobile: step each heading down one level of the THEME's scale
+     instead of hardcoding sizes, so a theme swap carries through. */
+  .nlds-site .markdown > h2 {
+    --ifm-h2-font-size: var(--utrecht-heading-3-font-size);
   }
-  
-  .markdown > h3 {
-    font-size: 1.25rem;
+
+  .nlds-site .markdown > h3 {
+    --ifm-h3-font-size: var(--utrecht-heading-4-font-size);
   }
 }
 
-/* Open Sans Variable Font Support */
-/* Use a value from 300 to 800 for <weight> */
-/* Use a unique and descriptive class name */
+/* Fallback outside the .nlds-site scope — matches the brand font
+   token (Arial); real values come from the token bridge below. */
 body {
-  font-family: "Open Sans", sans-serif;
-  font-optical-sizing: auto;
+  font-family: Arial, sans-serif;
   font-style: normal;
-  font-weight: 400;
-  color: #555;
-  font-variation-settings: "wdth" 100;
+  font-weight: var(--site-font-weight-normal);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: #454545;
-}
-
-/* Paragraph links: trust the brand preset's `--ifm-link-color`
-   (KNVB orange) and `--ifm-link-hover-color` (cobalt-700). Forcing
-   teal here recoloured every inline-code-inside-a-link (e.g.
-   [`woo-website-template-apiv2`](url)) to teal-on-light-gray —
-   ~2.5:1 contrast, and effectively invisible inside the green
-   `:::tip` admonition. */
+/* Heading and link colors come from the token bridge (nlds-bridge.css). */
 
 /* Hide table of contents on docs pages */
 .theme-doc-toc-desktop {
@@ -334,28 +371,482 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
-/* Dark-mode doc-content text. The brand preset (brand.css ≤ 3.20.0)
-   hardcodes `.theme-doc-markdown p/ul/ol/li/strong/h1/h2/h3` to
-   cobalt-800/900 without a `[data-theme='dark']` variant, so on the
-   cobalt-900 dark body background the text renders ~1.3:1 contrast —
-   essentially invisible. Lift the body type to cobalt-100 and headings
-   to white, matching the brand's own dark-mode tokens. Upstream as a
-   preset fix when convenient. */
-[data-theme='dark'] .theme-doc-markdown p,
-[data-theme='dark'] .theme-doc-markdown ul,
-[data-theme='dark'] .theme-doc-markdown ol,
-[data-theme='dark'] .theme-doc-markdown li {
-  color: var(--c-cobalt-100);
+/* ============================================================
+   NLDS theme integration: the token translation lives in
+   src/css/nlds-bridge.css (layer 1: theme tokens → site aliases;
+   layer 2: site + utrecht tokens → ifm variables). Below are only
+   component rules, consuming --site-* and --utrecht-* variables.
+   ============================================================ */
+
+/* Header and footer follow the utrecht page tokens:
+   ice-blue surface (blue-94) with navy text (blue-19). */
+.nlds-site .navbar {
+  background: var(--utrecht-page-header-background-color);
 }
-[data-theme='dark'] .theme-doc-markdown h1,
-[data-theme='dark'] .theme-doc-markdown h2,
-[data-theme='dark'] .theme-doc-markdown h3,
-[data-theme='dark'] .theme-doc-markdown strong {
-  color: white;
+
+.nlds-site .navbar__title,
+.nlds-site .navbar__link {
+  color: var(--utrecht-page-header-color);
 }
-/* Bold links (`<a><strong>…</strong></a>`): keep the link colour
-   instead of inheriting the `strong { color: white }` override above,
-   mirroring Infima's `a code { color: inherit }` pattern. */
-[data-theme='dark'] .theme-doc-markdown a strong {
+
+.nlds-site .navbar__link:hover {
+  /* WCAG AA: darker green on the ice-blue navbar surface (see bridge) */
+  color: var(--site-color-primary-on-surface);
+}
+
+.nlds-site .footer {
+  background-color: var(--utrecht-page-footer-background-color);
+  color: var(--utrecht-page-footer-color);
+  --ifm-footer-padding-vertical: var(--utrecht-page-footer-padding-block-start);
+}
+
+.nlds-site .footer__title {
+  color: var(--utrecht-page-footer-color);
+}
+
+.nlds-site .footer__link-item {
+  color: var(--utrecht-page-footer-link-color);
+  text-decoration: var(--utrecht-page-footer-link-text-decoration);
+}
+
+.nlds-site .footer__copyright,
+.nlds-site .footer__copyright a {
+  color: var(--utrecht-page-footer-color) !important;
+}
+
+.nlds-site .footer__link-item:hover,
+.nlds-site .footer__copyright a:hover {
+  color: var(--utrecht-page-footer-link-hover-color) !important;
+  text-decoration: var(--utrecht-page-footer-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-page-footer-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-page-footer-link-text-underline-offset);
+}
+
+/* Headings: navy, weights per the utrecht-heading tokens
+   (h1/h2 bold, h3/h4 normal, h5 light) */
+.nlds-site h1,
+.nlds-site h2,
+.nlds-site h3,
+.nlds-site h4,
+.nlds-site h5,
+.nlds-site h6 {
+  color: var(--site-color-ink);
+}
+
+.nlds-site .markdown h1 {
+  font-weight: var(--utrecht-heading-1-font-weight);
+}
+
+.nlds-site .markdown h2 {
+  font-weight: var(--utrecht-heading-2-font-weight);
+}
+
+.nlds-site .markdown h3 {
+  font-weight: var(--utrecht-heading-3-font-weight);
+}
+
+.nlds-site .markdown h4 {
+  font-weight: var(--utrecht-heading-4-font-weight);
+}
+
+.nlds-site .markdown h5 {
+  font-weight: var(--utrecht-heading-5-font-weight);
+}
+
+/* Content links: exactly the utrecht-link component behaviour —
+   brand green, no underline at rest, underline on hover with the
+   token-defined thickness and offset. */
+.nlds-site main a:not(.button):not(.card),
+.nlds-site .markdown a,
+.nlds-site p a {
+  color: var(--utrecht-link-color);
+  text-decoration: var(--utrecht-link-text-decoration);
+  font-weight: var(--site-font-weight-semibold);
+}
+
+.nlds-site main a:not(.button):not(.card):hover,
+.nlds-site .markdown a:hover,
+.nlds-site p a:hover {
+  color: var(--utrecht-link-hover-color);
+  text-decoration: var(--utrecht-link-hover-text-decoration);
+  text-decoration-thickness: var(--utrecht-link-hover-text-decoration-thickness);
+  text-underline-offset: var(--utrecht-link-text-underline-offset);
+  text-decoration-skip-ink: var(--utrecht-link-hover-text-decoration-skip-ink);
+}
+
+/* Keyboard focus on links, matching @utrecht/link-css */
+.nlds-site main a:not(.button):not(.card):focus-visible,
+.nlds-site .markdown a:focus-visible,
+.nlds-site p a:focus-visible {
+  outline-color: var(--utrecht-focus-outline-color, revert);
+  outline-offset: var(--utrecht-focus-outline-offset, revert);
+  outline-style: var(--utrecht-focus-outline-style, revert);
+  outline-width: var(--utrecht-focus-outline-width, revert);
+}
+
+/* Tables: the utrecht-table pattern from the openwoo theme —
+   white surface, ice-blue header with bottom border, even-row
+   zebra in blue-94, hover rows in blue-86, no vertical borders. */
+.nlds-site table {
+  border-collapse: var(--utrecht-table-border-collapse);
+  background-color: var(--utrecht-table-background-color);
+  margin-block-start: var(--utrecht-table-margin-block-start);
+  margin-block-end: var(--utrecht-table-margin-block-end);
+}
+
+.nlds-site table thead tr {
+  background-color: var(--utrecht-table-header-background-color);
+  border-block-end: var(--utrecht-table-header-border-block-end-width) solid
+    var(--utrecht-table-header-border-block-end-color);
+}
+
+.nlds-site table th {
+  color: var(--utrecht-table-header-cell-color);
+  font-weight: var(--utrecht-table-header-cell-font-weight);
+  text-transform: var(--utrecht-table-header-cell-text-transform);
+}
+
+.nlds-site table th,
+.nlds-site table td {
+  border: 0;
+  border-block-end: var(--utrecht-table-row-border-block-end-width) solid
+    var(--utrecht-table-row-border-block-end-color);
+  padding: var(--utrecht-table-cell-padding-block-start)
+    var(--utrecht-table-cell-padding-inline-end)
+    var(--utrecht-table-cell-padding-block-end)
+    var(--utrecht-table-cell-padding-inline-start);
+}
+
+.nlds-site table tbody tr:nth-child(even) {
+  background-color: var(--utrecht-table-row-alternate-even-background-color);
+}
+
+.nlds-site table tbody tr:hover {
+  background-color: var(--utrecht-table-row-hover-background-color);
+}
+
+/* Inline code and code blocks (utrecht-code / utrecht-code-block tokens) */
+.nlds-site code {
+  background-color: var(--utrecht-code-background-color);
+  color: var(--utrecht-code-color);
+  font-family: var(--utrecht-code-font-family);
+}
+
+.nlds-site pre code {
+  background-color: transparent;
   color: inherit;
+}
+
+.nlds-site .theme-code-block {
+  --prism-background-color: var(--utrecht-code-block-background-color);
+}
+
+/* Admonitions (:::note/:::info/:::tip/:::warning/:::danger) →
+   utrecht-alert tokens */
+.nlds-site .alert {
+  padding: var(--utrecht-alert-padding-block-start)
+    var(--utrecht-alert-padding-inline-end)
+    var(--utrecht-alert-padding-block-end)
+    var(--utrecht-alert-padding-inline-start);
+}
+
+.nlds-site .alert--info,
+.nlds-site .alert--secondary {
+  --ifm-alert-background-color: var(--utrecht-alert-background-color);
+  --ifm-alert-foreground-color: var(--utrecht-alert-color);
+  --ifm-alert-border-color: var(--utrecht-alert-icon-color);
+}
+
+.nlds-site .alert--success {
+  --ifm-alert-background-color: var(--utrecht-alert-ok-background-color);
+  --ifm-alert-foreground-color: var(--utrecht-alert-ok-color);
+  --ifm-alert-border-color: var(--utrecht-alert-icon-ok-color);
+}
+
+.nlds-site .alert--warning {
+  --ifm-alert-background-color: var(--utrecht-alert-warning-background-color);
+  --ifm-alert-foreground-color: var(--utrecht-alert-warning-color);
+  --ifm-alert-border-color: var(--utrecht-alert-icon-warning-color);
+}
+
+.nlds-site .alert--danger {
+  --ifm-alert-background-color: var(--utrecht-alert-error-background-color);
+  --ifm-alert-foreground-color: var(--utrecht-alert-error-color);
+  --ifm-alert-border-color: var(--utrecht-alert-icon-error-color);
+}
+
+/* Buttons → utrecht-button primary/secondary action tokens */
+.nlds-site .button--primary {
+  background-color: var(--utrecht-button-primary-action-background-color);
+  border-color: var(--utrecht-button-primary-action-background-color);
+  border-width: var(--utrecht-button-primary-action-border-width);
+  border-radius: var(--utrecht-button-border-radius);
+  color: var(--utrecht-button-primary-action-color);
+  font-family: var(--utrecht-button-font-family);
+}
+
+.nlds-site .button--primary:hover {
+  background-color: var(--utrecht-button-primary-action-hover-background-color);
+  border-color: var(--utrecht-button-primary-action-hover-background-color);
+  color: var(--utrecht-button-primary-action-hover-color);
+}
+
+.nlds-site .button--secondary {
+  background-color: var(--utrecht-button-secondary-action-background-color);
+  border-color: var(--utrecht-button-secondary-action-border-color);
+  border-width: var(--utrecht-button-secondary-action-border-width);
+  border-radius: var(--utrecht-button-border-radius);
+  color: var(--utrecht-button-secondary-action-color);
+  font-family: var(--utrecht-button-font-family);
+  font-weight: var(--utrecht-button-secondary-action-font-weight);
+}
+
+.nlds-site .button--secondary:hover {
+  background-color: var(--utrecht-button-secondary-action-hover-background-color);
+  border-color: var(--utrecht-button-secondary-action-hover-border-color);
+  color: var(--utrecht-button-secondary-action-hover-color);
+}
+
+.nlds-site .button:focus-visible {
+  outline-color: var(--utrecht-focus-outline-color, revert);
+  outline-offset: var(--utrecht-focus-outline-offset, revert);
+  outline-style: var(--utrecht-focus-outline-style, revert);
+  outline-width: var(--utrecht-focus-outline-width, revert);
+}
+
+/* Docs breadcrumbs → utrecht-breadcrumb-nav tokens for the colors;
+   item spacing is Infima's own (no utrecht token exists for it), fed
+   from the site tokens in :root. */
+.nlds-site {
+  --ifm-breadcrumb-spacing: var(--site-breadcrumb-spacing);
+  --ifm-breadcrumb-padding-horizontal: var(--site-breadcrumb-padding-horizontal);
+}
+
+.nlds-site .breadcrumbs__link {
+  color: var(--utrecht-breadcrumb-nav-link-color);
+}
+
+.nlds-site .breadcrumbs__item .breadcrumbs__link:hover {
+  color: var(--utrecht-breadcrumb-nav-link-hover-color);
+  background: none;
+  text-decoration: underline;
+}
+
+.nlds-site .breadcrumbs__item--active .breadcrumbs__link {
+  color: var(--utrecht-breadcrumb-nav-link-current-color);
+  background: none;
+}
+
+/* Docs sidebar (menu) — brand hover/active surfaces, heading-style
+   category labels, active-trail indicator, navy carets, tighter rows. */
+.nlds-site {
+  /* 1: hover + active in the same surfaces as tables/cards */
+  --ifm-menu-color-background-hover: var(--site-color-surface);
+  --ifm-menu-color-background-active: var(--site-color-surface);
+  /* WCAG AA: the active row sits on the tinted surface, so it uses the
+     darker on-surface green (see bridge) */
+  --ifm-menu-color-active: var(--site-color-primary-on-surface);
+  /* 8: brand-colored chevron instead of Infima's grey caret. The
+     data-URI only carries the SHAPE (used as a mask); the color comes
+     from --site-color-ink in the caret rule below, so it follows the
+     theme instead of a hex baked into the SVG. */
+  --site-menu-caret-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>');
+  --ifm-menu-link-sublist-icon-filter: none;
+  /* 9: mobile hamburger menu on the page-header surface (this var also
+     backs the navbar itself, matching the existing navbar rule) */
+  --ifm-navbar-background-color: var(--utrecht-page-header-background-color);
+  /* 10: row rhythm from the site tokens (see :root) — roomier than
+     Infima's default so the tree stays scannable. */
+  --ifm-menu-link-padding-vertical: var(--site-menu-row-padding-vertical);
+}
+
+/* 8 (cont.): caret shape from the mask token, color from the theme. */
+.nlds-site .menu__link--sublist-caret::after,
+.nlds-site .menu__caret::before {
+  background: var(--site-color-ink);
+  -webkit-mask-image: var(--site-menu-caret-icon);
+  mask-image: var(--site-menu-caret-icon);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 2rem 2rem;
+  mask-size: 2rem 2rem;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* 10: smaller, calmer sidebar type (site tokens in :root).
+   Scoped to .theme-doc-sidebar-menu: ONLY the docs sidebar tree —
+   content links, navbar and the mobile drawer's navbar items keep
+   their regular size. */
+.nlds-site .theme-doc-sidebar-menu .menu__link {
+  font-size: var(--site-menu-font-size);
+  line-height: var(--site-menu-line-height);
+}
+
+/* 2: category labels as mini-headings (navy, bold, a notch larger
+   than the doc links under them) */
+.nlds-site .menu__list-item-collapsible > .menu__link {
+  color: var(--site-color-ink);
+  font-weight: var(--site-font-weight-bold, 700);
+}
+
+.nlds-site .theme-doc-sidebar-menu .menu__list-item-collapsible > .menu__link {
+  font-size: var(--site-menu-category-font-size);
+}
+
+/* Active trail: Docusaurus marks the active doc AND all its ancestor
+   categories with menu__link--active. The bold-navy category rule above
+   would otherwise override the active color, so re-assert it here (the
+   WCAG-checked on-surface green from the bridge). */
+.nlds-site .menu__list-item-collapsible > .menu__link--active {
+  color: var(--ifm-menu-color-active);
+}
+
+/* Accent bar on the whole active trail (active doc + its ancestor
+   categories), in the primary color. Inset box-shadow instead of a
+   border so the text does not shift when the bar appears. Decorative
+   UI indicator: primary green on the tinted active surface is 4.0:1,
+   above the 3:1 WCAG minimum for non-text elements. */
+.nlds-site .theme-doc-sidebar-menu .menu__link--active {
+  box-shadow: inset var(--site-menu-active-bar-width) 0 0 var(--site-color-primary);
+}
+
+/* Air between top-level categories so sections don't melt together
+   (.theme-doc-sidebar-menu sits on the top-level ul itself) */
+.nlds-site ul.theme-doc-sidebar-menu > .menu__list-item:not(:first-child) {
+  margin-top: var(--site-menu-category-spacing);
+}
+
+/* Category/doc cards on generated index pages →
+   conduction-card-wrapper / card-header tokens.
+   `a.card` specificity intentionally beats Docusaurus's DocCard module,
+   which loads later and would otherwise win the hover styles. */
+.nlds-site a.card,
+.nlds-site .card {
+  background-color: var(--conduction-card-wrapper-background-color);
+  color: var(--conduction-card-wrapper-color);
+  border: var(--conduction-card-wrapper-border-width)
+    var(--conduction-card-wrapper-border-style)
+    var(--conduction-card-wrapper-border-color);
+  border-radius: var(--conduction-card-wrapper-border-radius);
+  box-shadow: var(--conduction-card-wrapper-box-shadow);
+  transition: var(--conduction-card-wrapper-transition);
+  padding: var(--conduction-card-wrapper-padding-block-start)
+    var(--conduction-card-wrapper-padding-inline-end)
+    var(--conduction-card-wrapper-padding-block-end)
+    var(--conduction-card-wrapper-padding-inline-start);
+}
+
+.nlds-site a.card:hover {
+  box-shadow: var(--conduction-card-wrapper-hover-box-shadow);
+  border-color: var(--conduction-card-wrapper-hover-border-color);
+  text-decoration: none;
+}
+
+.nlds-site .card h2 {
+  color: var(--conduction-card-header-title-color);
+  text-decoration: var(--conduction-card-header-title-text-decoration);
+}
+
+.nlds-site a.card:hover h2,
+.nlds-site .card:hover h2 {
+  color: var(--conduction-card-header-title-hover-color);
+  text-decoration: var(--conduction-card-header-title-hover-text-decoration);
+  text-underline-offset: var(--conduction-card-header-title-text-underline-offset);
+}
+
+.nlds-site .card p {
+  color: var(--conduction-card-wrapper-color);
+}
+
+/* Prev/next pagination on doc pages: compact cards (site tokens in
+   :root). Hover highlights the card itself — border in the primary
+   color plus a soft shadow — instead of underlining the label, which
+   read as messy. */
+.nlds-site .pagination-nav__link {
+  background-color: var(--conduction-card-wrapper-background-color);
+  border: var(--conduction-card-wrapper-border-width)
+    var(--conduction-card-wrapper-border-style)
+    var(--conduction-card-wrapper-border-color);
+  border-radius: var(--conduction-card-wrapper-border-radius);
+  box-shadow: var(--conduction-card-wrapper-box-shadow);
+  transition: var(--conduction-card-wrapper-transition);
+  padding: var(--site-pagination-padding);
+}
+
+.nlds-site .pagination-nav__link:hover {
+  box-shadow: 0 1px 4px 0 var(--site-color-ink-20t);
+  border-color: var(--site-color-primary);
+}
+
+.nlds-site .pagination-nav__sublabel {
+  color: var(--conduction-card-wrapper-color);
+  font-size: var(--site-pagination-sublabel-font-size);
+}
+
+.nlds-site .pagination-nav__label {
+  color: var(--conduction-card-header-title-color);
+  font-size: var(--site-pagination-label-font-size);
+}
+
+.nlds-site .pagination-nav__link:hover .pagination-nav__label {
+  color: var(--site-color-primary-hover);
+  text-decoration: none;
+}
+
+/* "Bewerk deze pagina": a small utility link in ink, underline only on
+   hover — it should not compete with the content links above it. */
+.nlds-site a.theme-edit-this-page {
+  font-size: var(--site-edit-link-font-size);
+  color: var(--site-color-ink);
+}
+
+.nlds-site a.theme-edit-this-page:hover {
+  color: var(--site-color-primary-hover);
+}
+
+/* Breathing room between the sidebar and the doc content column.
+   Docusaurus hashes docMainContainer, hence the attribute selector
+   (same pattern as skipToContent below). Desktop only. */
+@media (min-width: 997px) {
+  .nlds-site main[class*='docMainContainer'] > .container {
+    padding-left: var(--site-doc-content-gap);
+    padding-top: 1.5rem;
+  }
+
+  /* The breadcrumbs stay close to the sidebar (the container's normal
+     gutter) — only the article content gets the wide gap. */
+  .nlds-site .theme-doc-breadcrumbs {
+    margin-left: calc(var(--ifm-spacing-horizontal) - var(--site-doc-content-gap));
+  }
+}
+
+/* "Skip to main content" → utrecht-skip-link tokens
+   (Docusaurus hashes the class name, hence the attribute selector) */
+.nlds-site a[class*='skipToContent'] {
+  color: var(--utrecht-skip-link-color);
+  background-color: var(--utrecht-skip-link-background-color);
+  padding: var(--utrecht-skip-link-padding-block-start)
+    var(--utrecht-skip-link-padding-inline-end)
+    var(--utrecht-skip-link-padding-block-end)
+    var(--utrecht-skip-link-padding-inline-start);
+  border-radius: var(--utrecht-skip-link-border-radius);
+  font-size: var(--utrecht-skip-link-font-size);
+  font-weight: var(--utrecht-skip-link-font-weight);
+  text-decoration: var(--utrecht-skip-link-text-decoration);
+  z-index: var(--utrecht-skip-link-z-index);
+}
+
+/* Horizontal rules → utrecht-separator tokens */
+.nlds-site hr {
+  background-color: var(--utrecht-separator-color);
+  height: var(--utrecht-separator-block-size);
+  border: 0;
+}
+
+/* Blockquotes → utrecht-blockquote tokens */
+.nlds-site blockquote {
+  color: var(--utrecht-blockquote-content-color);
+  font-size: var(--utrecht-blockquote-content-font-size);
+  border-left-color: var(--site-color-primary);
 }

@@ -1,12 +1,13 @@
 name: Publish docs
 
-# Docs deploy ONLY from the dedicated `documentation` branch — decoupled from main/development
-# so doc edits never trigger releases and code releases never trigger doc builds. No cron.
+# MOTHBALLED (2026-08-17): GitHub is the source of truth; openwoo.app is
+# served from the container image built by .github/workflows/dockerimage.yml
+# on merge to `documentation`. Codeberg only receives one-way mirror pushes
+# from GitHub, which must NOT redeploy the retired Cloudflare Pages project —
+# so the push/pull_request triggers are removed. workflow_dispatch is kept
+# as the emergency lever: it still deploys to the openwoo-docs Pages project
+# as long as that project exists.
 on:
-  push:
-    branches: [documentation]
-  pull_request:
-    branches: [documentation]
   workflow_dispatch:
 
 # Serialize Publish docs runs so that the chained `push` trigger and the

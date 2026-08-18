@@ -1,0 +1,111 @@
+/**
+ * NLDS → Docusaurus token bridge.
+ *
+ * This site is built on Infima (Docusaurus's CSS framework), not on NLDS
+ * components. This file is the single translation point between the two
+ * worlds, in two layers:
+ *
+ *   LAYER 1 — theme adapter: maps the ACTIVE NLDS theme's brand tokens
+ *   (today: --openwoo-* from @conduction/theme's openwoo-design-tokens)
+ *   onto a stable, theme-neutral --site-* vocabulary. This is the ONLY
+ *   section to rewrite when the site switches to another NLDS theme.
+ *
+ *   LAYER 2 — Infima bridge: maps --site-* plus the NLDS-standard
+ *   --utrecht-* component tokens (which every NL Design System theme
+ *   ships) onto Docusaurus's --ifm-* variables. Theme-agnostic: never
+ *   needs editing on a theme swap.
+ *
+ * Swapping to another NLDS theme means exactly three edits:
+ *   1. docusaurus.config.js — point customCss at the new theme's
+ *      design-tokens.css (+ font.css if it has one);
+ *   2. src/theme/Root.js — replace the `openwoo-theme` class with the
+ *      new theme's scope class (keep `nlds-site` as-is);
+ *   3. LAYER 1 below — re-point each --site-* alias at the new theme's
+ *      brand tokens.
+ * All other site CSS (custom.css, *.module.css) only consumes --site-*
+ * and --ifm-* and keeps working unchanged.
+ */
+
+/* ============================================================
+   LAYER 1 — THEME ADAPTER (edit on theme swap)
+   Scoped on the theme's own class because design-tokens.css defines
+   its variables under that scope.
+   ============================================================ */
+.openwoo-theme {
+  /* Brand colors */
+  --site-color-primary: var(--openwoo-color-primary);             /* action green */
+  --site-color-primary-hover: var(--openwoo-color-primary-hover);
+  --site-color-ink: var(--openwoo-color-blue-19);                 /* brand navy: headings, labels */
+  --site-color-ink-12t: var(--openwoo-color-blue-19-12t);         /* navy, 12% alpha */
+  --site-color-ink-20t: var(--openwoo-color-blue-19-20t);         /* navy, 20% alpha */
+  --site-color-surface: var(--openwoo-color-blue-94);             /* tinted surface (ice blue) */
+  --site-color-surface-strong: var(--openwoo-color-blue-86);      /* stronger tint */
+  --site-color-border: var(--openwoo-color-grey-90);
+  --site-color-white: var(--openwoo-color-white-100);
+
+  /* WCAG AA: plain primary green on the tinted surface (ice blue) is
+     4.00:1 — below the 4.5:1 minimum for normal text. Interactive text
+     on tinted surfaces uses the darker hover-green (5.88:1) instead. */
+  --site-color-primary-on-surface: var(--openwoo-color-primary-hover);
+
+  /* Brand typography */
+  --site-font-family: var(--openwoo-typography-sans-serif-font-family);
+  --site-font-size-lg: var(--openwoo-font-size-lg);
+  --site-font-size-xl: var(--openwoo-font-size-xl);
+  --site-font-weight-normal: var(--openwoo-typography-font-weight-normal, 400);
+  --site-font-weight-semibold: var(--openwoo-typography-font-weight-semibold, 600);
+  --site-font-weight-bold: var(--openwoo-typography-font-weight-bold, 700);
+}
+
+/* ============================================================
+   LAYER 2 — INFIMA BRIDGE (theme-agnostic, do not edit on swap)
+   Consumes only --site-* (layer 1) and NLDS-standard --utrecht-*
+   component tokens. Scoped on the neutral .nlds-site class applied
+   in src/theme/Root.js.
+   ============================================================ */
+.nlds-site {
+  /* Primary action color scale */
+  --ifm-color-primary: var(--site-color-primary);
+  --ifm-color-primary-dark: var(--site-color-primary-hover);
+  --ifm-color-primary-darker: var(--site-color-primary-hover);
+  --ifm-color-primary-darkest: var(--site-color-ink);
+  --ifm-color-primary-light: var(--site-color-primary);
+  --ifm-color-primary-lighter: var(--site-color-primary);
+  --ifm-color-primary-lightest: var(--site-color-surface-strong);
+  --ifm-color-secondary: var(--site-color-primary);
+  --ifm-color-background-main: var(--site-color-surface);
+
+  /* Typography */
+  --ifm-font-family-base: var(--site-font-family);
+  --ifm-font-family-monospace: var(--utrecht-code-font-family);
+
+  /* Links (utrecht-link tokens) */
+  --ifm-link-color: var(--utrecht-link-color);
+  --ifm-link-hover-color: var(--utrecht-link-hover-color);
+  --ifm-link-decoration: var(--utrecht-link-text-decoration);
+  --ifm-link-hover-decoration: var(--utrecht-link-hover-text-decoration);
+
+  /* Tables (utrecht-table tokens) */
+  --ifm-table-background: var(--utrecht-table-background-color);
+  --ifm-table-stripe-background: var(--utrecht-table-row-alternate-even-background-color);
+  --ifm-table-head-background: var(--utrecht-table-header-background-color);
+  --ifm-table-head-font-weight: var(--utrecht-table-header-cell-font-weight);
+  --ifm-table-border-color: var(--utrecht-table-row-border-block-end-color);
+  --ifm-table-cell-padding: var(--utrecht-table-cell-padding-block-start);
+
+  /* Inline code (utrecht-code tokens) */
+  --ifm-code-background: var(--utrecht-code-background-color);
+
+  /* Heading scale (utrecht-heading tokens) */
+  --ifm-h1-font-size: var(--utrecht-heading-1-font-size);
+  --ifm-h2-font-size: var(--utrecht-heading-2-font-size);
+  --ifm-h3-font-size: var(--utrecht-heading-3-font-size);
+  --ifm-h4-font-size: var(--utrecht-heading-4-font-size);
+  --ifm-h5-font-size: var(--utrecht-heading-5-font-size);
+
+  --docusaurus-highlighted-code-line-bg: var(--site-color-ink-12t);
+
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--utrecht-document-font-size);
+  color: var(--utrecht-document-color);
+}

@@ -1,0 +1,82 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ *
+ * Only the classes used by src/pages/index.tsx live here; the unused
+ * v1 landing-page styles (vendor grid, remote-README markdown
+ * rendering, feature/example/future sections) were removed together
+ * with the components that consumed them. All colors, fonts and radii
+ * come from tokens — see src/css/nlds-bridge.css for the vocabulary.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroBanner .row {
+  align-items: center;
+}
+
+.heroTitle {
+  font-family: var(--site-font-family);
+  font-size: var(--site-hero-title-font-size);
+  font-weight: var(--site-font-weight-bold);
+  font-optical-sizing: auto;
+  font-style: normal;
+  margin-bottom: 0;
+}
+
+.heroSubtitle {
+  font-family: var(--site-font-family);
+  font-size: var(--site-font-size-lg);
+  font-weight: var(--site-font-weight-medium);
+  font-optical-sizing: auto;
+  font-style: italic;
+  margin-bottom: 0;
+}
+
+.heroDescription {
+  font-family: var(--site-font-family);
+  font-size: var(--utrecht-document-font-size);
+  font-weight: var(--site-font-weight-normal);
+  font-optical-sizing: auto;
+  font-style: normal;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.heroImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--site-radius-md);
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+
+  .heroImage {
+    margin-top: 2rem;
+  }
+}
+
+.sectionTitle {
+  font-family: var(--site-font-family);
+  font-size: var(--site-section-title-font-size);
+  font-weight: var(--site-font-weight-bold);
+  font-optical-sizing: auto;
+  font-style: normal;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.aboutSection {
+  padding: 3rem 24px;
+  background-color: var(--ifm-color-background-main);
+  /* Keep the tinted block visually separate from the footer below it:
+     the page background shows through as a clear gap. */
+  margin-bottom: 4rem;
+}
