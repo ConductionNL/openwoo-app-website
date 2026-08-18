@@ -23,11 +23,6 @@ Als organisatie dient u te beschikken over minimaal één publicatieplatform
 | TYPO3 themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             | Onbekend | Onbekend     |                 |
 | TYPO3 sub-themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             |Onbekend | Onbekend     |                 |
 
-
-> **notice**
-> Weet u niet welk frontend framework, pagina of website uw organisatie op dit moment gebruikt? Kijk dan eens op [Digimonitor](https://www.digimonitor.nl/cms-en/gemeenten/). Er zijn mogelijkheden voor zowel integratie, 
-> als losstaande pagina's.
-
 ## Motorblok
 
 Het motorblok bestaat uit twee componenten [OpenRegister](https://openregisters.app/) en [OpenConnector](https://openconnector.app/). Voor het overzicht en kostenbeheersing worden deze componenten in het jaar 2024 als één integratie aangeboden.
