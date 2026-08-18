@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # FAQ
 
-Dit zijn de algemene veelgestelde vragen over het gebruik en de configuratie van het OpenWoo platform. Mocht u een vraag hebben die hier niet beantwoord wordt, of wilt u een vraag toegevoegd zien aan deze lijst, dan nodigen we u uit om een issue aan te maken op onze [Codeberg-pagina](https://codeberg.org/Conduction/woo-website-template-apiv2/issues).
+Dit zijn de algemene veelgestelde vragen over het gebruik en de configuratie van het OpenWoo platform. 
 
 **Q. Wanneer kan ik gebruik maken van OpenWoo.app?**
 
@@ -12,7 +12,7 @@ A. Als je bijvoorbeeld een user interface hebt of wilt bouwen om publicaties op 
 
 **Q. Heb ik WordPress nodig om de OpenWoo.app te gebruiken?**
 
-A. Nee, het enige wat je nodig hebt, is een bron. Dit zal veelal je zaaksysteem zijn, maar zou zelfs een Excel-lijst kunnen zijn.
+A. Nee, het enige wat je nodig hebt, is een bron. Dit zal veelal je zaaksysteem zijn, maar zou zelfs via onze RegieTool handmatig gedaan kunnen worden.
 
 **Q. Heb ik Haven nodig?**
 
@@ -24,11 +24,7 @@ A. Nee, de website kan rechtstreeks vanaf GitHub worden gehost. Het is ook mogel
 
 **Q. Heb ik een ZGW-ondersteundend zaaksysteem nodig?**
 
-A. Het is wel mogelijk om de OpenWoo.app te koppelen aan een zaaksysteem zonder ZGW. Het kan dus, maar de StuF en ZDS-koppelingen zijn nog niet beproefd in de praktijk.
-
-**Q. Wat als ik een bron wilt toevoegen die nog niet wordt ondersteund?**
-
-A. Voor nieuwe bronnen, of gewenste features kunt u een issue aanmaken op onze [Codeberg-pagina](https://codeberg.org/Conduction/woo-website-template-apiv2/issues). Deze worden dan gereviewd door de stuurgroep en indien mogelijk toegevoegd aan de roadmap. Voor meer informatie over de community, zie de [OpenWoo Academy](https://www.conduction.nl/academy/?app=openwoo).
+A. Het is wel mogelijk om de OpenWoo.app te koppelen aan een zaaksysteem zonder ZGW. Het kan dus, maar dit zal maatwerk zijn.
 
 **Q. Kan ik worden ontzorgd?**
 
