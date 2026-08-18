@@ -6,18 +6,7 @@ sidebar_position: 2
 
 ## Service Level Agreement OpenWoo.app - Productieomgevingen
 
-**Contractnummer:** `{maand-klantnummer-volgnummer}`  
-**Datum:** `{datum}`  
 **Betreft:** `SLA OpenWoo.app`
-
-## Versiebeheer
-
-| Wie | Datum | Wijziging |
-|-----|-------|-----------|
-| Remco Damhuis | 22-11-2024 | Initiële opzet |
-| Matthias Oliveiro | 29-11-2024 | Feedback gegeven |
-| Persoon | | |
-| Persoon | | |
 
 ## Inhoudsopgave
 
@@ -35,11 +24,11 @@ sidebar_position: 2
 
 ## Intro
 
-Deze Service Level Agreement (SLA) omvat de afspraken tussen de organisatie die OpenWoo.app gebruikt en Conduction die OpenWoo.app als SaaS-oplossing levert.
+Deze Service Level Agreement (SLA) omvat de afspraken tussen de organisatie die OpenWoo.app gebruikt en Conduction die OpenWoo.app als SaaS-oplossing levert. Mocht je een andere partij hebben waarmee het contract is afgesloten dan gelden de SLA afspraken met die partij en is de ingang voor het melden zoals die partij dit beschrijft. 
+SaaS is de afkorting van Software as a Service. Ofwel: het aanbieden en gebruiken van software via internet in de vorm van een dienst. Klanten betalen de software in een abonnementsvorm naar gebruik in plaats van het eenmalig aankopen van software. Deze SLA beschrijft de niveaus van productbeschikbaarheid en -ondersteuning die verwacht kan worden  van Conduction voor de duur van de overeenkomst. 
 
-SaaS is de afkorting van Software as a Service. Ofwel: het aanbieden en gebruiken van software via internet in de vorm van een dienst. Klanten betalen de software in een abonnementsvorm naar gebruik in plaats van het eenmalig aankopen van software. Deze SLA beschrijft de niveaus van productbeschikbaarheid en -ondersteuning die verwacht kan worden van Conduction voor de duur van de overeenkomst.
+Als open-source softwareleverancier biedt Conduction B.V. ondersteuning op de hosting van de code. Let op: wij bieden geen derdelijns codeonderhoud en beheer, oftewel ondersteuning op de code van derden, aan.
 
-Als open-source softwareleverancier biedt Conduction B.V. ondersteuning op de hosting en beheer van de code. Let op: wij bieden geen derdelijns codeonderhoud en beheer, oftewel ondersteuning op de code van derden, aan.
 
 ## Definities
 
@@ -57,6 +46,7 @@ Binnen deze Service Level Agreement (SLA) worden de onderstaande termen gebruikt
   - Verminderde prestaties
   - Factoren waarover Conduction geen controle heeft, waaronder overmachtsituaties
   - Internet Storingen
+  - Storingen bij de hosting leverancier
   - Handelingen of nalatigheid van de Klant en zijn Gebruikers
   - Handhaving van overheidsvoorschriften
 
@@ -116,7 +106,7 @@ De beschikbare capaciteit per organisatie bedraagt:
 
 ## Stappen voor het melden incidenten
 
-Als er een probleem optreedt, neem dan tijdens kantoortijden contact op met onze helpdesk via het aangewezen Slack channel, [support@conduction.nl](mailto:support@conduction.nl) of 085 303 6840. We streven ernaar om binnen 2 uur te reageren op het probleem en wordt er een ticket aangewezen. Indien er buiten kantoortijden een melding plaatsvindt, wordt deze de eerstvolgende dag om 09:00 meegenomen.
+Als er een probleem optreedt, neem dan tijdens kantoortijden contact op met onze helpdesk via [support@conduction.nl](mailto:support@conduction.nl) of 085 303 6840. We streven ernaar om binnen 2 uur te reageren op het probleem en wordt er een ticket aangewezen. Indien er buiten kantoortijden een melding plaatsvindt, wordt deze de eerstvolgende dag om 09:00 meegenomen.
 
 ## Reactie- en oplostijden
 
@@ -139,7 +129,7 @@ Een klant kan bij het registreren van een melding een prioriteit meegeven. Deze 
 **Uitzonderingen**
 
 - **Updates aan het platform:**  
-  Updates zullen altijd buiten kantooruren worden uitgevoerd. Incidenten die zich voordoen tijdens deze updates, vallen niet onder de definitie van incident zoals vermeld in deze SLA.
+  Updates zullen zoveel mogelijk buiten kantooruren worden uitgevoerd. Incidenten die zich voordoen tijdens deze updates, vallen niet onder de definitie van incident zoals vermeld in deze SLA.
 
 - **Niet-verwijtbare incidenten:**  
   Incidenten bij de klant die veroorzaakt worden buiten de schuld van Conduction vallen niet onder de definitie van incident zoals vermeld in deze SLA. Deze incidenten worden op basis van kosten en tijdsbestek hersteld.
@@ -157,4 +147,4 @@ Binnen deze SLA zal Conduction de klant voorzien van nieuwe versies, releases en
 
 ## Periodieke Evaluatie
 
-Tijdens de maandelijkse community meeting OpenWoo.app zal er een vertegenwoordiger van Conduction aanwezig zijn. In deze meeting wordt het product geëvalueerd en de richting, roadmap en keuzes toegelicht.
+Tijdens de maandelijkse community meeting OpenWoo.app zal er een vertegenwoordiger van Conduction aanwezig zijn. In deze meeting wordt het product en de wet besproken. Hier wordt tevens product evaluatie, voorstellen voor doorontwikkeling en de SLA besproken en vastgesteld. 
