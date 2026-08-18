@@ -45,7 +45,7 @@ U kunt meerdere bronnen koppelen, sommige van deze bronnen vragen daarvoor zelf 
 | SimSite          | [SIM Groep](https://www.simgroep.nl/)                    | Onbekend | Onbekend     |                 |
 | BCT Corsa        | [Corsa](https://corsa.nl/)                               | Onbekend | Onbekend     |                 |
 | Circle Djuma     | [Djuma](https://www.vismacircle.nl/djuma)                | Onbekend | Onbekend     |                 |
-| Notubiz          | [Yard](https://www.notubiz.nl/)                          | Onbekend | Onbekend     |                 |
+| Notubiz          | [Notubiz](https://www.notubiz.nl/)                          | Onbekend | Onbekend     |                 |
 | RX.Enterprise    | [Roxit](https://rxenterprise.nl/)                        | Onbekend | Onbekend     |                 |
 | Atos e-Suite     | [ATOS](https://atos.net/nl/nederland/e-suite)            | Onbekend | Onbekend     |                 |
 
@@ -66,7 +66,7 @@ Buiten het leveren van componenten om kan het ook zijn dat er nog overige dienst
 
 | Leverancier                                    | Contactpersoon                                                                       |
 |------------------------------------------------|--------------------------------------------------------------------------------------|
-| [Conduction](https://conduction.nl/)           | [Ruben van der Linde (info@conduction.nl)](mailto:info@conduction.nl)                |
+| [Conduction](https://conduction.nl/)           | [Remco Damhuis (info@conduction.nl)](mailto:info@conduction.nl)                |
 | [SIMgroep](https://www.simgroep.nl/)          | [Twan Meijerink(t.meijerink@simgroep.nl)](mailto:t.meijerink@simgroep.nl)                                   |
 | [OpenGemeenten](https://www.opengemeenten.nl/) | [Jan-Thijs Oosterhoudt (hallo@opengemeenten.nl)](mailto:hallo@opengemeenten.nl) |
 
