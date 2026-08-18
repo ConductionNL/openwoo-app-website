@@ -1,0 +1,107 @@
+# Publish docs — GitHub Actions port of the Codeberg/Forgejo flow
+# (.forgejo/workflows/documentation.yml + the shared
+# Conduction/.github documentation-build/-deploy reusables, now
+# mothballed): build the static Docusaurus site and deploy it to
+# Cloudflare Workers Static Assets with wrangler. Cloudflare serves the
+# files from its edge — no origin, no container.
+#
+# Deploy contract: merging to `documentation` replaces the content of
+# the Cloudflare Worker `openwoo-docs` — the SAME worker the Codeberg
+# flow deployed to, so the first successful run supersedes the
+# Codeberg-built site immediately (openwoo.conduction.nl today;
+# openwoo.app once that custom domain is attached to the worker).
+#
+# Required repo secrets (same values the Codeberg org used):
+#   CF_API_TOKEN   — Cloudflare API token with Workers Scripts:Edit
+#   CF_ACCOUNT_ID  — Cloudflare account id
+# Until they are set, PR builds still work; only the deploy step fails
+# (re-runnable via workflow_dispatch after adding the secrets).
+#
+# Triggers:
+#   pull_request → documentation   build check only, never deploys
+#   push documentation             build + deploy
+#   workflow_dispatch              manual (re)deploy of any ref
+#
+# The `github.server_url` guard keeps this a no-op on Forgejo/Codeberg,
+# which also executes files under .github/workflows — essential here
+# because the Codeberg org holds the same CF secrets and a mirror push
+# must never race a second deploy against the same worker.
+#
+# Actions pinned on commit SHA and npm packages exact-pinned
+# (supply-chain policy).
+
+name: Publish docs
+
+on:
+  pull_request:
+    branches: [documentation]
+  push:
+    branches: [documentation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize deploys against the worker; PR builds may be superseded.
+concurrency:
+  group: openwoo-docs-publish
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-deploy:
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20
+          cache: npm
+
+      # --ignore-scripts because @conduction/theme's postinstall rebuilds
+      # ALL its token sets and needs a rimraf it only declares as a
+      # devDependency (never present in a clean install). Build ONLY the
+      # openwoo token set explicitly with the tools the theme DOES
+      # install as real dependencies (sass, style-dictionary), skipping
+      # the rimraf clean step (dist/ cannot pre-exist in a fresh install).
+      - name: Install (lockfile-driven)
+        run: |
+          npm ci --ignore-scripts
+          cd node_modules/@conduction/theme/other/openwoo-design-tokens
+          "$GITHUB_WORKSPACE/node_modules/.bin/sass" --no-source-map src/:dist/
+          "$GITHUB_WORKSPACE/node_modules/.bin/style-dictionary" build --config ./style-dictionary.config.js
+          test -f dist/design-tokens.css
+          test -f dist/font.css
+
+      - name: Build site
+        run: |
+          npm run build
+          test -f build/index.html
+          test -f build/docs/reference/faq/index.html
+
+      - name: Generate wrangler.toml
+        if: github.event_name != 'pull_request'
+        run: |
+          cat > wrangler.toml <<EOF
+          name = "openwoo-docs"
+          compatibility_date = "2026-05-30"
+
+          [assets]
+          directory = "./build"
+          EOF
+          cat wrangler.toml
+
+      - name: Deploy to Cloudflare Workers (Static Assets)
+        if: github.event_name != 'pull_request'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: npx -y wrangler@4.123.0 deploy
+
+      - name: Deployment summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Deployed openwoo-docs (${GITHUB_SHA:0:7})" >> "$GITHUB_STEP_SUMMARY"

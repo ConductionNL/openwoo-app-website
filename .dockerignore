@@ -1,9 +1,0 @@
-node_modules
-build
-.docusaurus
-.git
-.github
-.forgejo
-.dockerignore
-Dockerfile
-README.md
