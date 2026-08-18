@@ -16,12 +16,12 @@ Als organisatie dient u te beschikken over minimaal één publicatieplatform
 
 | Component                     | Leverancier(s)                                             | Eenmalig | Maandelijks | Meer informatie |
 |-------------------------------|------------------------------------------------------------|-------------|-------------|-------------|
-| [Losse React pagina](https://conduction.openwoo.app)            | [Conduction](https://conduction.nl/)                       | € 1750,- | € 250.-     |                 |
+| [Losse React pagina](https://open.openwoo.app)            | [Conduction](https://conduction.nl/)                       | € 2100,- | € 250.-     |                 |
 | Integratie in Open Webconcept | [Yard](https://www.yard.nl/) of [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
-| SIMsite                      | [Shift2](https://www.shift2.nl/))                       | Onbekend | Onbekend     |                 |
-| Drupal Site                   | "??"                                                       | Onbekend | Onbekend     |                 |
-| TYPO3 themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             | € 4000.- | € 250.-     |                 |
-| TYPO3 sub-themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             | € 1200.- | € 250.-     |                 |
+| SIMsite                      | [Shift2](https://www.shift2.nl/)                       | Onbekend | Onbekend     |                 |
+| Drupal Site                   | [IO digital](https://www.iodigital.com/nl/landing/woo-solution))                                                      | Onbekend | Onbekend     |                 |
+| TYPO3 themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             | Onbekend | Onbekend     |                 |
+| TYPO3 sub-themasite              | [OpenGemeenten](https://www.opengemeenten.nl/oplossingen/website-en-koppeling-voor-de-wet-open-overheid)             |Onbekend | Onbekend     |                 |
 
 
 > **notice**
