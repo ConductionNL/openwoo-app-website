@@ -4,7 +4,7 @@ slug: /
 
 # OpenWoo — documentatie
 
-OpenWoo is een open-source publicatieplatform voor alle overheidsbronnen, gebouwd op de [Conduction-apps voor Nextcloud](https://www.conduction.nl/apps): OpenRegister, OpenCatalogi en OpenConnector, met aanvullende Woo-specifieke services. Twaalf gemeenten en samenwerkings­verbanden draaien OpenWoo nu in productie.
+OpenWoo is een open-source publicatieplatform voor alle overheidsbronnen, gebouwd op de [Conduction-apps voor Nextcloud](https://www.conduction.nl/apps): OpenRegister, OpenCatalogi en OpenConnector, met aanvullende Woo-specifieke services. 48 overheidsklanten gebruiken OpenWoo.app nu in productie.
 
 Deze site bevat de technische documentatie. Het commerciële verhaal en de actuele lijst van gemeenten in productie staan op [conduction.nl/solutions/openwoo](https://www.conduction.nl/solutions/openwoo). Tutorials en opnames van de maandelijkse community-meetings zijn beschikbaar via [conduction.nl/academy?app=openwoo](https://www.conduction.nl/academy/?app=openwoo).
 
@@ -24,7 +24,6 @@ Begin bij [use cases](./category/use-cases/) als je een concreet scenario voor o
 
 ## Hulp nodig?
 
-- **Slack** — [#openwoo op samenorganiseren.slack.com](https://samenorganiseren.slack.com/archives/C067Q3UE9F0). Vragen tussen meetings door.
 - **Maandelijkse community-meeting** — opnames + agenda op [academy](https://www.conduction.nl/academy/?app=openwoo).
 - **Partner** — de [zeven deelnemende leveranciers](https://www.conduction.nl/solutions/openwoo#partners) leveren OpenWoo turn-key.
 - **Direct contact** — [info@conduction.nl](mailto:info@conduction.nl).
