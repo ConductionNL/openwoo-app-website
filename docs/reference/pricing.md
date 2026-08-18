@@ -34,8 +34,8 @@ Het motorblok bestaat uit twee componenten [OpenRegister](https://openregisters.
 
 | Component | Leverancier                                                          | Eenmalig | Maandelijks | Meer informatie |
 |-----------|----------------------------------------------------------------------|----------|-------------|-------------|
-| OpenConnector | [Conduction](https://conduction.nl/) | € 3000,-  | € 250.-      |                 |
-| OpenRegister | [Conduction](https://conduction.nl/) |  | € 250.-      |                 |
+| OpenConnector | [Conduction](https://conduction.nl/) | € 1750,-  | € 250.-      |                 |
+| OpenRegister | [Conduction](https://conduction.nl/) |  € 1750,-   | € 250.-      |                 |
 
 ## Bronnen
 
@@ -43,18 +43,17 @@ U kunt meerdere bronnen koppelen, sommige van deze bronnen vragen daarvoor zelf 
 
 | Component        | Leveranciers(s)                                          | Eenmalig | Maandelijks | Meer informatie |
 |------------------|----------------------------------------------------------|----------|-------------|-------------|
-| Zaaksysteem.nl   | [Xxllnc](https://xxllnc.nl/)                             |  € 3000,-  | Onbekend    |                 |
+| xxllnc Zaken     | [Xxllnc](https://xxllnc.nl/)                             | Onbekend | Onbekend    |                 |
 | RX Fundament     | [Roxit](https://www.roxit.nl/)                           | Onbekend | Onbekend     |                 |
 | Decos JOIN       | [Decos](https://www.decos.com/nl)                        | Onbekend | Onbekend     |                 |
 | OpenZaak         | [Maykin Media](https://www.maykinmedia.nl/nl/)           | Onbekend | Onbekend     |                 |
 | SimSite          | [SIM Groep](https://www.simgroep.nl/)                    | Onbekend | Onbekend     |                 |
-| Open Verzoeken   | [Yard](https://www.yard.nl/), [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
-| Open Convenanten | [Yard](https://www.yard.nl/), [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
-| Open Klachten    | [Yard](https://www.yard.nl/), [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
-| Open PUB         | [Yard](https://www.yard.nl/), [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
-| Open PDC         | [Yard](https://www.yard.nl/), [Acato](https://acato.nl/) | Onbekend | Onbekend     |                 |
+| BCT Corsa        | [Corsa](https://corsa.nl/)                               | Onbekend | Onbekend     |                 |
+| Circle Djuma     | [Djuma](https://www.vismacircle.nl/djuma)                | Onbekend | Onbekend     |                 |
+| Notubiz          | [Yard](https://www.notubiz.nl/)                          | Onbekend | Onbekend     |                 |
+| RX.Enterprise    | [Roxit](https://rxenterprise.nl/)                        | Onbekend | Onbekend     |                 |
+| Atos e-Suite     | [ATOS](https://atos.net/nl/nederland/e-suite)            | Onbekend | Onbekend     |                 |
 
-Mocht u nog niet beschikken over xxllnc Zaken (zaaksysteem.nl) maar wel behoefte hebben aan een manier om de documenten conform een ingericht proces te gaan publiceren en achteraf correct te kunnen archiveren? Neem dan contact op via: [sales.zaakgericht@xxllnc.nl](mailto:sales.zaakgericht@xxllnc.nl). Wij gaan graag in gesprek over de mogelijkheden hiervoor!
 
 ## Overige
 
@@ -62,8 +61,8 @@ Buiten het leveren van componenten om kan het ook zijn dat er nog overige dienst
 
 | Dienst                                         | Leverancier(s)  | Eenmalig | Maandelijks                |Meer informatie |
 |------------------------------------------------|----------------------|----------|----------------------------|-------------|
-| NL Design Tokens (indien nog niet beschikbaar) | [Conduction](https://conduction.nl/) | € 2000,- | € 250,- (SLA niet verplicht) |                 |
-| Klanten van xxllnc Zaken (zaaksysteem.nl) kunnen voor het inrichten van het modelzaaktype t.b.v. WOO-publicatie en de configuratie van de integratie gebruikmaken van een Consultant. | [Conduction](https://conduction.nl/) | € 3000,- | n.v.t                      |                 |
+| NL Design Tokens (indien nog niet beschikbaar) | [Conduction](https://conduction.nl/) | € 3000,- | € 250,- (SLA niet verplicht) |                 |
+
 
 > **Opmerking**
 > NL Design tokens zijn een randvoorwaarde (vereiste) voor het gebruik van de React frontend. Als uw organisatie hier reeds over beschikt, hoeven deze uiteraard niet opnieuw te worden gemaakt. Wel is het mogelijk dat uw huidige token set moet worden uitgebreid; in dat geval volgt een maatwerkofferte. Let op! De prijsstelling is gebaseerd op een aangeleverde en volledige huisstijlgids. Indien deze niet beschikbaar is, moeten de tokens worden gereverse-engineerd vanaf uw website. Daar zijn extra kosten aan verbonden.
@@ -73,7 +72,6 @@ Buiten het leveren van componenten om kan het ook zijn dat er nog overige dienst
 | Leverancier                                    | Contactpersoon                                                                       |
 |------------------------------------------------|--------------------------------------------------------------------------------------|
 | [Conduction](https://conduction.nl/)           | [Ruben van der Linde (info@conduction.nl)](mailto:info@conduction.nl)                |
-| [xxllnc](https://xxllnc.nl/)                   | [Arthur van Ulden (sales.zaakgericht@xxllnc.nl)](mailto:sales.zaakgericht@xxllnc.nl) |
 | [SIMgroep](https://www.simgroep.nl/)          | [Twan Meijerink(t.meijerink@simgroep.nl)](mailto:t.meijerink@simgroep.nl)                                   |
 | [OpenGemeenten](https://www.opengemeenten.nl/) | [Jan-Thijs Oosterhoudt (hallo@opengemeenten.nl)](mailto:hallo@opengemeenten.nl) |
 
