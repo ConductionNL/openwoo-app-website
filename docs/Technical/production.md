@@ -18,10 +18,9 @@ Als u de OpenWoo.app zelfstandig installeert zult u de [acties voor leverancier]
 Om de vormgeving van OpenWoo.app aan te passen aan uw organisatie, heeft uw leverancier of u de volgende informatie nodig:
 
 - Logo in vector formaat (e.g. `.svg`, `.eps` of `.ai`)
+- Jumbotron banner 1200x375 (of in die verhouding)
 - Huisstijlhandboek of website die als voorbeeld gebruikt kan worden
 - Contactgegevens (naam, e-mailadres, telefoonnummer en functie) van een medewerker die eventuele vragen over de huisstijl kan beantwoorden.
-
-Om te beoordelen of uw organisatie NL Design tokens nodig heeft of moet aanpassen kunt u het [landelijke overzicht van NL Design tokens](https://github.com/nl-design-system/themes/tree/main/proprietary) raadplegen.
 
 ## Benodigde informatie voor de inrichting
 
@@ -38,11 +37,8 @@ Voor de inrichting van OpenWoo.app heeft uw leverancier of u de volgende informa
   - Overige website waar u naar wilt verwijzen
 - Op welk (sub) domein moet de pagina worden getoond? b.v. open.`uw organisatienaam`.nl
 - Moet er gebruik worden gemaakt van een custom certificaat? Bijvoorbeeld PKIo
-- Wordt er gekoppeld op een of meerdere zaaksystemen? Zo ja, welke
-- Wordt er gekoppeld op een of meerdere raadsinformatiesystemen? Zo ja, welke
-- Wordt er gekoppeld op CMS van de huidige website? Zo ja, welke
-- Is er een wens voor het koppelen op overige systemen? (zoals geo, DROP-publicaties of PowerBrowser)
-- E-mailadres waar eventuele foutrapportages naar toe kunnen worden gestuurd
+- Wordt er gekoppeld op een of meerdere bronnen? Zo ja, welke
+- Zorg voor de juiste inrichting van de bronnen.
 
 ## Acties voor uitvragende organisatie
 
@@ -52,17 +48,12 @@ Om het neerzetten van een omgeving soepel te laten verlopen, zijn er verschillen
 - [ ] Verzamelen en aanleveren benodigde informatie voor de inrichting
 - [ ] Aanleveren voor beoogde (sub)domeinnaam
 - [ ] Aanvragen en aanleveren bij leverancier van certificaat (indien custom zoals PKIo)
-- [ ] Verzamelen en aanleveren beoogde zaaksystemen, denk hierbij aan:
+- [ ] Verzamelen en aanleveren beoogde bronnen, denk hierbij aan:
   - [ ] Endpoint (waar kan de OpenWoo.app bevragen?).
   - [ ] Credentials (hoe kan de OpenWoo.app zich authenticeren?).
-  - [ ] Protocol (welk protocol moet er worden gebruik e.g. xxllnc search, ZGW, StUF, ZDS etc.).
-- [ ] Verzamelen en aanleveren beoogde raadsinformatie denk hierbij aan:
-  - [ ] Endpoint (waar kan de OpenWoo.app bevragen?).
-  - [ ] Credentials (hoe kan de OpenWoo.app zich authenticeren?).
-- [ ] Verzamelen en aanleveren gegevens van websitekoppeling indien gewenst.
-- [ ] DPIA opstellen.
+  - [ ] Protocol.
 - [ ] Inregelen DNS voor (sub)domein.
-- [ ] Inrichten zaaksysteem (zie configuratie).
+- [ ] Inrichten bron (zie configuratie).
 
 ## Acties voor leverancier
 
@@ -71,20 +62,15 @@ Aan de hand van de acties voor de opdrachtgever kan uw leverancier vervolgens aa
 - [ ] Uitbreiden of aanmaken NL Design tokens aan de hand van de informatie voor de vormgeving.
 - [ ] Inrichten van de app aan de hand van de informatie voor de inrichting.
 - [ ] Inrichten van koppelingen aan de hand van aangeleverde informatie.
-- [ ] Globaal doortesten aan de hand van testscenario's (voor zover mogelijk zonder toegang tot zaaksysteem).
+- [ ] Globaal doortesten aan de hand van testscenario's (voor zover mogelijk zonder toegang tot bron).
 - [ ] Aan uitvrager laten weten dat er een acceptatie kan plaatsvinden.
-
-Wat doet de leverancier niet
-
-- Aanleveren WCAG-rapportage (deze staat [hier](/img/reports/WCAG-Raportage.pdf))
-- Aanleveren PEN-test (deze staat [hier](/img/reports/PENTEST-Raportage.pdf))
 
 ## Naar productie (Acceptatie)
 
 Als uw leverancier alles heeft klaar gezet is het tijd voor acceptatie en livegang
 
-- [ ] Doorlopen van de [Acceptatietests](./test-scenarios.md)
-- [ ] Website laten controleren en reviewen door communicatieafdeling
+- [ ] Doorlopen van de Acceptatietests.
+- [ ] Website laten controleren en reviewen door communicatieafdeling.
 - [ ] Indien alles correct, aan leverancier laten weten dat er geaccepteerd is.
 - [ ] Op eigen website verwijzen naar de OpenWoo.app (deeplinks)
 - [ ] Vier de livegang met een feestje
