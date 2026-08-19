@@ -1,5 +1,9 @@
 # Architectuur — overzicht
 
+## Schematische weergave OpenWoo
+
+![Schematische weergave OpenWoo](../../img/SChematische_weergave_openwoo.png)
+
 ## Doel van OpenWoo
 
 OpenWoo heeft als doel om een ecosysteem van samenwerkende componenten te bieden dat voorziet in de volgende functionaliteit:
