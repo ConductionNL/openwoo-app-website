@@ -2,9 +2,7 @@
 sidebar_position: 2
 ---
 
-# Conduction
-
-## Service Level Agreement OpenWoo.app - Productieomgevingen
+# Service Level Agreement OpenWoo.app - Productieomgevingen
 
 **Betreft:** `SLA OpenWoo.app`
 
