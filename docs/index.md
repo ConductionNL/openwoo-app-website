@@ -1,23 +1,8 @@
----
-slug: /
----
-
 # OpenWoo — documentatie
 
 OpenWoo is een open-source publicatieplatform voor alle overheidsbronnen, gebouwd op de [Conduction-apps voor Nextcloud](https://www.conduction.nl/apps): OpenRegister, OpenCatalogi en OpenConnector, met aanvullende Woo-specifieke services. 48 overheidsklanten gebruiken OpenWoo.app nu in productie.
 
 ## OpenWoo — Community
-
----
-slug: openwoo-community-meetings
-title: OpenWoo community — monthly meetings
-contentType: webinar
-authors: [conduction]
-summary: Recordings of every public OpenWoo community meeting
-tags: [OpenWoo, Woo, Community, Video, Common Ground]
-apps: [openwoo, opencatalogi, openregister, openconnector]
-durationMinutes: 60
----
 
 De OpenWoo-community komt elke tweede woensdag (van 10:00 tot 11:00) van de maand samen. Leveranciers en klanten delen voortgang, ervaringen en veranderingen in de Wet of op landelijk niveau (KOOP). Hieronder staan alle opgenomen sessies van dit jaar.
 
