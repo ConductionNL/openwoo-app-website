@@ -11,7 +11,8 @@ import styles from './index.module.css';
 /**
  * OpenWoo landing page — v1 jumbotron layout on the v2 docs content.
  * Hero: title/tagline/description left, brand illustration right.
- * Below: three entry cards into the docs (Product, Techniek, API).
+ * Below: three entry cards into the docs (Productdocumentatie,
+ * Configuratie, Service level agreement).
  */
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
@@ -83,22 +84,22 @@ function GettingStarted() {
         </Heading>
         <div className="row">
           <EntryCard
-            title="Product"
-            description="Wat OpenWoo is en wat het je organisatie oplevert: kosten, privacy, beveiliging, toegankelijkheid, roadmap en veelgestelde vragen."
-            to="/docs/category/reference/"
+            title="Productdocumentatie"
+            description="Wat OpenWoo is en wat het je organisatie oplevert, alle informatie vind je hier."
+            to="/docs/"
             linkLabel="Naar de productdocumentatie"
           />
           <EntryCard
-            title="Techniek"
-            description="Hoe OpenWoo onder de motorkap in elkaar zit en hoe je het draait: architectuur, installatie, configuratie en de weg naar productie."
-            to="/docs/category/architectuur/"
-            linkLabel="Naar de technische documentatie"
+            title="Configuratie"
+            description="Hoe OpenWoo onder de motorkap in elkaar zit en welke informatie geconfigureerd kan worden."
+            to="/docs/Technical/configuration/"
+            linkLabel="Naar de configuratie"
           />
           <EntryCard
-            title="API"
-            description="Het API-koppelvlak voor leveranciers en integrators: endpoints, schema's en de OpenAPI-specificaties van het platform."
-            to="/docs/api-overview"
-            linkLabel="Naar de API-documentatie"
+            title="Service level agreement"
+            description="Service Level Agreement (SLA) omvat de afspraken tussen de organisatie die OpenWoo.app gebruikt en Conduction die OpenWoo.app als SaaS-oplossing levert."
+            to="/docs/reference/sla/"
+            linkLabel="Naar de SLA"
           />
         </div>
       </div>
