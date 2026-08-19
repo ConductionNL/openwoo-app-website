@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Service Level Agreement OpenWoo.app - Productieomgevingen
+# Service Level Agreement
 
 **Betreft:** `SLA OpenWoo.app`
 
