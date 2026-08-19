@@ -13,5 +13,5 @@ Een van de krachten van OpenWoo is het ondersteunen en (automatisch) publiceren 
 | BCT Corsa        | Custom API  | Nee         | BCT                |
 | Circle Djuma     | ZGW         | Nee         | Visma Circle       |
 | RX.Enterprise    | Custom API  | Nee         | Roxit              |
-| Atos e-Suite     | Custom API  | Nee         | Dimpact            |
+| Atos e-Suite     | ZGW         | Nee         | Dimpact            |
 
