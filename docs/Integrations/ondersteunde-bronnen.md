@@ -15,5 +15,3 @@ Een van de krachten van OpenWoo is het ondersteunen en (automatisch) publiceren 
 | RX.Enterprise    | Custom API  | Nee         | Roxit              |
 | Atos e-Suite     | Custom API  | Nee         | Dimpact            |
 
-
-Zie [bron koppelen](./bron-koppelen.md) als je een eigen bron wilt aansluiten.
