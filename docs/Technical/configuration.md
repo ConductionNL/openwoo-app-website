@@ -15,7 +15,7 @@ Om te zorgen dat de OpenWoo-website goed werkt, is het belangrijk dat de onderli
 
 ## Gebruik variabelen
 
-Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige (een definitie van het Woo-publicatieobject vind je onder [Architectuur](../Architecture/datamodel.md)).
+Centraal in de Open WOO Website staat het publicatieobject, het publicatieobject vertegenwoordigt een Woo-publicatie, zijnde een verzoek, besluit, convenant of overige.
 
 **Zoekbalk**
 
@@ -38,15 +38,14 @@ In de overzichtspagina worden de properties op de volgende plekken weergegeven.
 
 ## Algemene inrichting
 
-Voor het kunnen publiceren van zaken vanuit het zaaksysteem is het belangrijk dat het zaaksysteem beschikt over de juiste inrichting. Indien er via de [OpenWoo service](https://openwoo.openservices.online/) zaken worden opgehaald, gelden daarvoor de volgende spelregels.
+Voor het kunnen publiceren van zaken vanuit het zaaksysteem is het belangrijk dat het zaaksysteem beschikt over de juiste inrichting. 
 
 - OpenWoo.app kijkt alleen naar eigenschappen die vooraf worden gegaan door `woo_`
 - Er zijn algemene eigenschappen (geldend voor alle categorieën) en specifieke eigenschappen (alleen geldend voor bepaalde categorieën)
 - Voor de gedefinieerde categorieën volgen we de [informatiecategorieen-en-werkdefinities](https://www.open-overheid.nl/onderwerpen/actieve-openbaarmaking/informatiecategorieen-en-werkdefinities) van koop
-- Voor de velden volgen we daarnaast ook [DiWoo](https://standaarden.overheid.nl/diwoo/metadata/diwoo-handleiding-sitemapindex-en-sitemaps).
-- Naast deze categorieën mag een organisatie ook eigen categorieën voeren, maar dan worden alleen de algemene eigenschappen over genomen
+- Naast deze categorieën mag een organisatie ook eigen categorieën voeren (maatwerk).
 
-Het is niet per definitie nodig om alle eigenschappen in het bronsysteem handmatig in te regelen en vullen, sommige eigenschappen kunnen worden overgenomen uit algemene metadata van een bron systeem. Kijk onder [Mappings](#mappings) om te zien welke eigenschappen automatisch worden gevuld.
+Het is niet per definitie nodig om alle eigenschappen in het bronsysteem handmatig in te regelen en vullen, sommige eigenschappen kunnen worden overgenomen uit algemene metadata van een bron systeem. 
 
 ### Algemene eigenschappen
 
@@ -56,7 +55,7 @@ Een aantal zaakattributen zijn noodzakelijk voor het voor het goed werken van de
 |---------------------|-----------|---------------------------------------------------------------------------------------------------------|--------------------|
 | woo_titel           | Ja        | De titel van de publicatie zoals online getoond                                                         | string, max 255 characters |
 | woo_publicatiedatum | Ja        | De datum vanaf wanneer de publicatie wordt gepubliceerd, bij leeg wordt de publicatie niet gepubliceerd. De datum wordt opgeslagen als UTC, hou hier rekening mee bij gebruik op de frontend. | string formatted as date-time (e.g., 2023-09-12 09:00) or string formatted as date (e.g., 2023-09-12) or NULL. If a date is presented instead of a date-time, the time will be automatically set to 00:00. |
-| woo_categorie       | Ja        | De categorie van de WOO-publicatie                                                                      | One of ("Wetten en algemeen verbindende voorschriften", "Overige besluiten van algemene strekking", "Ontwerpen van wet- en regelgeving met adviesaanvraag", "Organisatie en werkwijze", "Bereikbaarheidsgegevens", "Bij vertegenwoordigende organen ingekomen stukken", "Vergaderstukken Staten-Generaal", "Vergaderstukken decentrale overheden", "Agenda's en besluitenlijsten bestuurscolleges", "Adviezen", "Convenanten", "Jaarplannen en jaarverslagen", "Subsidieverplichtingen anders dan met beschikking", "Woo-verzoeken en -besluiten", "Onderzoeksrapporten", "Beschikkingen", "Klachtoordelen") |
+| woo_categorien      | Ja        | De categorie van de WOO-publicatie                                                                      | One of ("Wetten en algemeen verbindende voorschriften", "Overige besluiten van algemene strekking", "Ontwerpen van wet- en regelgeving met adviesaanvraag", "Organisatie en werkwijze", "Bereikbaarheidsgegevens", "Bij vertegenwoordigende organen ingekomen stukken", "Vergaderstukken Staten-Generaal", "Vergaderstukken decentrale overheden", "Agenda's en besluitenlijsten bestuurscolleges", "Adviezen", "Convenanten", "Jaarplannen en jaarverslagen", "Subsidieverplichtingen anders dan met beschikking", "Woo-verzoeken en -besluiten", "Onderzoeksrapporten", "Beschikkingen", "Klachtoordelen") |
 | woo_thema           | Nee       | Een optionele titel van het thema waar de zaak onder valt                                               | string, max 255 characters |
 | woo_samenvatting    | Nee       | De KORTE samenvatting van de publicatie zoals online getoond                                            | string, max 255 characters |
 | woo_beschrijving    | Nee       | De UITGEBREIDE beschrijving van de publicatie zoals online getoond                                      | string, max 2555 characters |
@@ -77,8 +76,6 @@ Een aantal zaakattributen zijn noodzakelijk voor het voor het goed werken van de
 | woo_opdrachtgever         | Nee       |                                                                                 | string, max 2555 characters |
 | woo_onderdeel_taak        | Nee       |                                                                                 | string, max 2555 characters |
 
-> **Note**
-> Op dit moment doet OpenWoo nog niets met thema's behalve ze weergeven bij de zaak. Er zijn echter plannen om in de toekomst een thema-overzichtspagina te maken en Woo-publicaties filterbaar te maken op thema.
 
 ### Eigenschappen naar categorie
 
@@ -102,8 +99,6 @@ Een aantal zaakattributen zijn noodzakelijk voor het voor het goed werken van de
 | 2k        | Beschikkingen                                | nog niet vastgesteld                                                                                                                                                | Nog niet vastgesteld                                                                                                                                                                                    |
 | 2l        | Klachtoordelen                               | `woo_datum_ontvangst`, `woo_organisatieonderdeel`, `woo_functiebenaming`, `woo_gedraging`, `woo_bevindingen`, `woo_oordeel`, `woo_conclusies`, `woo_datum_besluit`,`woo_termijnoverschrijding` | [definitie](https://www.open-overheid.nl/onderwerpen/actieve-openbaarmaking/instrumenten-en-diensten/richtlijnen/2024/2/16/werkdefinitie-klachtoordelen)                                                |
 
-> **Note**
-> Nog niet vastgestelde categorieën of categorieën die buiten de OpenWoo.app vallen kunnen wel worden ontsloten via OpenWoo.app, daarbij kan gebruik worden gemaakt van de algemene eigenschappen en documenten/bijlagen. De specifieke eigenschappen worden echter pas opgenomen op het moment dat de categorie door KOOP is vastgesteld.
 
 ### Documenten/Bijlagen
 
@@ -119,10 +114,7 @@ Bijlagen nemen een bijzondere positie in binnen de OpenWoo.app, ze vormen de ker
 
 > **Spelregels omtrent labels**
 >
-> - Het is mogelijk om als organisatie zelf extra labels toe te voegen, als deze het juiste format volgen `woo_[[labelnaam]]]` worden deze automatisch overgenomen in de weergave door boven de rij `Bijlagen` een extra rij toe te voegen in de form `[[labelnaam]]: Alle hieraan gekoppelde bestanden`.
-> - Bestanden die geen andere label hebben dan `woo_publicatie` worden getoond in de rij `Bijlagen`.
-> - Als bestanden meerdere labels hebben worden ze op meerdere plekken getoond (met uitzondering van `Bijlagen` daar worden alleen bestanden getoond zonder label)
-> - Bestanden zonder het label `woo_publicatie` worden niet getoond (ook al zijn ze wel van een ander `woo_`-label voorzien)
+> - De uniekheid van documenten wordt getoetst op basis van bestandsnaam. 
 
 ## Mappings
 
@@ -143,23 +135,3 @@ Gebaseerd op: [xxllc-zaken mapping](https://github.com/CommonGateway/WooBundle/b
 
 > **Note**
 > Voor de eigenschapen word verder gekeken naar values.attribute.[`eigenschap e.g. woo_beschrijving`]
-
-Bijlagen
-
-| Bijlage                            | values.attribute.woo_publicatie                 |
-|------------------------------------|-------------------------------------------------|
-| categorie                          | (Empty)                                         |
-| type                               | mimetype                                        |
-| status                             | accepted                                        |
-| titel                              | filename                                        |
-| url                                | `[fetchedFromZaaksysteem]`                      |
-
-## Configuratie
-
-Als laatste zijn er ook een aantal waarde op het publicatieobject die worden gezet aan de hand van configuratie in de [OpenWoo service](https://openwoo.openservices.online/), te weten
-
-| Eigenchap        | Invulling                           | Gebruik |
-|------------------|-------------------------------------|-------------------|
-| portalUrl        | `\{config\}/\{id van de publicatie\}` | Metadata                              |
-| organisatie.naam | `\{config\}`                          | Metadata                              |
-| organisatie.oin  | `\{config\}`                          | Metadata                              |
