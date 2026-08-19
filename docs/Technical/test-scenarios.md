@@ -70,7 +70,7 @@ Zorg ervoor dat het zaaksysteem is geconfigureerd zoals beschreven in de documen
 
 **Stappen**:
 
-1. Voeg voor iedere onder `woo_categorie` genoemde categorie een nieuwe WOO-publicatie toe in het zaaksysteem met een publicatiedatum in het verleden.
+1. Voeg voor iedere onder `woo_categorien` genoemde categorie een nieuwe WOO-publicatie toe in het zaaksysteem met een publicatiedatum in het verleden.
 2. Laat het zaaksysteem synchroniseren met de WOO-website.
 3. Ga naar de WOO-website en controleer voor iedere WOO-publicatie of de nieuwe publicatie correct wordt weergegeven.
 
@@ -98,10 +98,10 @@ Zorg ervoor dat het zaaksysteem is geconfigureerd zoals beschreven in de documen
 
 **Stappen**:
 
-1. Voeg een nieuw WOO-publicatie toe in het zaaksysteem met een publicatiedatum die nu is of in het verleden.
+1. Voeg een nieuw WOO-publicatie toe in de bron met een publicatiedatum die nu is of in het verleden.
 2. Laat het zaaksysteem synchroniseren met de WOO-website.
 3. Ga naar de WOO-website en controleer of het nieuwe verzoek correct wordt weergegeven.
-4. Verwijder nu de publicatiedatum op het WOO-publicatie in het zaaksysteem.
+4. Verwijder nu de publicatiedatum op het WOO-publicatie in de bron.
 5. Laat het zaaksysteem opnieuw synchroniseren met de WOO-website.
 6. Ga naar de WOO-website en controleer of het gedepubliceerde verzoek niet meer zichtbaar is.
 
@@ -143,17 +143,3 @@ Zorg ervoor dat het zaaksysteem is geconfigureerd zoals beschreven in de documen
 ## 3. Schoonmaak
 
 Verwijder alle testdata uit het zaaksysteem en de WOO-website.
-
-## Technische test
-
-Naast functionele tests is het ook belangrijk om te controleren of de website voldoet aan de technische eisen voor overheidswebsites.
-
-### WCAG
-
-Er is een [WCAG raportage](/img/reports/WCAG-Raportage.pdf) beschikbaar voor de website.
-
-U kunt de test zelf herhalen via [accessScan](https://accessibe.com/accessscan), vul daar het adres van uw eigen OpenWoo.app-deployment in. *(De eerdere referentie-URL `conductionnl.github.io/woo-website-xxllnc` is niet langer beschikbaar.)*
-
-### Pentest
-
-Er is een [Pentest raportage](/img/reports/PENTEST-Raportage.pdf) beschikbaar voor de website.
