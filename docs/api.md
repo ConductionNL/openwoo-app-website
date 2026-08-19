@@ -81,7 +81,6 @@ De live spec op `/api/` beschrijft het **wat**. Voor het **hoe** vanuit OpenWoo-
 - **[API-koppelvlak](/docs/Integrations/api-koppelvlak/)** — algemeen koppelvlak-overzicht, authenticatie, metadata-schema's, throttling
 - **[Full-text search voor leveranciers](/docs/Integrations/fulltext-search/)** — query-syntax, geïndexeerde velden + weging, relevantie-score, integratie-voorbeelden, gotchas
 - **[Ondersteunde bronnen](/docs/Integrations/ondersteunde-bronnen/)** — welke zaak-/document-/data-bronnen OpenWoo kan ontsluiten
-- **[Bron koppelen](/docs/Integrations/bron-koppelen/)** — een nieuwe bron aansluiten
 
 ## Publiek leesbare canary-omgeving
 

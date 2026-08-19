@@ -5,45 +5,29 @@
  *
  * Fleet-canonical layout (matches openregister/docs):
  *   docs/
- *     index.md            → docs landing
- *     UseCases/           → top-3 user-facing scenarios
- *     Features/           → per major capability
- *     Architecture/       → systeemarchitectuur, in 5 stukjes
- *     Integrations/       → bron-koppelen + API-koppelvlak + bronnenoverzicht
- *     Technical/          → installatie, configuratie, productie, testscenarios
- *     reference/          → faq, security, privacy, accessibility, pricing, sla, roadmap
+ *     index.md              → docs landing
+ *     community-meetings.md → maandelijkse community-bijeenkomsten + opnames
+ *     UseCases/             → top user-facing scenarios
+ *     Architecture/         → systeemarchitectuur-overzicht
+ *     Integrations/         → API-koppelvlak + fulltext-search + bronnenoverzicht
+ *     Technical/            → configuratie, productie, testscenarios
+ *     reference/            → faq, privacy, accessibility, pricing, sla
  */
 module.exports = {
   tutorialSidebar: [
     'index',
     'api',
+    'community-meetings',
     {
       type: 'category',
       label: 'Use cases',
       link: {
         type: 'generated-index',
-        description: 'De drie meest gestelde "wat wil je bereiken"-vragen waar OpenWoo een antwoord op geeft.',
+        description: 'De meest gestelde "wat wil je bereiken"-vragen waar OpenWoo een antwoord op geeft.',
       },
       items: [
         'UseCases/actieve-openbaarmaking',
         'UseCases/publicatie-vanuit-zaaksysteem',
-        'UseCases/federatieve-zoekindex',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Features',
-      link: {
-        type: 'generated-index',
-        description: 'De zes belangrijkste functionaliteiten van OpenWoo, één per pagina.',
-      },
-      items: [
-        'Features/centrale-index',
-        'Features/multibron-data',
-        'Features/publicatieplatformen',
-        'Features/automatische-aanlevering-koop',
-        'Features/proactieve-publicatie',
-        'Features/audit-log',
       ],
     },
     {
@@ -51,14 +35,10 @@ module.exports = {
       label: 'Architectuur',
       link: {
         type: 'generated-index',
-        description: 'Hoe OpenWoo onder de motorkap in elkaar zit: publicatieplatform, motorblok, federatief zoeken, datamodel.',
+        description: 'Hoe OpenWoo onder de motorkap in elkaar zit.',
       },
       items: [
         'Architecture/overview',
-        'Architecture/publicatieplatform',
-        'Architecture/motorblok',
-        'Architecture/federatief-zoeken',
-        'Architecture/datamodel',
       ],
     },
     {
@@ -66,13 +46,12 @@ module.exports = {
       label: 'Integraties',
       link: {
         type: 'generated-index',
-        description: 'Ondersteunde bronnen, API-koppelvlak en het koppelen van een eigen bron.',
+        description: 'Ondersteunde bronnen, API-koppelvlak en full-text search.',
       },
       items: [
         'Integrations/ondersteunde-bronnen',
         'Integrations/api-koppelvlak',
         'Integrations/fulltext-search',
-        'Integrations/bron-koppelen',
       ],
     },
     {
@@ -80,10 +59,9 @@ module.exports = {
       label: 'Technical',
       link: {
         type: 'generated-index',
-        description: 'Installatie, configuratie, productie, testscenarios.',
+        description: 'Configuratie, productie, testscenarios.',
       },
       items: [
-        'Technical/installation',
         'Technical/configuration',
         'Technical/production',
         'Technical/test-scenarios',
@@ -94,16 +72,14 @@ module.exports = {
       label: 'Reference',
       link: {
         type: 'generated-index',
-        description: 'FAQ, security, privacy, toegankelijkheid, kosten, SLA, roadmap.',
+        description: 'FAQ, privacy, toegankelijkheid, kosten, SLA.',
       },
       items: [
         'reference/faq',
-        'reference/security',
         'reference/privacy',
         'reference/accessibility',
         'reference/pricing',
         'reference/sla',
-        'reference/roadmap',
       ],
     },
     /* Release notes per OpenWoo-release. Statisch hand-geschreven (voor
