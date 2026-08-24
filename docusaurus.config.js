@@ -61,7 +61,7 @@ const config = createConfig({
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://codeberg.org/Conduction/openwoo-app-website/src/branch/main/',
+          editUrl: 'https://github.com/ConductionNL/openwoo-app-website/tree/main/',
         },
         blog: false,
         theme: {
@@ -114,7 +114,7 @@ const config = createConfig({
       {href: 'https://www.conduction.nl/academy/?app=openwoo',     label: 'Academy',  position: 'left'},
       {href: 'https://openwebconcept.nl/',                         label: 'Over Open Webconcept', position: 'right'},
       {href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0', label: 'Slack',  position: 'right'},
-      {href: 'https://codeberg.org/Conduction/openwoo-app-website',     label: 'Codeberg', position: 'right'},
+      {href: 'https://github.com/ConductionNL/openwoo-app-website',     label: 'GitHub', position: 'right'},
     ],
   },
 
@@ -130,7 +130,7 @@ const config = createConfig({
           {label: 'Solution',  href: 'https://www.conduction.nl/solutions/openwoo'},
           {label: 'Academy',   href: 'https://www.conduction.nl/academy/?app=openwoo'},
           {label: 'Slack',     href: 'https://samenorganiseren.slack.com/archives/C067Q3UE9F0'},
-          {label: 'Codeberg',  href: 'https://codeberg.org/Conduction/openwoo-app-website'},
+          {label: 'GitHub',    href: 'https://github.com/ConductionNL/openwoo-app-website'},
         ],
       },
       ...baseFooterLinks().filter((column) => column.title === 'Conduction'),

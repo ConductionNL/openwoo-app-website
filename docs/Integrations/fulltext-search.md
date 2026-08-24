@@ -218,5 +218,5 @@ De richting is duidelijk: OpenRegister heeft al een text-extractie-pipeline die 
 
 ## Referentie-implementaties
 
-- [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2) — de publieke WOO-publicatiepagina; gebruikt beide endpoints met een faceted-search UI.
+- [`woo-website-template-apiv2`](https://github.com/ConductionNL/woo-website-template-apiv2) — de publieke WOO-publicatiepagina; gebruikt beide endpoints met een faceted-search UI.
 - [`api-koppelvlak`](api-koppelvlak.md) — generiek koppelvlak-overzicht inclusief metadata-schema's, datum-driven zichtbaarheid en de architectuur achter de API-lagen.
