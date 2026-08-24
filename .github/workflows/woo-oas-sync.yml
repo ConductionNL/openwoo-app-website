@@ -1,0 +1,197 @@
+name: Woo OAS sync
+
+# Mirrors the live Woo Register OpenAPI spec into static/oas/woo.json on BOTH
+# `main` (source of truth) and `documentation` (the branch the docs deploy
+# watches), so Redocusaurus renders a current spec at openwoo.conduction.nl/api/.
+#
+# GitHub Actions port of .forgejo/workflows/woo-oas-sync.yml — which was itself
+# a Forgejo port of a GitHub workflow of the same name, removed in 7ae79c7 when
+# CI moved to Codeberg. This restores it to GitHub with the two-branch commit
+# behaviour the Forgejo version added.
+#
+# Mechanical translation:
+#   - `runs-on: ubuntu-latest` was already GitHub-shaped; kept.
+#   - actions/checkout pinned on commit SHA (supply-chain policy).
+#   - The Forgejo "Dispatch Publish docs" step used raw curl against the
+#     Forgejo dispatch API because Codeberg runners ship no `gh`. On GitHub the
+#     `gh` CLI is preinstalled, so this uses `gh workflow run` instead.
+#
+# ── Two GitHub-specific behaviours that differ from Forgejo — read before
+#    changing anything here ────────────────────────────────────────────────
+#
+# 1. `schedule:` ONLY fires from the repository's DEFAULT branch (`main`).
+#    While this file exists solely on `development` the nightly cron will
+#    never run — only `workflow_dispatch` will. It starts ticking the moment
+#    `development` is merged forward into `main`.
+#
+# 2. A push made with `secrets.GITHUB_TOKEN` does NOT trigger downstream
+#    workflows (GitHub's anti-recursion rule). On Forgejo the push to
+#    `documentation` could chain into "Publish docs" on its own and the
+#    dispatch below was belt-and-suspenders. Here the chain is guaranteed NOT
+#    to happen, so the dispatch step is the ONLY thing that can refresh the
+#    live site — and it is best-effort (see the step's own comment). The
+#    mirror commits themselves always land regardless.
+#
+# Pull-architecture (no PATs, no cross-repo secrets) — Conduction's
+# post-"github has been hacked" policy bans Personal Access Tokens on hosted
+# runners. Reading the upstream OAS is anonymous; the commit/push uses the
+# run-scoped GITHUB_TOKEN. No repo/org secret is needed by this workflow.
+#
+# Cron timing: 03:27 UTC nightly. The Woo Register schema rarely changes, so
+# daily is plenty. The off-the-hour :27 avoids the scheduler pile-up at :00.
+# 03:27 UTC = 04:27 CET / 05:27 CEST — quiet hours for NL and for the source.
+#
+# To switch source URL (e.g. when a production deployment lands): update the
+# OAS_URL env var below.
+
+on:
+  schedule:
+    - cron: "27 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # Needed only by the "Request a docs rebuild" step at the bottom.
+  actions: write
+
+# Serializes this workflow against itself. The cross-workflow dedup that keeps
+# a dispatched docs build from racing another deploy lives in
+# .github/workflows/documentation.yml's `openwoo-docs-publish` concurrency
+# group (on the `documentation` branch). If that group is renamed or removed,
+# concurrent Publish-docs runs can race the wrangler deploy.
+concurrency:
+  group: woo-oas-sync
+  cancel-in-progress: false
+
+env:
+  OAS_URL: https://canary.accept.commonground.nu/index.php/apps/openregister/api/registers/7/oas
+  OAS_PATH: static/oas/woo.json
+
+jobs:
+  sync:
+    # No-op on Forgejo/Codeberg, which also executes files under
+    # .github/workflows — the mirror repo must never double-commit.
+    if: github.server_url == 'https://github.com'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # Always operate on main even when dispatched from another branch,
+          # so manual dry-runs from feature branches still mirror upstream
+          # into the canonical source-of-truth.
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream OAS
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-tmp
+          curl --fail-with-body --silent --show-error \
+            --location \
+            --max-time 60 \
+            --output .sync-tmp/woo.json \
+            "$OAS_URL"
+
+      - name: Validate it looks like an OpenAPI 3 spec
+        run: |
+          set -euo pipefail
+          # Refuse to overwrite the mirrored file with garbage if the source
+          # returned an HTML error page or a 200-with-empty-body. info.version
+          # is required too — otherwise the commit message below would end
+          # "...sync Woo OAS to v" (empty).
+          openapi=$(jq -r '.openapi // empty' .sync-tmp/woo.json)
+          title=$(jq -r '.info.title // empty' .sync-tmp/woo.json)
+          version=$(jq -r '.info.version // empty' .sync-tmp/woo.json)
+          paths_n=$(jq -r '.paths | length // 0' .sync-tmp/woo.json)
+          if [[ ! "$openapi" =~ ^3\. ]] || [[ -z "$title" ]] || [[ -z "$version" ]] || [[ "$paths_n" -lt 1 ]]; then
+            echo "::error::Fetched payload does not look like an OpenAPI 3 spec."
+            echo "  openapi=$openapi"
+            echo "  title=$title"
+            echo "  version=$version"
+            echo "  paths=$paths_n"
+            head -c 1000 .sync-tmp/woo.json
+            exit 1
+          fi
+          echo "OK — $title v$version ($paths_n paths)"
+
+      - name: Commit OAS to main and documentation if changed
+        id: sync
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main documentation
+          version=$(jq -r '.info.version' .sync-tmp/woo.json)
+
+          # Normalize once for change detection; preserve upstream formatting
+          # for the file that actually lands in the repo so diffs stay readable.
+          jq -S . .sync-tmp/woo.json > .sync-tmp/woo.norm.json
+
+          doc_branch_updated=0
+          # Partial-failure note (carried over from the Forgejo version):
+          # `set -euo pipefail` makes this loop abort on the first failing
+          # push. If `main` pushes but `documentation` fails (concurrent
+          # commit, network glitch), `main` advances, `doc_branch_updated` is
+          # never set, the rebuild request never fires, and the live OAS stays
+          # stale until the next 03:27 UTC tick self-heals via the cmp guard.
+          # A behaviour change (retry-with-rebase, or iterating `documentation`
+          # first) is deliberately deferred to a follow-up.
+          for branch in main documentation; do
+            git checkout -B "$branch" "origin/$branch"
+            mkdir -p "$(dirname "$OAS_PATH")"
+
+            # Skip if this branch already matches upstream (key-sorted compare
+            # so trivial reordering doesn't cause spurious commits).
+            if [[ -f "$OAS_PATH" ]]; then
+              jq -S . "$OAS_PATH" > .sync-tmp/current.norm.json
+              if cmp --silent .sync-tmp/woo.norm.json .sync-tmp/current.norm.json; then
+                echo "$branch already has the latest OAS — skipping."
+                continue
+              fi
+            fi
+
+            cp .sync-tmp/woo.json "$OAS_PATH"
+            git add "$OAS_PATH"
+            git commit -m "docs(api): sync Woo OAS to v${version}"
+            git push origin "$branch"
+            if [[ "$branch" == "documentation" ]]; then
+              doc_branch_updated=1
+            fi
+          done
+          echo "doc_branch_updated=$doc_branch_updated" >> "$GITHUB_OUTPUT"
+
+      # Best-effort, and deliberately loud when it fails.
+      #
+      # The push above cannot chain into "Publish docs" (GITHUB_TOKEN pushes
+      # trigger nothing), so an explicit dispatch is the only refresh path.
+      # workflow_dispatch on GitHub is registered from the DEFAULT branch, and
+      # .github/workflows/documentation.yml currently exists only on the
+      # `documentation` branch — so this call may be rejected until that file
+      # also lands on `main`. It is therefore not allowed to fail the run: the
+      # mirror commits are the real deliverable and they already succeeded.
+      # When the dispatch is rejected the step says so in the log and the job
+      # summary rather than reporting a rebuild that never happened.
+      - name: Request a docs rebuild
+        if: steps.sync.outputs.doc_branch_updated == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          if gh workflow run documentation.yml --ref documentation; then
+            echo "Dispatched 'Publish docs' on the documentation branch."
+            echo "Dispatched 'Publish docs' — live site will refresh." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Could not dispatch 'Publish docs'. The OAS mirror commits landed on main and documentation, but the live site at openwoo.conduction.nl/api/ will NOT refresh until the next push to the documentation branch."
+            {
+              echo "### OAS mirrored, docs rebuild NOT triggered"
+              echo
+              echo "\`static/oas/woo.json\` was updated on \`main\` and \`documentation\`."
+              echo "The \`Publish docs\` dispatch was rejected — most likely because"
+              echo "\`.github/workflows/documentation.yml\` is not present on the default"
+              echo "branch (\`main\`), which is where GitHub registers \`workflow_dispatch\`."
+              echo
+              echo "The live site refreshes on the next push to \`documentation\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
