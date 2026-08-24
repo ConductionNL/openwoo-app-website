@@ -24,15 +24,15 @@ Om dit template te gebruiken, moet je beschikken over:
 
 De OpenWOO Website is in eerste instantie opgezet om serverless gebruikt te worden via GitHub. Dat scheelt niet alleen in de kosten, maar levert ook voordeel op in de beschikbaarheid en belasting. Simpel gezegd, de GitHub CDN is gebouwd om flink wat meer aan te kunnen dan de gemiddelde gemeente.
 
-:::warning Flow nog gericht op GitHub Actions / GitHub Pages
-De stappen hieronder zijn geschreven voor de oorspronkelijke GitHub-Actions + GitHub-Pages-route. Sinds de migratie naar Codeberg draait `woo-website-template-apiv2` op **Forgejo Actions** (`.forgejo/workflows/` in plaats van `.github/workflows/`) en Codeberg Pages — de UI-stappen ("workflow permissions", "settings → pages") werken anders. Tot deze sectie is herschreven voor Codeberg: lees `.github` als `.forgejo`, en zoek de Forgejo/Codeberg-equivalenten van de GitHub Actions / Pages UI-instellingen.
+:::note GitHub Actions / GitHub Pages
+`woo-website-template-apiv2` draait op **GitHub Actions** (`.github/workflows/`) en GitHub Pages. De stappen hieronder volgen die route.
 :::
 
 #### Stappen
 
-1. Fork de [`woo-website-template-apiv2`](https://codeberg.org/Conduction/woo-website-template-apiv2)-repo naar je eigen Codeberg-organisatie via de "Fork"-knop rechtsboven. (Een directe "use as template"-knop is nog niet ingericht op Codeberg — fork is het werkende alternatief. Op termijn wordt deze repo samengevoegd terug onder de naam `woo-website-template`.)
+1. Fork de [`woo-website-template-apiv2`](https://github.com/ConductionNL/woo-website-template-apiv2)-repo naar je eigen GitHub-organisatie via de "Fork"-knop rechtsboven. (Op termijn wordt deze repo samengevoegd terug onder de naam `woo-website-template`.)
 2. [Zet de workflow permissions](#workflow-permissions) op `Read and write permissions`.
-3. Ga op de main branch in de repository naar de folder `.forgejo/workflows/` (oude GitHub-Actions-tak gebruikte `.github/workflows/`)
+3. Ga op de main branch in de repository naar de folder `.github/workflows/`
 4. Verwijder de workflow `product-page-deploy` als deze er nog staat
 5. Open de workflow `woo-page-deploy` en pas de branche aan van `never` naar `main`
 6. Pas de verdere configuratie in `woo-page-deploy` aan zoals [hieronder vermeld onder configuratie](#configuratie) en sla deze op
@@ -67,7 +67,7 @@ Als je de OpenWoo-website liever vanaf een eigen server draait, kan dat uiteraar
 
 ### Configuratie
 
-Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://codeberg.org/Conduction/woo-website-template-apiv2/src/branch/main/.forgejo/workflows/product-page-deploy.yml) (Forgejo Actions onder `.forgejo/workflows/`, niet `.github/workflows/`). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
+Configuratie vindt plaats via environment (env) waardes. In het geval van een serverless configuratie moeten de env-waardes worden aangepast in de [page deploy workflow](https://github.com/ConductionNL/woo-website-template-apiv2/blob/main/.github/workflows/product-page-deploy.yml) (GitHub Actions onder `.github/workflows/`). In het geval van een serverinstallatie in het `.env`-bestand in de Gatsby-rootmap. We ondersteunen de volgende configuratie-opties.
 
 | Key | Verplicht | Usage | Allowed Value | Default / Example |
 |-----|-----------|-------|---------------|-------------------|
@@ -95,7 +95,7 @@ Volg de installatiehandleiding op [https://github.com/OpenWebconcept/plugin-open
 
 ### Nextcloud met OpenCatalogi + OpenRegister
 
-In dit geval koppel je de React frontend aan een Nextcloud-installatie met [OpenCatalogi](https://codeberg.org/Conduction/opencatalogi) (RegieTool) en [OpenRegister](https://codeberg.org/Conduction/openregister) (object-storage). Publicaties worden automatisch opgehaald uit bestaande bronnen via de OpenWoo-register-inrichting. Dit is sinds OpenWoo 2.0 het canonieke backend-pad (zie [architectuur-overview](../Architecture/overview.md)).
+In dit geval koppel je de React frontend aan een Nextcloud-installatie met [OpenCatalogi](https://github.com/ConductionNL/opencatalogi) (RegieTool) en [OpenRegister](https://github.com/ConductionNL/openregister) (object-storage). Publicaties worden automatisch opgehaald uit bestaande bronnen via de OpenWoo-register-inrichting. Dit is sinds OpenWoo 2.0 het canonieke backend-pad (zie [architectuur-overview](../Architecture/overview.md)).
 
 `API_BASE_URL` wijs je naar de OpenRegister-API van de deployment, bv.:
 

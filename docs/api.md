@@ -7,7 +7,7 @@ sidebar_position: 5
 
 # API-overzicht
 
-OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** binnen [OpenCatalogi](https://codeberg.org/Conduction/opencatalogi) (de RegieTool) bovenop [OpenRegister](https://codeberg.org/Conduction/openregister) (object-storage). Per register genereert OpenRegister automatisch een complete OpenAPI 3.1.0 spec. Deze pagina is de hub naar:
+OpenWoo zelf heeft geen eigen runtime — het is een **register-inrichting** binnen [OpenCatalogi](https://github.com/ConductionNL/opencatalogi) (de RegieTool) bovenop [OpenRegister](https://github.com/ConductionNL/openregister) (object-storage). Per register genereert OpenRegister automatisch een complete OpenAPI 3.1.0 spec. Deze pagina is de hub naar:
 
 - de **live Woo Register API** (gemirrord en gerenderd op deze site)
 - de **upstream specs** van OpenCatalogi en OpenRegister (single source of truth)
@@ -45,14 +45,14 @@ OpenWoo bouwt op deze components — voor de volledige spec van de onderliggende
 De endpoints voor catalogi, publications, themas, organisations en de federation directory.
 
 - **Live**: [opencatalogi.conduction.nl/api](https://opencatalogi.conduction.nl/api) (Redocusaurus)
-- **Source**: [Conduction/opencatalogi](https://codeberg.org/Conduction/opencatalogi)
+- **Source**: [Conduction/opencatalogi](https://github.com/ConductionNL/opencatalogi)
 
 ### OpenRegister API (object-storage)
 
 De onderliggende objecten (Catalog, Publication, Glossary, …) worden via OpenRegister opgeslagen. Voor schema/register/object-management routes:
 
 - **Live**: [openregister.conduction.nl/api](https://openregister.conduction.nl/api/) (Redocusaurus)
-- **Source**: [Conduction/openregister](https://codeberg.org/Conduction/openregister)
+- **Source**: [Conduction/openregister](https://github.com/ConductionNL/openregister)
 
 ## OpenWoo-specifieke integratie-uitleg
 
