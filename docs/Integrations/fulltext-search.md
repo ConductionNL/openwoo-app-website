@@ -6,10 +6,6 @@ sidebar_position: 4
 
 # Full-text search
 
-:::warning Nog niet geïmplementeerd
-De full-text search die op deze pagina wordt beschreven is **nog niet geïmplementeerd**. Deze pagina documenteert het beoogde gedrag; de beschreven endpoints en parameters zijn op dit moment niet beschikbaar en de voorbeelden werken nog niet.
-:::
-
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
 
 - **Endpoint 1** doorzoekt alleen publicaties (op titel, samenvatting, thema en andere publicatie-velden).
@@ -65,6 +61,47 @@ Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar
 **Wat wordt doorzocht:** standaard de metadata van publicaties én documenten — dus titels, samenvattingen, bestandsnamen, MIME-types en overige tekst-velden op het schema. **De inhoud van PDF- of DOCX-bestanden** wordt optioneel meegenomen door `_content=true` aan de query toe te voegen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search) hieronder.
 
 > **Vorm van `@self.schema` verschilt per endpoint:** endpoint 2 geeft de slug (`"publication"` / `"document"`), endpoint 1 geeft het numerieke schema-ID als string (`"15"`, `"16"`). Bouw je één card-renderer voor beide endpoints? Normaliseer dan aan de client-kant.
+
+### Catalogus-scope
+
+De scope van endpoint 2 wordt afgeleid uit het **catalogus-model**. Elke catalogus declareert welke registers en schemas hij ontsluit; endpoint 2 doorzoekt élk schema in élke catalogus die de caller mag zien — niet alleen `publication` en `document`, ook eventuele extensies zoals `besluit`, `verzoek` of `dataset`.
+
+Twee query-parameters bepalen welk deel van dat scope wordt geraakt:
+
+| Parameter | Effect |
+|---|---|
+| geen parameter | Standaard: unie van álle catalogi met `listed: true` én `published` in het verleden |
+| `_catalog=<slug>` | Beperk tot één catalogus (single slug) |
+| `_catalogi[]=<slug>&_catalogi[]=<slug>` | Beperk tot een unie van meerdere catalogi (met dedup) |
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=klimaat
+    &_catalog=gemeente-nijmegen
+```
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=klimaat
+    &_catalogi[]=gemeente-nijmegen
+    &_catalogi[]=gemeente-arnhem
+```
+
+Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clients die de UI-lijst dynamisch samenstellen niet hoeven te branchen op error-shape. Een `_catalog` die naar een ongepubliceerde catalogus wijst gedraagt zich hetzelfde als een onbekende slug (indistinguishable van bestaan of niet).
+
+**Scope kan NIET worden verbreed** door de client. Parameters die scope zouden oprekken — `_schema`, `_registers`, `fq` — worden aan de server-side gestript en genegeerd. Zichtbaarheid wordt in SQL afgedwongen door de RBAC-regels op elk schema.
+
+### Uniforme zichtbaarheid — anonieme en ingelogde bezoekers zien hetzelfde
+
+Endpoint 2 gedraagt zich **hetzelfde ongeacht wie de caller is**. Een anonieme bezoeker en een ingelogde beheerder krijgen voor dezelfde query dezelfde resultatenset. Dit is bewust: het endpoint is een publiek zoekpad en mag niet impliciet meer terugkomen wanneer je toevallig een sessie hebt.
+
+Concreet betekent dit:
+
+- Een beheerder ziet zijn **eigen concepten NIET** via endpoint 2 (`publicatiedatum` in de toekomst blijft verborgen — ook voor de eigenaar zelf).
+- Objecten met `depublicatiedatum` in het verleden zijn voor iedereen onzichtbaar.
+- De `total` in de envelope reflecteert de daadwerkelijk zichtbare telling, niet de brutotelling vóór eventuele filtering.
+
+Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/search` — dat is een authenticated endpoint met andere zichtbaarheidsregels) of de OpenRegister-object-API direct.
 
 ## Zoeken in bestandsinhoud (content-search)
 
