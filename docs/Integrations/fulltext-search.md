@@ -97,8 +97,8 @@ Endpoint 2 gedraagt zich **hetzelfde ongeacht wie de caller is**. Een anonieme b
 
 Concreet betekent dit:
 
-- Een beheerder ziet zijn **eigen concepten NIET** via endpoint 2 (`publicatiedatum` in de toekomst blijft verborgen — ook voor de eigenaar zelf).
-- Objecten met `depublicatiedatum` in het verleden zijn voor iedereen onzichtbaar.
+- Een beheerder ziet zijn **eigen concepten NIET** via endpoint 2 (`publicationDate` in de toekomst blijft verborgen — ook voor de eigenaar zelf).
+- Objecten met `depublicationDate` in het verleden zijn voor iedereen onzichtbaar.
 - De `total` in de envelope reflecteert de daadwerkelijk zichtbare telling, niet de brutotelling vóór eventuele filtering.
 
 Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/search` — dat is een authenticated endpoint met andere zichtbaarheidsregels) of de OpenRegister-object-API direct.
@@ -118,7 +118,7 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 **Gedrag:**
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
-- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicatiedatum` in het verleden, geen `depublicatiedatum` of één die nog in de toekomst ligt).
+- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicationDate` in het verleden, geen `depublicationDate` of één die nog in de toekomst ligt).
 - **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
 
@@ -150,13 +150,13 @@ De volgende regels gelden voor beide endpoints:
 
 - **Case-insensitive** — `verzoek` matcht `Verzoek`, `VERZOEK`.
 - **Substring-match** — `_search=enem` matcht `evenement`, `bedrijvenemissies`.
-- **Combineerbaar met filters** — `?_search=verzoek&publicatiedatum[gte]=2026-01-01&_limit=20&_order[publicatiedatum]=desc` werkt zoals verwacht.
+- **Combineerbaar met filters** — `?_search=verzoek&publicationDate[gte]=2026-01-01&_limit=20&_order[publicationDate]=desc` werkt zoals verwacht.
 
 **Praktische tips voor consumenten:**
 
 - Wil de gebruiker "beide woorden" matchen? Splits de query client-side of laat de UI meerdere zoektermen aanbieden — server-side ondersteunt dit niet.
 - Voor "lijkt op"-zoeken (typo-tolerantie): zie [Fuzzy search](#fuzzy-search).
-- Voor filtering op categorie of datum: gebruik echte query-parameters (`@self[schema]=<id>`, `publicatiedatum[gte]=…`) náást `_search`.
+- Voor filtering op categorie of datum: gebruik echte query-parameters (`@self[schema]=<id>`, `publicationDate[gte]=…`) náást `_search`.
 
 ## Fuzzy search
 
@@ -180,7 +180,7 @@ Beperkingen:
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
-    &_order[publicatiedatum]=desc
+    &_order[publicationDate]=desc
     &_limit=10
     &_page=1
 ```
@@ -190,8 +190,8 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
-    &publicatiedatum[gte]=2026-01-01
-    &publicatiedatum[lte]=2026-12-31
+    &publicationDate[gte]=2026-01-01
+    &publicationDate[lte]=2026-12-31
     &_limit=20
 ```
 
@@ -253,8 +253,8 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
     &_facetable=true
     &_facets[@self][schema][type]=terms
-    &_facets[publicatiedatum][type]=date_histogram
-    &_facets[publicatiedatum][interval]=year
+    &_facets[publicationDate][type]=date_histogram
+    &_facets[publicationDate][interval]=year
     &_limit=10
 ```
 
