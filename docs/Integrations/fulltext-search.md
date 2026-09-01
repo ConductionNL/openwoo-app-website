@@ -7,7 +7,7 @@ sidebar_position: 4
 # Full-text search
 
 :::warning Nog niet geïmplementeerd op production
-De full-text search die op deze pagina wordt beschreven is op dit moment **nog niet actief op `openwoo.commonground.nu`**. De implementatie is klaar en gemerged op `main` (OpenCatalogi v2.0.11 + OpenRegister v2.0.11), maar de productie-omgeving draait nog op de 1.x-lijn en er is een release-freeze tot na Berlijn. Deze pagina beschrijft het beoogde gedrag; de endpoints en parameters zijn nu op production nog niet beschikbaar en de voorbeelden werken nog niet daar.
+De full-text search die op deze pagina wordt beschreven is op dit moment **nog niet actief op `openwoo.commonground.nu`**. De implementatie is klaar en gemerged op `main` (OpenCatalogi v2.0.11 + OpenRegister v2.0.11), maar de productie-omgeving draait nog op de 1.x-lijn en er is een release-freeze. Deze pagina beschrijft het beoogde gedrag; de endpoints en parameters zijn nu op production nog niet beschikbaar en de voorbeelden werken nog niet daar.
 :::
 
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
