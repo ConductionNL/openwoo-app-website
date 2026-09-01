@@ -87,7 +87,7 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
     &_catalogi[]=gemeente-arnhem
 ```
 
-Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clients die de UI-lijst dynamisch samenstellen niet hoeven te branchen op error-shape. Een `_catalog` die naar een ongepubliceerde catalogus wijst gedraagt zich hetzelfde als een onbekende slug (indistinguishable van bestaan of niet).
+Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clients die de UI-lijst dynamisch samenstellen niet hoeven te branchen op error-shape. Een `_catalog` die naar een ongepubliceerde catalogus wijst gedraagt zich hetzelfde als een onbekende slug — vanuit de caller niet te onderscheiden van een niet-bestaande slug.
 
 **Scope kan NIET worden verbreed** door de client. Parameters die scope zouden oprekken — `_schema`, `_registers`, `fq` — worden aan de server-side gestript en genegeerd. Zichtbaarheid wordt in SQL afgedwongen door de RBAC-regels op elk schema.
 
@@ -101,7 +101,7 @@ Concreet betekent dit:
 - Objecten met `depublicationDate` in het verleden zijn voor iedereen onzichtbaar.
 - De `total` in de envelope reflecteert de daadwerkelijk zichtbare telling, niet de brutotelling vóór eventuele filtering.
 
-Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/search` — dat is een authenticated endpoint met andere zichtbaarheidsregels) of de OpenRegister-object-API direct.
+Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/publications` — dat endpoint honoreert je sessie-rechten en toont concepten van de catalogi waar jouw account rechten op heeft) of de OpenRegister-object-API direct.
 
 ## Zoeken in bestandsinhoud (content-search)
 
