@@ -7,7 +7,7 @@ sidebar_position: 4
 # Full-text search
 
 :::warning Nog niet geïmplementeerd op production
-De full-text search die op deze pagina wordt beschreven is op dit moment **nog niet actief op `openwoo.commonground.nu`**. De implementatie is klaar en gemerged op `main` (OpenCatalogi v2.0.11 + OpenRegister v2.0.11), maar de productie-omgeving draait nog op de 1.x-lijn en er is een release-freeze tot na Berlijn. Deze pagina beschrijft het beoogde gedrag; de endpoints en parameters zijn nu op production nog niet beschikbaar en de voorbeelden werken nog niet daar.
+De full-text search die op deze pagina wordt beschreven is op dit moment **nog niet actief op `openwoo.commonground.nu`**. De implementatie is klaar en gemerged op `main` (OpenCatalogi v2.0.11 + OpenRegister v2.0.11), maar de productie-omgeving draait nog op de 1.x-lijn en er is een release-freeze. Deze pagina beschrijft het beoogde gedrag; de endpoints en parameters zijn nu op production nog niet beschikbaar en de voorbeelden werken nog niet daar.
 :::
 
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
@@ -95,17 +95,24 @@ Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clien
 
 **Scope kan NIET worden verbreed** door de client. Parameters die scope zouden oprekken — `_schema`, `_registers`, `fq` — worden aan de server-side gestript en genegeerd. Zichtbaarheid wordt in SQL afgedwongen door de RBAC-regels op elk schema.
 
-### Uniforme zichtbaarheid — anonieme en ingelogde bezoekers zien hetzelfde
+### Zichtbaarheid — anoniem versus ingelogd
 
-Endpoint 2 gedraagt zich **hetzelfde ongeacht wie de caller is**. Een anonieme bezoeker en een ingelogde beheerder krijgen voor dezelfde query dezelfde resultatenset. Dit is bewust: het endpoint is een publiek zoekpad en mag niet impliciet meer terugkomen wanneer je toevallig een sessie hebt.
+**Anonieme bezoekers** krijgen alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en waarvan `depublicationDate` in de toekomst ligt (of ontbreekt). De `total` in de envelope reflecteert die zichtbare telling, niet de brutotelling vóór filtering.
 
-Concreet betekent dit:
+**Ingelogde beheerders** zien op dit moment via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een tijdelijke drift; zie de caution hieronder.
 
-- Een beheerder ziet zijn **eigen concepten NIET** via endpoint 2 (`publicationDate` in de toekomst blijft verborgen — ook voor de eigenaar zelf).
-- Objecten met `depublicationDate` in het verleden zijn voor iedereen onzichtbaar.
-- De `total` in de envelope reflecteert de daadwerkelijk zichtbare telling, niet de brutotelling vóór eventuele filtering.
+:::caution Tijdelijke drift op `/api/search` voor ingelogde callers
+Het beoogde eindgedrag is uniforme zichtbaarheid: `/api/search` zou zich altijd hetzelfde moeten gedragen, ongeacht of de caller een sessie heeft. Sinds OpenRegister v2.0.12 is de runtime-toggle die dit server-side afdwong (`_rbacAsPublic`) verwijderd — vervangen door schema-level `authorization.inheritFromPublic` — waardoor OpenCatalogi dit contract op dit endpoint op dit moment niet volledig kan afdwingen.
 
-Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/publications` — dat endpoint honoreert je sessie-rechten en toont concepten van de catalogi waar jouw account rechten op heeft) of de OpenRegister-object-API direct.
+- Anonieme callers — **ongewijzigd**, blijven publiek-scoped.
+- Ingelogde stafleden — zien op dit endpoint concepten (`publicationDate` in de toekomst) en objecten waar hun RBAC-rol op basis van eigenaar-schap of admin-privileges toegang toe geeft.
+
+Follow-up (`_forceAnonymous`-primitive of session-strip op dit endpoint) is belegd op [WOO-551](https://conduction.atlassian.net/browse/WOO-551). Deze pagina wordt bijgewerkt zodra de uniforme zichtbaarheid hersteld is.
+
+**Praktisch advies:** ontwikkel je een publieke zoekpagina? Test met een niet-ingelogde sessie — dat is de definitieve resultatenset en je UI is dan toekomst-vast.
+:::
+
+Wil je expliciet concepten of gedepubliceerde items zien als beheerder? Gebruik daarvoor endpoint 1 (`/api/publications` — honoreert sessie-rechten expliciet en blijft dat gedrag houden) of de OpenRegister-object-API direct.
 
 ## Zoeken in bestandsinhoud (content-search)
 
