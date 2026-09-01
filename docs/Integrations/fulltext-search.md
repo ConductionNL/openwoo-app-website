@@ -6,8 +6,8 @@ sidebar_position: 4
 
 # Full-text search
 
-:::warning Nog niet geïmplementeerd
-De full-text search die op deze pagina wordt beschreven is **nog niet geïmplementeerd**. Deze pagina documenteert het beoogde gedrag; de beschreven endpoints en parameters zijn op dit moment niet beschikbaar en de voorbeelden werken nog niet.
+:::warning Nog niet geïmplementeerd op production
+De full-text search die op deze pagina wordt beschreven is op dit moment **nog niet actief op `openwoo.commonground.nu`**. De implementatie is klaar en gemerged op `main` (OpenCatalogi v2.0.11 + OpenRegister v2.0.11), maar de productie-omgeving draait nog op de 1.x-lijn en er is een release-freeze tot na Berlijn. Deze pagina beschrijft het beoogde gedrag; de endpoints en parameters zijn nu op production nog niet beschikbaar en de voorbeelden werken nog niet daar.
 :::
 
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
@@ -66,6 +66,47 @@ Zo kan een zoekpagina één lijst tonen en per resultaat correct doorlinken naar
 
 > **Vorm van `@self.schema` verschilt per endpoint:** endpoint 2 geeft de slug (`"publication"` / `"document"`), endpoint 1 geeft het numerieke schema-ID als string (`"15"`, `"16"`). Bouw je één card-renderer voor beide endpoints? Normaliseer dan aan de client-kant.
 
+### Catalogus-scope
+
+De scope van endpoint 2 wordt afgeleid uit het **catalogus-model**. Elke catalogus declareert welke registers en schemas hij ontsluit; endpoint 2 doorzoekt élk schema in élke catalogus die de caller mag zien — niet alleen `publication` en `document`, ook eventuele extensies zoals `besluit`, `verzoek` of `dataset`.
+
+Twee query-parameters bepalen welk deel van dat scope wordt geraakt:
+
+| Parameter | Effect |
+|---|---|
+| geen parameter | Standaard: unie van álle catalogi met `listed: true` én `published` in het verleden |
+| `_catalog=<slug>` | Beperk tot één catalogus (single slug) |
+| `_catalogi[]=<slug>&_catalogi[]=<slug>` | Beperk tot een unie van meerdere catalogi (met dedup) |
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=klimaat
+    &_catalog=gemeente-nijmegen
+```
+
+```http
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
+    ?_search=klimaat
+    &_catalogi[]=gemeente-nijmegen
+    &_catalogi[]=gemeente-arnhem
+```
+
+Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clients die de UI-lijst dynamisch samenstellen niet hoeven te branchen op error-shape. Een `_catalog` die naar een ongepubliceerde catalogus wijst gedraagt zich hetzelfde als een onbekende slug — vanuit de caller niet te onderscheiden van een niet-bestaande slug.
+
+**Scope kan NIET worden verbreed** door de client. Parameters die scope zouden oprekken — `_schema`, `_registers`, `fq` — worden aan de server-side gestript en genegeerd. Zichtbaarheid wordt in SQL afgedwongen door de RBAC-regels op elk schema.
+
+### Uniforme zichtbaarheid — anonieme en ingelogde bezoekers zien hetzelfde
+
+Endpoint 2 gedraagt zich **hetzelfde ongeacht wie de caller is**. Een anonieme bezoeker en een ingelogde beheerder krijgen voor dezelfde query dezelfde resultatenset. Dit is bewust: het endpoint is een publiek zoekpad en mag niet impliciet meer terugkomen wanneer je toevallig een sessie hebt.
+
+Concreet betekent dit:
+
+- Een beheerder ziet zijn **eigen concepten NIET** via endpoint 2 (`publicationDate` in de toekomst blijft verborgen — ook voor de eigenaar zelf).
+- Objecten met `depublicationDate` in het verleden zijn voor iedereen onzichtbaar.
+- De `total` in de envelope reflecteert de daadwerkelijk zichtbare telling, niet de brutotelling vóór eventuele filtering.
+
+Wil je concepten of gedepubliceerde items als beheerder wél zien? Gebruik daarvoor endpoint 1 (`/api/publications` — dat endpoint honoreert je sessie-rechten en toont concepten van de catalogi waar jouw account rechten op heeft) of de OpenRegister-object-API direct.
+
 ## Zoeken in bestandsinhoud (content-search)
 
 Endpoint 2 kan optioneel ook zoeken in de **inhoud** van bijgehangen documenten — de tekst uit PDF-, DOCX-, XLSX- en andere ondersteunde bestandsformaten. Dit is een **opt-in via `_content=true`**:
@@ -81,7 +122,7 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 **Gedrag:**
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
-- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicatiedatum` in het verleden, geen `depublicatiedatum` of één die nog in de toekomst ligt).
+- **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicationDate` in het verleden, geen `depublicationDate` of één die nog in de toekomst ligt).
 - **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
 
@@ -113,13 +154,13 @@ De volgende regels gelden voor beide endpoints:
 
 - **Case-insensitive** — `verzoek` matcht `Verzoek`, `VERZOEK`.
 - **Substring-match** — `_search=enem` matcht `evenement`, `bedrijvenemissies`.
-- **Combineerbaar met filters** — `?_search=verzoek&publicatiedatum[gte]=2026-01-01&_limit=20&_order[publicatiedatum]=desc` werkt zoals verwacht.
+- **Combineerbaar met filters** — `?_search=verzoek&publicationDate[gte]=2026-01-01&_limit=20&_order[publicationDate]=desc` werkt zoals verwacht.
 
 **Praktische tips voor consumenten:**
 
 - Wil de gebruiker "beide woorden" matchen? Splits de query client-side of laat de UI meerdere zoektermen aanbieden — server-side ondersteunt dit niet.
 - Voor "lijkt op"-zoeken (typo-tolerantie): zie [Fuzzy search](#fuzzy-search).
-- Voor filtering op categorie of datum: gebruik echte query-parameters (`@self[schema]=<id>`, `publicatiedatum[gte]=…`) náást `_search`.
+- Voor filtering op categorie of datum: gebruik echte query-parameters (`@self[schema]=<id>`, `publicationDate[gte]=…`) náást `_search`.
 
 ## Fuzzy search
 
@@ -143,7 +184,7 @@ Beperkingen:
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
-    &_order[publicatiedatum]=desc
+    &_order[publicationDate]=desc
     &_limit=10
     &_page=1
 ```
@@ -153,8 +194,8 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
-    &publicatiedatum[gte]=2026-01-01
-    &publicatiedatum[lte]=2026-12-31
+    &publicationDate[gte]=2026-01-01
+    &publicationDate[lte]=2026-12-31
     &_limit=20
 ```
 
@@ -216,8 +257,8 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
     ?_search=evenementenvergunning
     &_facetable=true
     &_facets[@self][schema][type]=terms
-    &_facets[publicatiedatum][type]=date_histogram
-    &_facets[publicatiedatum][interval]=year
+    &_facets[publicationDate][type]=date_histogram
+    &_facets[publicationDate][interval]=year
     &_limit=10
 ```
 
