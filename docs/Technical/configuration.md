@@ -73,8 +73,8 @@ Een aantal zaakattributen zijn noodzakelijk voor het voor het goed werken van de
 | woo_bevindingen           | Nee       |  | string, max 2555 characters |
 | woo_oordeel               | Nee       |  | string, max 2555 characters |
 | woo_conclusies            | Nee       |                                                                                 | string, max 2555 characters |
-| woo_opdrachtgever         | Nee       |                                                                                 | string, max 2555 characters |
-| woo_onderdeel_taak        | Nee       |                                                                                 | string, max 2555 characters |
+| woo_opdrachtgever         | Nee       | Het bestuursorgaan of de externe partij die om het advies heeft gevraagd                                                                                | string, max 2555 characters |
+| woo_onderdeel_taak        | Nee       |  Het organisatieonderdeel en de taak/bevoegdheid waarop het document betrekking heeft                                                                               | string, max 2555 characters |
 
 
 ### Eigenschappen naar categorie
