@@ -25,6 +25,7 @@ De community bijeenkomsten zijn open en door iedereen te volgen via: meet.google
 
 | Date | Session | Recording |
 |---|---|---|
+| 09-09-2026 | Community Meeting | <a href="https://youtu.be/GNfymaQPCZ0" target="_blank" rel="noopener noreferrer">YouTube</a> |
 | 10-06-2026 | Community Meeting | <a href="https://www.youtube.com/watch?v=nicgDC4u2W4" target="_blank" rel="noopener noreferrer">YouTube</a> |
 | 13-05-2026 | Community Meeting | <a href="https://www.youtube.com/watch?v=gaOft31cXic" target="_blank" rel="noopener noreferrer">YouTube</a> |
 | 08-04-2026 | Community Meeting | <a href="https://youtu.be/Czrd3FdhoGU" target="_blank" rel="noopener noreferrer">YouTube</a> |
