@@ -23,7 +23,7 @@ De community bijeenkomsten zijn open en door iedereen te volgen via: meet.google
 
 ### 2026 — Common Ground OpenWoo community meetings
 
-| Date | Session | Recording |
+|Date |Session |Recording |
 |---|---|---|
 | 09-09-2026 | Community Meeting | <a href="https://youtu.be/GNfymaQPCZ0" target="_blank" rel="noopener noreferrer">YouTube</a> |
 | 10-06-2026 | Community Meeting | <a href="https://www.youtube.com/watch?v=nicgDC4u2W4" target="_blank" rel="noopener noreferrer">YouTube</a> |
