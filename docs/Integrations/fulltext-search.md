@@ -6,10 +6,6 @@ sidebar_position: 4
 
 # Full-text search
 
-:::warning Actief op acato (acceptatie), nog niet op production
-De full-text search die op deze pagina wordt beschreven is sinds **14 september 2026 actief op `acato.accept.commonground.nu`** (OpenCatalogi hotfix `1.0.9-woo-x` op de 1.x-lijn, met OpenRegister 1.1.5). Op **`openwoo.commonground.nu` is deze functionaliteit nog niet beschikbaar**; de uitrol naar production is akkoord en volgt na de verificatie op acato. Deze pagina beschrijft het gedrag zoals dat op acato werkt; wil je de voorbeelden nu al proberen, vervang dan `openwoo.commonground.nu` door `acato.accept.commonground.nu`. De 2.x-implementatie (OpenCatalogi v2.0.11 + OpenRegister v2.0.11 op `main`) heeft hetzelfde gedrag.
-:::
-
 De OpenWoo-API biedt **twee endpoints** voor tekstueel zoeken. Welke je gebruikt hangt af van wat je wilt terugvinden:
 
 - **Endpoint 1** doorzoekt alleen publicaties (op titel, samenvatting, thema en andere publicatie-velden).
