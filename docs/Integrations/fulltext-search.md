@@ -126,8 +126,32 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
 - **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicationDate` in het verleden, geen `depublicationDate` of één die nog in de toekomst ligt).
-- **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut.
+- **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~1 minuut. Blijft een document ook daarna onvindbaar op zijn inhoud, kijk dan bij [Beheer — extractie aanzetten](#beheer-extractie): op Nextcloud 33 en ouder moet de extractiemodus expliciet op `Immediate` staan.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
+
+### Beheer — extractie aanzetten en bestaande bestanden bijwerken {#beheer-extractie}
+
+Zoeken in bestandsinhoud werkt alleen als OpenRegister de tekst uit de bijlagen daadwerkelijk heeft geëxtraheerd. Op een omgeving die **Nextcloud 33 of ouder** draait — wat op dit moment geldt voor zowel de acceptatie- als de productieomgeving van OpenWoo — vereist dat een expliciete instelling.
+
+**Extractiemodus op `Immediate` zetten.** Ga naar *Instellingen → Beheer → Open Register → Text Extraction* en zet **Extraction Mode** op **Immediate**. De extractie draait dan binnen het upload-verzoek zelf. In de modi `Background Job` en `Cron Job` draait de extractie in een achtergrondtaak zonder ingelogde gebruiker; op Nextcloud 33 en ouder kan het bestand dan niet worden gevonden en wordt er stilzwijgend niets geëxtraheerd. Op Nextcloud 34 en nieuwer werken die modi wel, omdat de core het bestand daar alsnog kan herleiden.
+
+Houd er rekening mee dat `Immediate` het uploadverzoek verlengt bij grote bestanden.
+
+**Bestaande bestanden bijwerken.** De extractie wordt alleen aangeroepen bij het aanmaken of wijzigen van een bestand. Bijlagen die al bestonden voordat de instelling goed stond, worden dus niet met terugwerkende kracht opgepakt. Draai daarvoor eenmalig, als beheerder:
+
+```http
+POST https://openwoo.commonground.nu/apps/openregister/api/files/extract?limit=5000
+```
+
+Het antwoord bevat `processed`, `failed` en `total`. Herhaal de aanroep tot `processed` op `0` staat — dan zijn alle bereikbare bestanden verwerkt. Een enkel bestand bijwerken kan ook:
+
+```http
+POST https://openwoo.commonground.nu/apps/openregister/api/files/{fileId}/extract?forceReExtract=true
+```
+
+:::note Versies
+Deze functionaliteit vereist een OpenCatalogi-hotfix op de 1.x-lijn: **`1.0.9-woo-2`**. Alleen OpenCatalogi heeft een hotfix nodig; OpenRegister draait de reguliere `1.1.5`.
+:::
 
 **Voorbeeld:**
 
@@ -273,7 +297,7 @@ Response bevat een `facets`-blok met buckets per veld, geschikt voor filter-chec
 |---|---|
 | `_search=verzoek vergunning` geeft minder hits dan verwacht | Wordt als één substring behandeld, niet als twee termen. Splits client-side of laat de UI losse velden aanbieden. |
 | `_search=WOZ` matcht ook losse 'w', 'o', 'z' | Substring-match is letterlijk; korte termen produceren veel false positives. Eis minimaal 3 karakters in de UI. |
-| Inhoud van een PDF-bijlage komt niet terug | Standaard wordt alleen metadata (bestandsnaam, MIME) doorzocht. Voeg `_content=true` toe aan de query om ook body-tekst mee te nemen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search). Werkt de flag maar krijg je nog steeds niks? De OR-extractie loopt asynchroon; retry na ~1 min. |
+| Inhoud van een PDF-bijlage komt niet terug | Standaard wordt alleen metadata (bestandsnaam, MIME) doorzocht. Voeg `_content=true` toe aan de query om ook body-tekst mee te nemen — zie [Zoeken in bestandsinhoud](#zoeken-in-bestandsinhoud-content-search). Werkt de flag maar krijg je nog steeds niks? De OR-extractie loopt asynchroon; retry na ~1 min. Blijft het leeg, dan is de tekst waarschijnlijk nooit geëxtraheerd — zie [Beheer — extractie aanzetten](#beheer-extractie). |
 | Document verschijnt niet in `/api/search`-resultaten | Documenten hebben een geldige `publication`-verwijzing met `id` én `slug` nodig om in de envelope te verschijnen. |
 | `_search=café` matcht niet `cafe` | Diacritics-normalisatie is deployment-afhankelijk. Strip diacritics client-side voor consistent gedrag. |
 | Meervouden — `verzoek` vs `verzoeken` | Geen stemming, maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. |
