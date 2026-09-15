@@ -95,15 +95,15 @@ Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clien
 
 **Anonieme bezoekers** krijgen alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en waarvan `depublicationDate` in de toekomst ligt (of ontbreekt). De `total` in de envelope reflecteert die zichtbare telling, niet de brutotelling vóór filtering.
 
-**Ingelogde beheerders** zien op dit moment via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een tijdelijke drift; zie de caution hieronder.
+**Ingelogde beheerders** zien op dit moment via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een bekende afwijking van het beoogde gedrag; zie de caution hieronder.
 
-:::caution Tijdelijke drift op `/api/search` voor ingelogde callers
+:::caution Bekende afwijking op `/api/search` voor ingelogde callers
 Het beoogde eindgedrag is uniforme zichtbaarheid: `/api/search` zou zich altijd hetzelfde moeten gedragen, ongeacht of de caller een sessie heeft. Sinds OpenRegister v2.0.12 is de runtime-toggle die dit server-side afdwong (`_rbacAsPublic`) verwijderd — vervangen door schema-level `authorization.inheritFromPublic` — waardoor OpenCatalogi dit contract op dit endpoint op dit moment niet volledig kan afdwingen.
 
 - Anonieme callers — **ongewijzigd**, blijven publiek-scoped.
 - Ingelogde stafleden — zien op dit endpoint concepten (`publicationDate` in de toekomst) en objecten waar hun RBAC-rol op basis van eigenaar-schap of admin-privileges toegang toe geeft.
 
-Follow-up (`_forceAnonymous`-primitive of session-strip op dit endpoint) is belegd op [WOO-551](https://conduction.atlassian.net/browse/WOO-551). Deze pagina wordt bijgewerkt zodra de uniforme zichtbaarheid hersteld is.
+Dit is een bewuste, vastgelegde afwijking en geen bug. Toen het endpoint werd hersteld is gekozen om de drift te accepteren in plaats van de verwijderde toggle terug te bouwen — de alternatieven vragen allebei een wijziging aan OpenRegister-zijde (een primitive die de aanroep dwingt tot anonieme evaluatie, of het strippen van de sessie voor deze ene aanroep). Herstel van uniforme zichtbaarheid staat op dit moment niet ingepland. Deze pagina wordt bijgewerkt als dat verandert.
 
 **Praktisch advies:** ontwikkel je een publieke zoekpagina? Test met een niet-ingelogde sessie — dat is de definitieve resultatenset en je UI is dan toekomst-vast.
 :::
