@@ -76,13 +76,13 @@ Twee query-parameters bepalen welk deel van dat scope wordt geraakt:
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
-    ?_search=klimaat
+    ?_search=verzoek
     &_catalog=gemeente-nijmegen
 ```
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
-    ?_search=klimaat
+    ?_search=verzoek
     &_catalogi[]=gemeente-nijmegen
     &_catalogi[]=gemeente-arnhem
 ```
@@ -93,17 +93,23 @@ Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clien
 
 ### Zichtbaarheid — anoniem versus ingelogd
 
-**Anonieme bezoekers** krijgen alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en waarvan `depublicationDate` in de toekomst ligt (of ontbreekt). De `total` in de envelope reflecteert die zichtbare telling, niet de brutotelling vóór filtering.
+**Anonieme bezoekers** krijgen alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en waarvan `depublicationDate` in de toekomst ligt (of ontbreekt).
 
-**Ingelogde beheerders** zien op dit moment via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een tijdelijke drift; zie de caution hieronder.
+:::note Bekende afwijking in `total`
+`total` telt op dit moment hoger dan het aantal objecten in `results`: meerdere treffers op hetzelfde object — bijvoorbeeld een match op de titel plus meerdere tekstfragmenten uit een bijlage — worden los geteld maar samengevouwen weergegeven. Gebruik `total` voorlopig niet als exact aantal resultaten. Dit wordt verholpen; deze pagina wordt daarbij bijgewerkt.
+:::
+
+**Ingelogde beheerders** zien via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een tijdelijke drift; zie de caution hieronder.
 
 :::caution Tijdelijke drift op `/api/search` voor ingelogde callers
-Het beoogde eindgedrag is uniforme zichtbaarheid: `/api/search` zou zich altijd hetzelfde moeten gedragen, ongeacht of de caller een sessie heeft. Sinds OpenRegister v2.0.12 is de runtime-toggle die dit server-side afdwong (`_rbacAsPublic`) verwijderd — vervangen door schema-level `authorization.inheritFromPublic` — waardoor OpenCatalogi dit contract op dit endpoint op dit moment niet volledig kan afdwingen.
+Zichtbaarheid wordt volledig bepaald door de `authorization`-regels op elk schema in OpenRegister. Dat is het enige mechanisme en het is de permanente vorm: per schema leggen de `read`-regels vast wat een rol mag zien, en `authorization.inheritFromPublic` bepaalt of ingelogde gebruikers de publieke regels erven. Er is geen query-parameter waarmee een client dit kan beïnvloeden.
+
+Het beoogde eindgedrag van endpoint 2 is uniforme zichtbaarheid: hetzelfde antwoord, ongeacht of de caller een sessie heeft. Dat kan nu nog niet volledig worden afgedwongen, omdat de schema-regels geen manier bieden om één specifieke aanroep anoniem te laten evalueren.
 
 - Anonieme callers — **ongewijzigd**, blijven publiek-scoped.
-- Ingelogde stafleden — zien op dit endpoint concepten (`publicationDate` in de toekomst) en objecten waar hun RBAC-rol op basis van eigenaar-schap of admin-privileges toegang toe geeft.
+- Ingelogde stafleden — zien op dit endpoint concepten (`publicationDate` in de toekomst) en objecten waar hun RBAC-rol op basis van eigenaarschap of admin-privileges toegang toe geeft.
 
-Dit is een bewuste, tijdelijke afwijking en geen bug. Toen het endpoint werd hersteld is er eerst voor gekozen de drift te accepteren, zodat `/api/search` weer werkte voor alle callers. Herstel van uniforme zichtbaarheid is inmiddels als apart werkitem ingepland: OpenRegister krijgt een primitive terug waarmee een aanroep gedwongen anoniem geëvalueerd wordt, ongeacht de sessie van de caller. Deze pagina wordt bijgewerkt zodra dat live is.
+Dit is een bewuste, tijdelijke afwijking en geen bug. Er komt een query-parameter `_forceAnonymous=true` bij waarmee een aanroep gedwongen anoniem geëvalueerd wordt, ongeacht de sessie van de caller; endpoint 2 zal die intern altijd meesturen. **Die parameter bestaat nog niet** — gebruik hem dus nog niet in je integratie. Deze pagina wordt bijgewerkt zodra hij live is.
 
 **Praktisch advies:** ontwikkel je een publieke zoekpagina? Test met een niet-ingelogde sessie — dat is de definitieve resultatenset en je UI is dan toekomst-vast.
 :::
@@ -126,27 +132,27 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
 - **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicationDate` in het verleden, geen `depublicationDate` of één die nog in de toekomst ligt).
-- **Extractie loopt asynchroon** — vlak na upload kan een document nog niet doorzoekbaar zijn omdat de OR-indexeer-job nog niet gedraaid heeft. Retry na ~5 minuten. Blijft een document ook daarna onvindbaar op zijn inhoud, kijk dan bij [Beheer — extractie aanzetten](#beheer-extractie): op Nextcloud 33 en ouder moet de extractiemodus expliciet op `Immediate` staan.
+- **Extractie loopt standaard asynchroon** — dat is ook de aanbevolen instelling. Vlak na upload kan een document daardoor nog niet doorzoekbaar zijn omdat de indexeer-job nog niet gedraaid heeft; retry na ~5 minuten. Draait een omgeving tijdelijk synchroon (zie [Beheer — extractie aanzetten](#beheer-extractie)), dan is die wachttijd er niet, maar duurt de upload zelf langer.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
 
 **Voorbeeld:**
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
-    ?_search=stikstof
+    ?_search=verzoek
     &_content=true
     &_limit=10
 ```
 
-Retourneert publicaties én documenten waarvan óf metadata óf body-tekst "stikstof" bevat.
+Retourneert publicaties én documenten waarvan óf metadata óf body-tekst "verzoek" bevat.
 
 ### Beheer — extractie aanzetten en bestaande bestanden bijwerken {#beheer-extractie}
 
-Zoeken in bestandsinhoud werkt alleen als OpenRegister de tekst uit de bijlagen daadwerkelijk heeft geëxtraheerd. Op een omgeving die **Nextcloud 33 of ouder** draait — wat op dit moment geldt voor zowel de openwoo- als de acato-omgeving — vereist dat een expliciete instelling.
+Zoeken in bestandsinhoud werkt alleen als OpenRegister de tekst uit de bijlagen daadwerkelijk heeft geëxtraheerd.
 
-**Extractiemodus op `Immediate` zetten.** Ga naar *Instellingen → Beheer → Open Register → Text Extraction* en zet **Extraction Mode** op **Immediate**. De extractie draait dan binnen het upload-verzoek zelf. In de modi `Background Job` en `Cron Job` draait de extractie in een achtergrondtaak zonder ingelogde gebruiker; op Nextcloud 33 en ouder kan het bestand dan niet worden gevonden en wordt er stilzwijgend niets geëxtraheerd. Op Nextcloud 34 en nieuwer werken die modi wel, omdat de core het bestand daar alsnog kan herleiden.
+De standaard en de aanbeveling is **`Background Job`**: de extractie draait dan asynchroon, buiten het upload-verzoek om. Op **Nextcloud 34 en nieuwer** kun je die instelling gewoon laten staan.
 
-Houd er rekening mee dat `Immediate` het uploadverzoek verlengt bij grote bestanden.
+**Tijdelijke uitzondering voor Nextcloud 33 en ouder.** Daar draaien `Background Job` en `Cron Job` de extractie in een achtergrondtaak zonder ingelogde gebruiker, waardoor het bestand niet gevonden wordt en er stilzwijgend niets geëxtraheerd wordt. Zet op die omgevingen — waaronder op dit moment zowel de openwoo- als de acato-omgeving — *Instellingen → Beheer → Open Register → Text Extraction* → **Extraction Mode** op **Immediate**. De extractie draait dan binnen het upload-verzoek zelf, wat bij grote bestanden een tragere upload geeft. Zodra de omgeving op Nextcloud 34 of nieuwer zit, kan de instelling terug naar `Background Job`.
 
 **Bestaande bestanden bijwerken.** De extractie wordt alleen aangeroepen bij het aanmaken of wijzigen van een bestand. Bijlagen die al bestonden voordat de instelling goed stond, worden dus niet met terugwerkende kracht opgepakt. Draai daarvoor eenmalig, als beheerder:
 
@@ -172,15 +178,15 @@ De volgende regels gelden voor beide endpoints:
 |---|---|
 | `_search=verzoek` | Matcht "verzoek", "verzoeken", "Woo-verzoek", "aanvraagverzoeken" — substring op `title`/`summary`/`description` en overige tekst-velden |
 | `_search=verzoek vergunning` | Wordt als één string behandeld, **niet** als "beide woorden" |
-| `_search="evenement vergunning"` | Quotes zijn onderdeel van de match — geen phrase-operator |
+| `_search="verzoek besluit"` | Quotes zijn onderdeel van de match — geen phrase-operator |
 | `_search=verzoek OR klacht` | `OR` is gewone tekst, geen operator |
-| `_search=evenem*` | `*` is gewone tekst; zonder `*` matcht al "evenement", "evenementen", "evenementenvergunning" |
+| `_search=verzo*` | `*` is gewone tekst; zonder `*` matcht al "verzoek", "verzoeken", "Woo-verzoek" |
 | `_search=verzoek~` | `~` is gewone tekst, geen fuzzy-operator |
 
 **Wat wél klopt:**
 
 - **Case-insensitive** — `verzoek` matcht `Verzoek`, `VERZOEK`.
-- **Substring-match** — `_search=enem` matcht `evenement`, `bedrijvenemissies`.
+- **Substring-match** — `_search=erzo` matcht `verzoek`, `Woo-verzoek`.
 - **Combineerbaar met filters** — `?_search=verzoek&publicationDate[gte]=2026-01-01&_limit=20&_order[publicationDate]=desc` werkt zoals verwacht.
 
 **Praktische tips voor consumenten:**
@@ -194,7 +200,7 @@ De volgende regels gelden voor beide endpoints:
 Voor typo-tolerantie is er een aparte parameter `_fuzzy=true`:
 
 ```
-GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=evenemnt&_fuzzy=true
+GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications?_search=Demonstartie&_fuzzy=true
 ```
 
 Voegt een trigram-similariteit toe op het naamveld van elk object. Een rij komt terug als óf de gewone substring-match slaagt óf de naam voldoende lijkt op de zoekterm. Elke hit krijgt een `@self.relevance`-veld (geheel getal 0–100) — de score is de trigram-similariteit tussen zoekterm en het naamveld, dus zelfs een exacte substring-match kan een lagere score krijgen wanneer de zoekterm maar een klein deel van de volledige naam beslaat. Bij een actieve `_search` wordt standaard al op relevance aflopend gesorteerd; wil je expliciet forceren of omdraaien: `_order[_relevance]=desc` of `_order[_relevance]=asc`.
@@ -210,7 +216,7 @@ Beperkingen:
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
-    ?_search=evenementenvergunning
+    ?_search=verzoek
     &_order[publicationDate]=desc
     &_limit=10
     &_page=1
@@ -220,7 +226,7 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
-    ?_search=evenementenvergunning
+    ?_search=verzoek
     &publicationDate[gte]=2026-01-01
     &publicationDate[lte]=2026-12-31
     &_limit=20
@@ -250,7 +256,7 @@ De `buckets` in het `facets`-blok geven per voorkomend schema-ID de count.
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/search
-    ?_search=evenementenvergunning
+    ?_search=verzoek
     &_limit=10
 ```
 
@@ -260,7 +266,7 @@ Retourneert gemengde resultaten. Onderscheid maken tussen publicaties en documen
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
-    ?_search=evenem
+    ?_search=verzo
     &_limit=5
     &_unset=attachments,beschrijving,bevindingen,conclusies
 ```
@@ -271,7 +277,7 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
-    ?_search=evenemnt
+    ?_search=Demonstartie
     &_fuzzy=true
     &_order[_relevance]=desc
     &_limit=10
@@ -281,7 +287,7 @@ GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
 
 ```http
 GET https://openwoo.commonground.nu/apps/opencatalogi/api/publications
-    ?_search=evenementenvergunning
+    ?_search=verzoek
     &_facetable=true
     &_facets[@self][schema][type]=terms
     &_facets[publicationDate][type]=date_histogram
@@ -301,7 +307,7 @@ Response bevat een `facets`-blok met buckets per veld, geschikt voor filter-chec
 | Document verschijnt niet in `/api/search`-resultaten | Documenten hebben een geldige `publication`-verwijzing met `id` én `slug` nodig om in de envelope te verschijnen. |
 | `_search=café` matcht niet `cafe` | Diacritics-normalisatie is deployment-afhankelijk. Strip diacritics client-side voor consistent gedrag. |
 | Meervouden — `verzoek` vs `verzoeken` | Geen stemming, maar substring helpt: `_search=verzoek` matcht ook `verzoeken`. |
-| `_search="evenement vergunning"` doet niets bijzonders | Quotes zijn geen phrase-delimiter. Strip ze client-side. |
+| `_search="verzoek besluit"` doet niets bijzonders | Quotes zijn geen phrase-delimiter. Strip ze client-side. |
 | Volgorde lijkt willekeurig op pagina 2 | Zonder expliciete sortering is de volgorde niet gegarandeerd. Voeg altijd `&_order[<veld>]=…` toe. |
 
 ## Schrijfacties (POST / PUT / DELETE)
