@@ -149,8 +149,8 @@ Het antwoord bevat `processed`, `failed` en `total`. Herhaal de aanroep tot `pro
 POST https://openwoo.commonground.nu/apps/openregister/api/files/{fileId}/extract?forceReExtract=true
 ```
 
-:::note Versies
-Deze functionaliteit vereist een OpenCatalogi-hotfix op de 1.x-lijn: **`1.0.9-woo-2`**. Alleen OpenCatalogi heeft een hotfix nodig; OpenRegister draait de reguliere `1.1.5`.
+:::note Versies op de WOO-omgevingen
+De `_content`-parameter zelf bestaat al sinds OpenCatalogi `1.0.9`. Wat de WOO-omgevingen daarnaast nodig hadden is de hotfix **`1.0.9-woo-2`**: zonder de catalogus-scope-correctie daarin gaf `/api/search` op deze meervoudige register-inrichting stilzwijgend nul resultaten, ongeacht `_content`. Alleen OpenCatalogi heeft die hotfix nodig; OpenRegister draait de reguliere `1.1.5`.
 :::
 
 **Voorbeeld:**
