@@ -93,25 +93,19 @@ Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clien
 
 ### Zichtbaarheid — anoniem versus ingelogd
 
-**Anonieme bezoekers** krijgen alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en waarvan `depublicationDate` in de toekomst ligt (of ontbreekt).
+Zichtbaarheid wordt bepaald door de `authorization`-regels op elk schema in OpenRegister: de `read`-regels leggen per rol vast wat zichtbaar is, en `authorization.inheritFromPublic` bepaalt of ingelogde gebruikers de publieke regels erven. Een client kan dit niet via query-parameters beïnvloeden.
 
-:::note Bekende afwijking in `total`
-`total` telt op dit moment hoger dan het aantal objecten in `results`: meerdere treffers op hetzelfde object — bijvoorbeeld een match op de titel plus meerdere tekstfragmenten uit een bijlage — worden los geteld maar samengevouwen weergegeven. Gebruik `total` voorlopig niet als exact aantal resultaten. Dit wordt verholpen; deze pagina wordt daarbij bijgewerkt.
+- **Anoniem** — alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en `depublicationDate` in de toekomst ligt of ontbreekt.
+- **Ingelogd** — op endpoint 2 op dit moment óók eigen concepten en objecten waarop de rol via eigenaarschap of admin-rechten toegang heeft; dus mogelijk meer dan anoniem voor dezelfde query.
+
+:::caution Ingelogde callers zien tijdelijk meer op `/api/search`
+Het beoogde gedrag van endpoint 2 is uniforme zichtbaarheid: hetzelfde antwoord met of zonder sessie. De schema-regels bieden nu geen manier om één aanroep anoniem te laten evalueren, dus dat wordt nog niet afgedwongen. Er komt een query-parameter `_forceAnonymous=true` waarmee dat wél kan; endpoint 2 zal die intern altijd meesturen. **Die parameter bestaat nog niet** — gebruik hem niet in je integratie. Deze pagina wordt bijgewerkt zodra hij live is.
+
+**Praktisch advies:** bouw je een publieke zoekpagina, test dan met een niet-ingelogde sessie — dat is de definitieve resultatenset.
 :::
 
-**Ingelogde beheerders** zien via endpoint 2 óók hun eigen concepten en objecten waar hun account op basis van RBAC rechten op heeft — dus mogelijk meer dan een anonieme caller voor dezelfde query. Dit is een tijdelijke drift; zie de caution hieronder.
-
-:::caution Tijdelijke drift op `/api/search` voor ingelogde callers
-Zichtbaarheid wordt volledig bepaald door de `authorization`-regels op elk schema in OpenRegister. Dat is het enige mechanisme en het is de permanente vorm: per schema leggen de `read`-regels vast wat een rol mag zien, en `authorization.inheritFromPublic` bepaalt of ingelogde gebruikers de publieke regels erven. Er is geen query-parameter waarmee een client dit kan beïnvloeden.
-
-Het beoogde eindgedrag van endpoint 2 is uniforme zichtbaarheid: hetzelfde antwoord, ongeacht of de caller een sessie heeft. Dat kan nu nog niet volledig worden afgedwongen, omdat de schema-regels geen manier bieden om één specifieke aanroep anoniem te laten evalueren.
-
-- Anonieme callers — **ongewijzigd**, blijven publiek-scoped.
-- Ingelogde stafleden — zien op dit endpoint concepten (`publicationDate` in de toekomst) en objecten waar hun RBAC-rol op basis van eigenaarschap of admin-privileges toegang toe geeft.
-
-Dit is een bewuste, tijdelijke afwijking en geen bug. Er komt een query-parameter `_forceAnonymous=true` bij waarmee een aanroep gedwongen anoniem geëvalueerd wordt, ongeacht de sessie van de caller; endpoint 2 zal die intern altijd meesturen. **Die parameter bestaat nog niet** — gebruik hem dus nog niet in je integratie. Deze pagina wordt bijgewerkt zodra hij live is.
-
-**Praktisch advies:** ontwikkel je een publieke zoekpagina? Test met een niet-ingelogde sessie — dat is de definitieve resultatenset en je UI is dan toekomst-vast.
+:::note `total` telt hoger dan het aantal resultaten
+Meerdere treffers op hetzelfde object — bijvoorbeeld een titel-match plus meerdere tekstfragmenten uit een bijlage — worden los geteld in `total`, maar één keer getoond in `results`. Gebruik `total` voorlopig niet als exact aantal. Dit wordt verholpen; deze pagina wordt daarbij bijgewerkt.
 :::
 
 Wil je expliciet concepten of gedepubliceerde items zien als beheerder? Gebruik daarvoor endpoint 1 (`/api/publications` — honoreert sessie-rechten expliciet en blijft dat gedrag houden) of de OpenRegister-object-API direct.
@@ -132,7 +126,7 @@ Zonder `_content=true` blijft het gedrag ongewijzigd (metadata-only). Met de fla
 
 - **Dedup** — een document dat zowel op metadata (titel, samenvatting) als op body-tekst matcht verschijnt éénmalig in de resultaten.
 - **Zichtbaarheid** — dezelfde zichtbaarheidsregel als de metadata-only variant: een document verschijnt alleen als de gelinkte publicatie op dit moment gepubliceerd is (`publicationDate` in het verleden, geen `depublicationDate` of één die nog in de toekomst ligt).
-- **Extractie loopt standaard asynchroon** — dat is ook de aanbevolen instelling. Vlak na upload kan een document daardoor nog niet doorzoekbaar zijn omdat de indexeer-job nog niet gedraaid heeft; retry na ~5 minuten. Draait een omgeving tijdelijk synchroon (zie [Beheer — extractie aanzetten](#beheer-extractie)), dan is die wachttijd er niet, maar duurt de upload zelf langer.
+- **Extractie loopt standaard asynchroon** — dat is ook de aanbevolen instelling. Vlak na upload kan een document daardoor nog niet doorzoekbaar zijn omdat de indexeer-job nog niet gedraaid heeft; retry na ~5 minuten. Draait een omgeving synchroon — verplicht op Nextcloud 33 en ouder, zie [Beheer — extractie aanzetten](#beheer-extractie) — dan is die wachttijd er niet, maar duurt de upload zelf langer.
 - **Ranking database-afhankelijk** — content-search draait op OR's PostgreSQL `tsvector` GIN-index (met `ts_rank`-scoring). Op MariaDB werkt de wire ook maar zonder ranking — een `LIKE`-fallback levert dezelfde matches, alleen ongesorteerd.
 
 **Voorbeeld:**
@@ -152,7 +146,7 @@ Zoeken in bestandsinhoud werkt alleen als OpenRegister de tekst uit de bijlagen 
 
 De standaard en de aanbeveling is **`Background Job`**: de extractie draait dan asynchroon, buiten het upload-verzoek om. Op **Nextcloud 34 en nieuwer** kun je die instelling gewoon laten staan.
 
-**Tijdelijke uitzondering voor Nextcloud 33 en ouder.** Daar draaien `Background Job` en `Cron Job` de extractie in een achtergrondtaak zonder ingelogde gebruiker, waardoor het bestand niet gevonden wordt en er stilzwijgend niets geëxtraheerd wordt. Zet op die omgevingen — waaronder op dit moment zowel de openwoo- als de acato-omgeving — *Instellingen → Beheer → Open Register → Text Extraction* → **Extraction Mode** op **Immediate**. De extractie draait dan binnen het upload-verzoek zelf, wat bij grote bestanden een tragere upload geeft. Zodra de omgeving op Nextcloud 34 of nieuwer zit, kan de instelling terug naar `Background Job`.
+**Uitzondering voor Nextcloud 33 en ouder.** Daar draaien `Background Job` en `Cron Job` de extractie in een achtergrondtaak zonder ingelogde gebruiker, waardoor het bestand niet gevonden wordt en er stilzwijgend niets geëxtraheerd wordt. Zet op die omgevingen — waaronder op dit moment `openwoo.commonground.nu` — *Instellingen → Beheer → Open Register → Text Extraction* → **Extraction Mode** op **Immediate**. De extractie draait dan binnen het upload-verzoek zelf, wat bij grote bestanden een tragere upload geeft. Op Nextcloud 34 en nieuwer geldt de uitzondering niet en volstaat `Background Job`.
 
 **Bestaande bestanden bijwerken.** De extractie wordt alleen aangeroepen bij het aanmaken of wijzigen van een bestand. Bijlagen die al bestonden voordat de instelling goed stond, worden dus niet met terugwerkende kracht opgepakt. Draai daarvoor eenmalig, als beheerder:
 
