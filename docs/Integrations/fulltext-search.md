@@ -96,16 +96,12 @@ Onbekende slugs leveren `HTTP 200` met `"total": 0` op — geen 404, zodat clien
 Zichtbaarheid wordt bepaald door de `authorization`-regels op elk schema in OpenRegister: de `read`-regels leggen per rol vast wat zichtbaar is, en `authorization.inheritFromPublic` bepaalt of ingelogde gebruikers de publieke regels erven. Een client kan dit niet via query-parameters beïnvloeden.
 
 - **Anoniem** — alleen publicaties en documenten waarvan `publicationDate` in het verleden ligt en `depublicationDate` in de toekomst ligt of ontbreekt.
-- **Ingelogd** — op endpoint 2 op dit moment óók eigen concepten en objecten waarop de rol via eigenaarschap of admin-rechten toegang heeft; dus mogelijk meer dan anoniem voor dezelfde query.
+- **Ingelogd** — ziet op endpoint 2 hetzelfde als anoniem. Endpoint 2 evalueert de zichtbaarheid altijd als een anonieme aanroep, ook als er een sessie meekomt.
 
-:::caution Ingelogde callers zien tijdelijk meer op `/api/search`
-Het beoogde gedrag van endpoint 2 is uniforme zichtbaarheid: hetzelfde antwoord met of zonder sessie. De schema-regels bieden nu geen manier om één aanroep anoniem te laten evalueren, dus dat wordt nog niet afgedwongen. Er komt een query-parameter `_forceAnonymous=true` waarmee dat wél kan; endpoint 2 zal die intern altijd meesturen. **Die parameter bestaat nog niet** — gebruik hem niet in je integratie. Deze pagina wordt bijgewerkt zodra hij live is.
+:::note `total` en `facets` bij zoeken in bestandsinhoud
+`total` is het aantal unieke objecten dat je krijgt als je doorpagineert tot het einde, en het is op elke pagina hetzelfde getal. Meerdere treffers op hetzelfde object, zoals een titel-match plus tekstfragmenten uit een bijlage, tellen één keer.
 
-**Praktisch advies:** bouw je een publieke zoekpagina, test dan met een niet-ingelogde sessie — dat is de definitieve resultatenset.
-:::
-
-:::note `total` telt hoger dan het aantal resultaten
-Meerdere treffers op hetzelfde object — bijvoorbeeld een titel-match plus meerdere tekstfragmenten uit een bijlage — worden los geteld in `total`, maar één keer getoond in `results`. Gebruik `total` voorlopig niet als exact aantal. Dit wordt verholpen; deze pagina wordt daarbij bijgewerkt.
+`facets` beschrijven alleen de treffers op metadata. Een object dat alleen via de tekst van een bijlage gevonden wordt, staat wel in `results` en telt mee in `total`, maar niet in de buckets van `facets`.
 :::
 
 Wil je expliciet concepten of gedepubliceerde items zien als beheerder? Gebruik daarvoor endpoint 1 (`/api/publications` — honoreert sessie-rechten expliciet en blijft dat gedrag houden) of de OpenRegister-object-API direct.
